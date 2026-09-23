@@ -78,3 +78,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S18 — 23/09/2026 — Apagado del indicador rojo (OpenCode)
 - El rojo era `.react-aria-SelectionIndicator` (verificado en el bundle 1.64, no el borde del botón): `transparent !important`. Queda solo el subrayado negro. Smoke OK.
+
+## S19 — 23/09/2026 — Sistema de diseño corporativo (OpenCode)
+- Inter (texto) + Montserrat 800 (títulos); todo a MAYÚSCULAS por CSS salvo inputs/código; texto `#000000` vía tema (crema `!important` solo dentro de tarjetas oscuras); cero emojis verificado por script; métricas sustituidas por cajas negras cuadradas `stat_box()` (st.metric no tiene hook en 1.64); tagline en cursiva. Smoke OK, pytest 13/13, E2E OK.
