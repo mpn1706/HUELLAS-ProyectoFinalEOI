@@ -91,6 +91,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S34 — 23/09/2026 — NameError con alertas (OpenCode)
 - `logp` quedó indentado en el `else`: crash justo cuando HAY notificaciones (reproducido en Cloud tras buscar). Fix + test con fila real + limpieza. Pytest 17/17, smoke OK.
 
+## S35 — 23/09/2026 — Alertas sin duplicados + flujo fotos reales (OpenCode)
+- Notifier con upsert por par (misma score se ignora, distinta se actualiza) + 4 tests. Infra fotos: `backfill_embeddings()` + `compute_embeddings.py` (torch solo local) + `embeddings.json` versionado; README con flujo y nota de licencias. Pytest 21/21, E2E 96.6%, smoke OK.
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 

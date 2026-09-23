@@ -16,7 +16,15 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
 - **Automatización**: al registrar o buscar, si un candidato supera el 85% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos >30 días" (`expire_old()`, sin cron).
-- **Administración** (pestaña Administrar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. Contraseña: Secrets `ADMIN_PASSWORD` en Cloud, o variable `HUELLAS_ADMIN_PASSWORD`, o defecto local `huellas123`.
+- **Administración** (sidebar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. Contraseña: Secrets `ADMIN_PASSWORD` en Cloud, o variable `HUELLAS_ADMIN_PASSWORD`, o defecto local `huellas123`.
+- Las alertas no se duplican: un par (aviso, candidato) genera una sola fila (se actualiza si cambia el score).
+
+## Fotos reales del seed
+
+1. Consigue JPG propias o de licencia libre (no valen fotos ajenas de redes), ≤800px y <500KB, nombradas por aviso (`found_001.jpg`…) en `data/seed/images/`, y apunta `image_url` en su JSON.
+2. `pip install torch --index-url https://download.pytorch.org/whl/cpu` + `pip install transformers pillow` (solo local).
+3. `python scripts/compute_embeddings.py` → genera `data/seed/embeddings.json` (vectores CLIP reales, viajan en git; Cloud los usa sin torch).
+4. Commit de imágenes + JSONs + `embeddings.json`.
 - Corpus demo propio de **17 avisos de Jerez** (5 lost + 12 found), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)

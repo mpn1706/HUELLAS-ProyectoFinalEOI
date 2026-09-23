@@ -308,6 +308,8 @@ def ensure_db():
                     dbmod.upsert_aviso(con, normalize_aviso(json.loads(fp.read_text(encoding="utf-8"))))
                     total += 1
         st.toast(f"Seed cargada: {total} avisos.")
+    from agents.vision import backfill_embeddings
+    backfill_embeddings(con)
     return con
 
 

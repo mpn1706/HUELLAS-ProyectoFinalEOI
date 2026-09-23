@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT))
 
 from agents.db import connect, upsert_aviso  # noqa: E402
 from agents.ingestor import normalize_aviso  # noqa: E402
+from agents.vision import backfill_embeddings  # noqa: E402
 
 
 def main(db_path: str = "data/huellas.db"):
@@ -19,7 +20,8 @@ def main(db_path: str = "data/huellas.db"):
             raw = json.loads(fp.read_text(encoding="utf-8"))
             upsert_aviso(con, normalize_aviso(raw))
             n += 1
-    print(f"seed cargado: {n} avisos en {db_path}")
+    e = backfill_embeddings(con)
+    print(f"seed cargado: {n} avisos + {e} embeddings en {db_path}")
 
 
 if __name__ == "__main__":
