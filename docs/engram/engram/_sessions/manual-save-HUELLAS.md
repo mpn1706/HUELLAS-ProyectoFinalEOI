@@ -11,3 +11,4 @@ tags:
 - [[huellas-s40-evidencia-proceso-ia-63]]
 - [[huellas-s41-perdidos-chinchetas-alertas-conteo-64]]
 - [[huellas-s42-botonera-negra-roja-65]]
+- [[huellas-s43-sidebar-leyenda-retirada-demo-66]]

@@ -159,3 +159,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S42 — 24/09/2026 — Botonera según feedback (Muse Spark)
 - Las 3 cajas negras SON los botones (`5 · PERDIDOS ACTIVOS`, etc., secondary oscuros): navegan directo, sin "Ver perdidos…" debajo. Las rojas (`Publicar aviso` / `Buscar a mi mascota`, primary) suben justo debajo de las negras, centradas; se retira la botonera inferior duplicada y el submit de Publicar pasa a "Confirmar y publicar".
 - Verificación: pytest 27/27, smoke 5 páginas OK.
+
+## S43 — 24/09/2026 — Sidebar, leyenda, etiquetas y retirada demo (Muse Spark)
+- Sidebar: fórmula en markdown blanco en negrita (antes `st.code` con scroll horizontal) + 4 cajas negras 2×2 (≥85% ALERTA · ≥65% EN LISTA · RADIO 15 KM · VENTANA 30 DÍAS) en blanco.
+- Mapa: `pin_color()` verde = encontrados, azul = perdidos activos, rojo = tu mascota; DESTACADA ≥85% en el popup; leyenda al lado del mapa (columnas 5:1) y pre-búsqueda con otros perdidos en azul.
+- Botoneras: `PERDIDOS ACTIVOS (5)`, `ENCONTRADOS (10)`, `ALERTAS (1)`.
+- Alerta demo retirada (no era el mismo gato): fuera `ensure_demo_alert()` + botón demo; nuevo `retirar_alerta_demo()` borra la fila 0.963 en local y Cloud con traza en log; Alertas solo muestra reales ≥85% (vacía hasta que el alumno suba foto correcta).
+- Verificación: pytest 27/27, smoke 5 páginas OK, demo local eliminada (0 alertas).

@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-23T23:09:32Z",
+  "last_export_at": "2026-09-23T23:25:40Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -10,7 +10,8 @@
     "62": "huellas\\manual\\huellas-captura-automatica-engram-62.md",
     "63": "huellas\\manual\\huellas-s40-evidencia-proceso-ia-63.md",
     "64": "huellas\\manual\\huellas-s41-perdidos-chinchetas-alertas-conteo-64.md",
-    "65": "huellas\\manual\\huellas-s42-botonera-negra-roja-65.md"
+    "65": "huellas\\manual\\huellas-s42-botonera-negra-roja-65.md",
+    "66": "huellas\\manual\\huellas-s43-sidebar-leyenda-retirada-demo-66.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

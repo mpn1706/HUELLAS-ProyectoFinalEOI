@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-23 23:09:33",
+  "exported_at": "2026-09-23 23:25:41",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1249,6 +1249,21 @@
       "last_seen_at": "2026-09-23 23:09:32",
       "created_at": "2026-09-23 23:09:32",
       "updated_at": "2026-09-23 23:09:32"
+    },
+    {
+      "id": 66,
+      "sync_id": "obs-6d5a905e92d2c3f7",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S43 sidebar leyenda retirada demo",
+      "content": "S43 24/09/2026 (Muse Spark): sidebar formula en markdown + 4 cajas negras 2x2 blancas, mapa verde=encontrados azul=perdidos rojo=query con leyenda al lado y otros perdidos en pre-busqueda, botones NOMBRE (n), retirada alerta demo incorrecta (retirar_alerta_demo + log). Pytest 27/27, smoke OK, 0 alertas.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-23 23:25:40",
+      "created_at": "2026-09-23 23:25:40",
+      "updated_at": "2026-09-23 23:25:40"
     }
   ],
   "prompts": [
@@ -2803,6 +2818,14 @@
       "content": "Los botones de PUBLICAR AVISO y BUSCAR A MI MASCOTA debe aparecer justo abajo de 5\nPerdidos activos\n10\nEncontrados\n1\nAlertas ≥85%. Los botones de 5\nPerdidos activos\n10\nEncontrados\n1\nAlertas ≥85%  deben por si solos permitir seleccionarse y la redirección a sus secciones sin necesariamente abajo aparezca ver perdidos (5), etc.",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-23 23:07:45"
+    },
+    {
+      "id": 195,
+      "sync_id": "prompt-afe8b10aa5439b80",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "- Mejora la visibilidad del funcionamiento web que aparece en la barra lateral: pon ≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días en blanco y repártelos en dos filas de dos columnas cada una con buena separación entre ambos ; haz que se pueda visualizar 0.40·visual + 0.30·geo.\n+ 0.20·texto + 0.10·temporal sin necesidad de desplazar la barra a la derecha. - El color de las chichetas debe ser diferente para los encontrados y para los casos de perdidos activos, ejemplo, verde y azul respectivamente. Añade al lado una leyenda.\n\n- En las botoneras, haz que aparezca entre paréntesis el numero tal que así : PERDIDOS ACTIVOS (5), ENCONTRADOS (10), ALERTAS (1) - La alerta es incorrecta, no son el mismo gato, ya nos encargaremos crear una que sea correcta con otra foto de alguno de los animales.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-23 23:22:20"
     }
   ]
 }

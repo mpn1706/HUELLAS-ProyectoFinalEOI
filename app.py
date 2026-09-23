@@ -315,85 +315,101 @@ def ensure_db():
     return con
 
 
-def ensure_demo_alert(con, force: bool = False):
-    """Garantiza 1 alerta demo visible (lost_001 → found_001).
+def retirar_alerta_demo(con) -> int:
+    """Elimina la fila demo incorrecta (lost_001 → found_001, 0.963).
 
-    Usa los embeddings ya precargados (embeddings.json → backfill), sin
-    torch: en local da ~96% y en Cloud también supera el 85%.
-    Si el cálculo falla o no llega al umbral, inserta la fila demo con
-    el score E2E conocido para que Alertas nunca salga vacía en la demo.
-    Trazable a REQ-08 + ÉXITO-01.
+    El alumno confirmó que no es el mismo gato: la demo se retira y
+    Alertas solo mostrará notificaciones reales ≥85%. Se deja traza en
+    el log. Trazable a REQ-08.
     """
     try:
-        n = con.execute("SELECT COUNT(*) FROM notifications").fetchone()[0]
-    except Exception:
-        return 0
-    if n > 0 and not force:
-        return 0
-    try:
-        q = dbmod.get_aviso(con, "lost_001")
-        cands = dbmod.get_active_opuestos(con, "lost")
-        if q and cands:
-            ms = retrieve(q, cands, lambda a: a.get("image_embedding"), semantic_similarity)
-            nuevos = notificar(con, q["id"], ms)
-            if nuevos:
-                return len(nuevos)
-    except Exception:
-        pass
-    try:
-        row = con.execute(
-            "SELECT score FROM notifications WHERE aviso_id='lost_001' AND candidato_id='found_001'"
-        ).fetchone()
-        if row and not force:
-            return 0
-        if row:
-            con.execute(
-                "UPDATE notifications SET score=0.963 WHERE aviso_id='lost_001' AND candidato_id='found_001'")
-        else:
-            dbmod.save_notification(con, "lost_001", "found_001", 0.963)
+        cur = con.execute(
+            "DELETE FROM notifications WHERE aviso_id='lost_001' AND candidato_id='found_001'"
+            " AND ABS(score - 0.963) < 1e-9")
         con.commit()
-        try:
-            with open("data/notifications.log", "a", encoding="utf-8") as _lf:
-                _lf.write("lost_001 -> found_001 0.9630 #demo-referencia\n")
-        except OSError:
-            pass
-        return 1
+        if cur.rowcount:
+            try:
+                with open("data/notifications.log", "a", encoding="utf-8") as _lf:
+                    _lf.write("#demo-referencia retirada: no era el mismo animal\n")
+            except OSError:
+                pass
+        return cur.rowcount
     except Exception:
         return 0
 
 
-def render_mapa_avistados(q: dict, items: list, key: str, zoom: int = 13):
-    """Mapa Leaflet con chinchetas: perdido (rojo) + avistados (verde≥85 / azul).
+def pin_color(a: dict) -> str:
+    """Verde = encontrados · azul = perdidos activos (el query va en rojo).
 
-    Cada chincheta lleva tooltip corto + popup con animal, dirección y
-    distancia. Si folium no está, muestra aviso sin romper la app.
+    Las destacadas ≥85% se anuncian en el popup, sin cambiar el color.
+    """
+    return "green" if a.get("type") == "found" else "blue"
+
+
+def leyenda_mapa():
+    """Leyenda al lado del mapa: rojo = tu mascota, azul = perdidos, verde = encontrados."""
+    st.markdown(
+        '<div style="background:#23201B;border-radius:10px;padding:.6rem .5rem;font-size:.72rem;'
+        'font-weight:700;color:#FFFFFF;line-height:2.1;">'
+        '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
+        'background:#E30613;margin-right:.4rem;"></span>TU MASCOTA</div>'
+        '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
+        'background:#3388FF;margin-right:.4rem;"></span>PERDIDOS</div>'
+        '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
+        'background:#35AC46;margin-right:.4rem;"></span>ENCONTRADOS</div>'
+        '<div style="font-weight:400;font-size:.68rem;line-height:1.5;margin-top:.3rem;">'
+        'PULSA CADA CHINCHETA PARA VER DIRECCIÓN Y DISTANCIA.</div></div>',
+        unsafe_allow_html=True)
+
+
+def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | None = None,
+                          zoom: int = 13):
+    """Mapa Leaflet con chinchetas + leyenda al lado.
+
+    Roja = tu mascota · azules = perdidos activos · verdes = encontrados.
+    Cada chincheta lleva tooltip corto + popup con animal, dirección,
+    distancia y marca DESTACADA si ≥85%. Si folium no está, aviso sin romper.
     """
     try:
         import folium
         from streamlit_folium import st_folium
 
-        fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=zoom)
-        folium.Marker(
-            [q["location"]["lat"], q["location"]["lng"]],
-            tooltip=f"PERDIDO {q['id']}",
-            popup=f"PERDIDO {q['id']} · {q['location'].get('address_text', '')}",
-            icon=folium.Icon(color="red"),
-        ).add_to(fmap)
-        for it in items:
-            c = it.get("candidato", it)
-            score = it.get("score")
-            color = "green" if (score is not None and score >= 0.85) else "blue"
-            etiqueta = f"{c['id']}" + (f" {score*100:.0f}%" if score is not None else "")
-            detalle = (f"{c['id']} · {animal_tag(c)} · "
-                       f"{c['location'].get('address_text', '')}"
-                       + (f" · {it.get('dist_km')} km" if it.get("dist_km") is not None else ""))
+        c_map, c_leg = st.columns([5, 1])
+        with c_map:
+            fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=zoom)
             folium.Marker(
-                [c["location"]["lat"], c["location"]["lng"]],
-                tooltip=etiqueta,
-                popup=detalle,
-                icon=folium.Icon(color=color),
+                [q["location"]["lat"], q["location"]["lng"]],
+                tooltip=f"PERDIDO {q['id']}",
+                popup=f"TU MASCOTA · {q['id']} · {q['location'].get('address_text', '')}",
+                icon=folium.Icon(color="red"),
             ).add_to(fmap)
-        st_folium(fmap, key=key, width=900, height=450)
+            for o in otros_lost or []:
+                if o["id"] == q["id"]:
+                    continue
+                folium.Marker(
+                    [o["location"]["lat"], o["location"]["lng"]],
+                    tooltip=f"PERDIDO {o['id']}",
+                    popup=f"PERDIDO {o['id']} · {animal_tag(o)} · "
+                          f"{o['location'].get('address_text', '')}",
+                    icon=folium.Icon(color="blue"),
+                ).add_to(fmap)
+            for it in items:
+                c = it.get("candidato", it)
+                score = it.get("score")
+                marca = " · DESTACADA" if (score is not None and score >= 0.85) else ""
+                etiqueta = f"{c['id']}" + (f" {score*100:.0f}%" if score is not None else "")
+                detalle = (f"{c['id']}{marca} · {animal_tag(c)} · "
+                           f"{c['location'].get('address_text', '')}"
+                           + (f" · {it.get('dist_km')} km" if it.get("dist_km") is not None else ""))
+                folium.Marker(
+                    [c["location"]["lat"], c["location"]["lng"]],
+                    tooltip=etiqueta,
+                    popup=detalle,
+                    icon=folium.Icon(color=pin_color(c)),
+                ).add_to(fmap)
+            st_folium(fmap, key=key, width=900, height=450)
+        with c_leg:
+            leyenda_mapa()
     except Exception as e:
         st.caption(f"Mapa no disponible ({e}).")
 
@@ -466,7 +482,7 @@ else:
         st.markdown(f'<p class="huellas-tagline">{SUBTITLE}</p>', unsafe_allow_html=True)
 
 con = ensure_db()
-ensure_demo_alert(con)
+retirar_alerta_demo(con)
 
 n_lost = con.execute("SELECT COUNT(*) FROM avisos WHERE status='active' AND type='lost'").fetchone()[0]
 n_lost_total = con.execute("SELECT COUNT(*) FROM avisos WHERE type='lost'").fetchone()[0]
@@ -487,15 +503,15 @@ def nav_to(dest: str):
 # ── Navegación superior: botones negros (cuenta + acceso directo) ──────
 m1, m2, m3 = st.columns(3)
 with m1:
-    st.button(f"{n_lost} · PERDIDOS ACTIVOS", key="nav_perdidos",
+    st.button(f"PERDIDOS ACTIVOS ({n_lost})", key="nav_perdidos",
               use_container_width=True, on_click=nav_to, args=("perdidos",),
               help="Ir a perdidos activos")
 with m2:
-    st.button(f"{n_found} · ENCONTRADOS", key="nav_encontrados",
+    st.button(f"ENCONTRADOS ({n_found})", key="nav_encontrados",
               use_container_width=True, on_click=nav_to, args=("encontrados",),
               help="Ir a encontrados")
 with m3:
-    st.button(f"{n_notif} · ALERTAS ≥85%", key="nav_alertas",
+    st.button(f"ALERTAS ({n_notif})", key="nav_alertas",
               use_container_width=True, on_click=nav_to, args=("alertas",),
               help="Ir a alertas")
 # ── Justo debajo: PUBLICAR + BUSCAR, centrados y rojos ─────────────────
@@ -514,8 +530,25 @@ st.caption(f"Seed v{dbmod.SEED_VERSION} · {n_total} avisos totales "
 with st.sidebar:
     st.subheader("Funcionamiento web")
     with st.expander("Cómo puntúa (fórmula cerrada)"):
-        st.code("0.40·visual + 0.30·geo\n+ 0.20·texto + 0.10·temporal")
-        st.caption("≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días")
+        st.markdown("**0.40·VISUAL + 0.30·GEO + 0.20·TEXTO + 0.10·TEMPORAL**")
+        u1, u2 = st.columns(2)
+        with u1:
+            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                        'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                        '≥85%<br>ALERTA</div>', unsafe_allow_html=True)
+        with u2:
+            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                        'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                        '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
+        u3, u4 = st.columns(2)
+        with u3:
+            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                        'text-align:center;color:#FFFFFF;font-weight:800;">'
+                        'RADIO<br>15 KM</div>', unsafe_allow_html=True)
+        with u4:
+            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                        'text-align:center;color:#FFFFFF;font-weight:800;">'
+                        'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
     with st.expander("Aviso legal"):
         st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
                  "Una imagen no permite confirmar la identidad, verifique en persona.")
@@ -535,7 +568,7 @@ with st.sidebar:
         from agents.vision import backfill_embeddings as _bf
 
         _bf(con2)
-        ensure_demo_alert(con2, force=True)
+        retirar_alerta_demo(con2)
         st.success(f"Seed v{dbmod.SEED_VERSION} cargada: {total} avisos "
                    f"(5 perdidos activos + 1 resuelto demo + 10 encontrados).")
         st.rerun()
@@ -697,9 +730,9 @@ if page == "buscar":
                 st.write(f"- {q['location'].get('address_text', '')}")
 
         st.subheader("Avistados cerca de tu zona")
-        st.caption("Chinchetas azules: animales encontrados activos. "
-                   "Roja: tu mascota. Pulsa cada chincheta para ver dirección.")
-        render_mapa_avistados(q, dbmod.get_active_opuestos(con, "lost"), key="cerca_map")
+        st.caption("Chinchetas verdes: encontrados · azules: otros perdidos · roja: tu mascota.")
+        render_mapa_avistados(q, dbmod.get_active_opuestos(con, "lost"), key="cerca_map",
+                              otros_lost=all_lost)
 
         st.subheader("2. Foto actual (opcional)")
         foto_q = st.file_uploader("Sube una foto reciente para afinar la búsqueda visual",
@@ -761,8 +794,7 @@ if page == "buscar":
                         st.code(explain(m))
             if visibles:
                 st.subheader("Mapa de candidatos")
-                st.caption("Verde ≥85% (alerta) · azul en lista · roja tu mascota. "
-                           "Pulsa cada chincheta para ver dirección y distancia.")
+                st.caption("Verdes: encontrados (DESTACADA si ≥85%) · roja: tu mascota.")
                 render_mapa_avistados(q, visibles, key="res_map")
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
@@ -895,15 +927,10 @@ if page == "publicar":
 # ── Página: Alertas ───────────────────────────────────────────────────
 if page == "alertas":
     st.subheader("Alertas automáticas (score ≥85%)")
-    st.caption("Incluye 1 fila demo precargada (lost_001 → found_001, 96.3% con modelos completos) "
-               "para la defensa. En este equipo sin sentence-transformers el mismo par da 79.8% "
-               "(top-1 correcto, en lista pero bajo el umbral de alerta).")
     rows = con.execute("SELECT * FROM notifications ORDER BY id DESC LIMIT 50").fetchall()
     if not rows:
-        st.info("Aún no hay alertas. Pulsa el botón para generar la demo (lost_001 → found_001).")
-        if st.button("Generar alerta demo", type="primary"):
-            ensure_demo_alert(con, force=True)
-            st.rerun()
+        st.info("Aún no hay alertas. Lanza una búsqueda: si algún candidato supera el 85%, "
+                "aparecerá aquí como posible coincidencia destacada.")
     else:
         stat_box(len(rows), "Total alertas")
         for r in rows:
