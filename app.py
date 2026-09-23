@@ -484,20 +484,28 @@ def nav_to(dest: str):
     st.session_state.page = dest
 
 
-# ── Navegación superior: cajas negras clicables (perdidos / encontrados / alertas) ──
+# ── Navegación superior: botones negros (cuenta + acceso directo) ──────
 m1, m2, m3 = st.columns(3)
 with m1:
-    stat_box(n_lost, "Perdidos activos")
-    st.button(f"Ver perdidos ({n_lost})", key="nav_perdidos",
-              use_container_width=True, on_click=nav_to, args=("perdidos",))
+    st.button(f"{n_lost} · PERDIDOS ACTIVOS", key="nav_perdidos",
+              use_container_width=True, on_click=nav_to, args=("perdidos",),
+              help="Ir a perdidos activos")
 with m2:
-    stat_box(n_found, "Encontrados")
-    st.button(f"Ver encontrados ({n_found})", key="nav_encontrados",
-              use_container_width=True, on_click=nav_to, args=("encontrados",))
+    st.button(f"{n_found} · ENCONTRADOS", key="nav_encontrados",
+              use_container_width=True, on_click=nav_to, args=("encontrados",),
+              help="Ir a encontrados")
 with m3:
-    stat_box(n_notif, "Alertas ≥85%")
-    st.button(f"Ver alertas ({n_notif})", key="nav_alertas",
-              use_container_width=True, on_click=nav_to, args=("alertas",))
+    st.button(f"{n_notif} · ALERTAS ≥85%", key="nav_alertas",
+              use_container_width=True, on_click=nav_to, args=("alertas",),
+              help="Ir a alertas")
+# ── Justo debajo: PUBLICAR + BUSCAR, centrados y rojos ─────────────────
+_, b1, b2, _ = st.columns([1, 2, 2, 1])
+with b1:
+    st.button("Publicar aviso", key="top_publicar", type="primary",
+              use_container_width=True, on_click=nav_to, args=("publicar",))
+with b2:
+    st.button("Buscar a mi mascota", key="top_buscar", type="primary",
+              use_container_width=True, on_click=nav_to, args=("buscar",))
 st.caption(f"Seed v{dbmod.SEED_VERSION} · {n_total} avisos totales "
            f"({n_lost} perdidos activos + {n_lost_res} resuelto demo + {n_found} encontrados). "
            f"Los contadores muestran activos, que son los que entran en matching.")
@@ -863,7 +871,7 @@ if page == "publicar":
         with st.expander("Ajuste manual de coordenadas"):
             st.number_input("Latitud", format="%.4f", key="reg_lat")
             st.number_input("Longitud", format="%.4f", key="reg_lon")
-    if st.button("Publicar aviso", type="primary"):
+    if st.button("Confirmar y publicar", type="primary"):
         try:
             lat = float(st.session_state.get("reg_lat", 36.6826))
             lng = float(st.session_state.get("reg_lon", -6.1376))
@@ -921,14 +929,4 @@ if page == "alertas":
     if logp.exists():
         with st.expander("Ver log técnico"):
             st.code(logp.read_text(encoding="utf-8")[-2000:])
-
-# ── Botonera inferior: solo PUBLICAR + BUSCAR, centrados y rojos ──────
-st.divider()
-_, b1, b2, _ = st.columns([1, 2, 2, 1])
-with b1:
-    st.button("Publicar aviso", key="bottom_publicar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("publicar",))
-with b2:
-    st.button("Buscar a mi mascota", key="bottom_buscar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("buscar",))
 

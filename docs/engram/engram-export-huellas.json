@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-23 22:56:56",
+  "exported_at": "2026-09-23 23:09:33",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1234,6 +1234,21 @@
       "last_seen_at": "2026-09-23 22:56:56",
       "created_at": "2026-09-23 22:56:56",
       "updated_at": "2026-09-23 22:56:56"
+    },
+    {
+      "id": 65,
+      "sync_id": "obs-d2243bf5a8111936",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S42 botonera negra-roja",
+      "content": "S42 24/09/2026 (Muse Spark): feedback alumno, cajas negras son los botones de navegacion (sin Ver... debajo), rojas Publicar/Buscar justo debajo centradas, retirada botonera inferior, submit renombrado a Confirmar y publicar. Pytest 27/27, smoke OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-23 23:09:32",
+      "created_at": "2026-09-23 23:09:32",
+      "updated_at": "2026-09-23 23:09:32"
     }
   ],
   "prompts": [
@@ -2772,6 +2787,22 @@
       "content": "Okey, seguimos enotonce con el proyecto. Quiero los siguientes cambios: - chinchetas o algo similar en mapa de búsqueda para los animales avistados en esa dirección\n\n- hay 16 avisos en cargar seed jerez y en la suma de perdidos y encontrados solo son 15, soluciona eso\n\n- haz que aparezca alguna demostración en alertas\n\n- Genera una sección solo para perdidos activos, de manera que se puedan visualizar al igual que los encontrados o las alertas. De todos modos, creo que lo ideal es que se acceda a perdidos activos, encontrados y a alertas clicando directamente sobre los botones negros. Abajo que solo quede PUBLICAR AVISO y BUSCAR A MI MASCOTA alineados justo al centro  y con botones rojos, así será todo más visual.",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-23 22:51:17"
+    },
+    {
+      "id": 193,
+      "sync_id": "prompt-dc02ba44fdf63908",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "yo no lo veo actualizado en https://huellas.streamlit.app/",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-23 23:03:39"
+    },
+    {
+      "id": 194,
+      "sync_id": "prompt-492337be565b6931",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Los botones de PUBLICAR AVISO y BUSCAR A MI MASCOTA debe aparecer justo abajo de 5\nPerdidos activos\n10\nEncontrados\n1\nAlertas ≥85%. Los botones de 5\nPerdidos activos\n10\nEncontrados\n1\nAlertas ≥85%  deben por si solos permitir seleccionarse y la redirección a sus secciones sin necesariamente abajo aparezca ver perdidos (5), etc.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-23 23:07:45"
     }
   ]
 }

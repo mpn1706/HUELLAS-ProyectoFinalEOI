@@ -155,3 +155,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Alertas demo: `ensure_demo_alert()` precarga lost_001→found_001 si la tabla está vacía + botón "Generar alerta demo" + tarjetas con fotos (antes tabla vacía + solo tabla). Honesto: sin sentence-transformers el par da 79.8% (top-1 OK, bajo umbral); la demo usa 96.3% de referencia con modelos completos y log `#demo-referencia`.
 - Navegación: fuera `st.tabs` (4); ahora `session_state.page` con 5 páginas (buscar/perdidos/encontrados/alertas/publicar): 3 botones negros arriba con conteos + 2 rojos primary centrados abajo (Publicar / Buscar). Nueva página Perdidos con filtro y tarjetas como Encontrados.
 - Verificación: pytest 27/27, smoke 5 páginas OK, E2E found_001 top-1 79.8% ≥65%. `smoke_app.py` recorre las 5 páginas.
+
+## S42 — 24/09/2026 — Botonera según feedback (Muse Spark)
+- Las 3 cajas negras SON los botones (`5 · PERDIDOS ACTIVOS`, etc., secondary oscuros): navegan directo, sin "Ver perdidos…" debajo. Las rojas (`Publicar aviso` / `Buscar a mi mascota`, primary) suben justo debajo de las negras, centradas; se retira la botonera inferior duplicada y el submit de Publicar pasa a "Confirmar y publicar".
+- Verificación: pytest 27/27, smoke 5 páginas OK.
