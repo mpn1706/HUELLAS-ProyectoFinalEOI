@@ -1,7 +1,8 @@
-"""MascotasLost&Found — MVP Streamlit (REQ-09, CU-01..CU-05).
+"""HUELLAS — MascotasLost&Found (Jerez de la Frontera).
 
-Ejecución local: streamlit run app.py
-Habla solo español. Nunca afirma identidad: solo "posible coincidencia".
+MVP Streamlit — REQ-09, CU-01..CU-05.
+Nunca afirma identidad: solo "posible coincidencia" + aviso legal.
+Logo: assets/logo.png si existe (si no, huella 🐾).
 """
 from pathlib import Path
 
@@ -16,10 +17,11 @@ from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
 
 DB = "data/huellas.db"
+LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
+             if Path(p).exists()), None)
+ANIMAL_EMOJI = {"dog": "🐶", "cat": "🐱", "other": "🐾"}
+
 st.set_page_config(page_title="HUELLAS", page_icon="🐾", layout="wide")
-st.title("🐾 HUELLAS")
-st.subheader("MascotasLost&Found — Jerez de la Frontera")
-st.caption("Sistema de posibles coincidencias lost ↔ found. " + AVISO_LEGAL)
 
 
 def show_image(path: str, caption: str = ""):
@@ -35,12 +37,7 @@ def get_con():
 
 
 def ensure_db():
-    """Conecta y auto-carga el seed si la DB está vacía.
-
-    En Streamlit Cloud el filesystem es efímero y data/huellas.db no viaja
-    en el repo (gitignored): los JSON de data/seed sí, así que la app se
-    auto-abastece sin comandos ni secretos. Trazable a REQ-03.8 + REQ-09.
-    """
+    """Conecta y auto-carga el seed si la DB está vacía (Cloud: filesystem efímero)."""
     import json
 
     con = get_con()
@@ -77,46 +74,83 @@ def visual_fn_factory():
     return fn
 
 
+def animal_tag(a: dict) -> str:
+    return f"{ANIMAL_EMOJI.get(a.get('animal'), '🐾')} {a.get('animal')} · {a.get('color_primary')} · {a.get('size')}"
+
+
+def etiqueta_corta(a: dict) -> str:
+    return f"[{a['id']}] {animal_tag(a)}"
+
+
+# ── Cabecera ──────────────────────────────────────────────────────────
+hc1, hc2 = st.columns([1, 6])
+with hc1:
+    if LOGO:
+        st.image(LOGO, use_container_width=True)
+    else:
+        st.markdown("# 🐾")
+with hc2:
+    st.title("HUELLAS")
+    st.caption("MascotasLost&Found · Jerez de la Frontera — Encuentra a tu mascota entre los avisos de encontrados. " + AVISO_LEGAL)
+
+con = ensure_db()
+
+n_lost = con.execute("SELECT COUNT(*) FROM avisos WHERE status='active' AND type='lost'").fetchone()[0]
+n_found = con.execute("SELECT COUNT(*) FROM avisos WHERE status='active' AND type='found'").fetchone()[0]
+n_notif = con.execute("SELECT COUNT(*) FROM notifications").fetchone()[0]
+m1, m2, m3 = st.columns(3)
+m1.metric("🔴 Perdidos activos", n_lost)
+m2.metric("🟢 Encontrados activos", n_found)
+m3.metric("🔔 Alertas ≥85%", n_notif)
+
+# ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
-    st.header("Datos demo")
-    if st.button("Cargar seed Jerez (17 avisos)"):
+    if LOGO:
+        st.image(LOGO, use_container_width=True)
+    st.header("🐾 HUELLAS")
+    st.caption("Asistente de búsqueda lost ↔ found")
+    with st.expander("⚙️ Cómo puntúa (fórmula cerrada)"):
+        st.code("0.40·visual + 0.30·geo\n+ 0.20·texto + 0.10·temporal")
+        st.caption("≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días")
+    st.divider()
+    st.subheader("Datos demo")
+    if st.button("🔄 Cargar seed Jerez (17 avisos)"):
         import subprocess
 
         subprocess.run(["python", "scripts/make_seed.py"], check=False)
         subprocess.run(["python", "scripts/load_seed.py", DB], check=False)
         st.success("Seed cargada.")
-    if st.button("Expirar avisos >30 días"):
-        con = get_con()
-        n = dbmod.expire_old(con, 30)
+    if st.button("🗂️ Expirar avisos >30 días"):
+        n = dbmod.expire_old(get_con(), 30)
         st.info(f"Avisos expirados: {n}")
-    st.divider()
-    st.markdown("Umbrales: **>=85%** notifica · **>=65%** lista · Fórmula `0.40V+0.30G+0.20T+0.10t`")
 
-con = ensure_db()
+all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in
+                        con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()) if a]
 
-avisos_lost = dbmod.get_active_opuestos(con, "found")  # lost activos
-avisos_found = dbmod.get_active_opuestos(con, "lost")  # found activos
-all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()) if a]
+tab1, tab2, tab3 = st.tabs(["🔍 Buscar a mi mascota", "➕ Publicar aviso", "🔔 Alertas"])
 
-tab1, tab2, tab3 = st.tabs(["🔍 Buscar coincidencias", "➕ Registrar aviso", "🔔 Notificaciones"])
-
+# ── TAB 1: Buscar ─────────────────────────────────────────────────────
 with tab1:
-    st.subheader("Busca a tu mascota entre los avisos de encontrados")
     if not all_lost:
-        st.info("No hay avisos lost activos.")
+        st.info("No hay avisos de perdidos activos. Publica uno en la pestaña ➕.")
     else:
-        etiquetas = {a["id"]: f"[{a['id']}] {a['animal']} · {a['color_primary']} · {a['size']}" for a in all_lost}
-        qid = st.selectbox("Aviso perdido", [a["id"] for a in all_lost],
+        st.subheader("1️⃣ Elige tu aviso")
+        etiquetas = {a["id"]: etiqueta_corta(a) for a in all_lost}
+        qid = st.selectbox("Tu mascota perdida", [a["id"] for a in all_lost],
                            format_func=lambda i: etiquetas.get(i, i))
         q = dbmod.get_aviso(con, qid)
-        col_foto, col_datos = st.columns([1, 1])
-        with col_foto:
-            show_image(q["image_url"], caption=f"Foto registrada · {q['id']}")
-        with col_datos:
-            st.markdown(f"### [{q['id']}] {q['animal']} · {q['color_primary']} · {q['size']}")
-            st.write(q["description_text"])
-            st.write(f"Collar: {'sí' if q['has_collar'] else 'no'} · Fecha: {effective_date(q).date()} · {q['location'].get('address_text', '')}")
-        foto_q = st.file_uploader("Sube una foto actual para refinar la búsqueda visual (opcional)",
+        with st.container(border=True):
+            c_foto, c_datos = st.columns([1, 1])
+            with c_foto:
+                show_image(q["image_url"], caption=f"Foto registrada · {q['id']}")
+            with c_datos:
+                st.markdown(f"### {animal_tag(q)}")
+                st.write(q["description_text"])
+                st.caption(f"Collar: {'sí' if q['has_collar'] else 'no'} · "
+                           f"Visto: {effective_date(q).date()} · {q['location'].get('address_text', '')}")
+
+        st.subheader("2️⃣ Foto actual (opcional)")
+        foto_q = st.file_uploader("Sube una foto reciente para afinar la búsqueda visual",
                                   type=["jpg", "jpeg", "png"], key="q_foto")
         embed_fn = visual_fn_factory()
         if foto_q:
@@ -127,83 +161,121 @@ with tab1:
             q_emb = get_image_embedding(qpath)
             base_fn = embed_fn
             embed_fn = lambda a, _b=base_fn, _q=q_emb, _qid=q["id"]: _q if a["id"] == _qid else _b(a)
-            st.caption("Búsqueda visual con tu foto subida.")
-        if st.button("Buscar"):
+            st.caption("✅ Búsqueda visual con tu foto subida.")
+
+        st.subheader("3️⃣ Lanza la búsqueda")
+        f1, f2 = st.columns(2)
+        with f1:
+            umbral_vista = st.slider("Mostrar desde (%)", 50, 100, 65,
+                                     help="Solo filtra lo que se muestra, no cambia el score.")
+        with f2:
+            topn = st.slider("Máx. resultados", 3, 15, 8)
+        if st.button("🔍 Buscar coincidencias", type="primary"):
             cands = dbmod.get_active_opuestos(con, "lost")
             matches = retrieve(q, cands, embed_fn, semantic_similarity)
             notificados = notificar(con, q["id"], matches)
+            k1, k2 = st.columns(2)
+            k1.metric("🌟 Destacadas ≥85%", sum(1 for m in matches if m["notifica"]))
+            k2.metric("📋 En lista ≥65%", len(matches))
             if notificados:
-                st.success(f"{len(notificados)} posible(s) coincidencia(s) destacada(s) >=85% (ver Notificaciones).")
-            if not matches:
-                st.info("Sin candidatos >=65%. Quedan indexados.")
-            for m in matches:
+                st.success("Nueva alerta generada: hay coincidencias destacadas (ver pestaña 🔔).")
+            visibles = [m for m in matches if m["score"] * 100 >= umbral_vista][:topn]
+            if not visibles:
+                st.info("Sin candidatos con ese filtro. Baja el umbral de vista o espera nuevos avisos.")
+            for m in visibles:
                 c = m["candidato"]
-                etiqueta = "🌟 Posible coincidencia destacada" if m["notifica"] else "Posible coincidencia"
-                with st.expander(f"{etiqueta} — {c['id']} · {m['score']*100:.1f}% · {m['dist_km']} km"):
-                    col1, col2 = st.columns(2)
-                    for col, av, tag in ((col1, q, "PERDIDO"), (col2, c, "ENCONTRADO")):
-                        with col:
-                            st.markdown(f"**{tag}** `{av['id']}`")
-                            show_image(av["image_url"])
-                            st.write(av["description_text"])
-                            st.write(f"{av['color_primary']} · {av['size']} · collar {av['has_collar']} · {av['location'].get('address_text','')}")
-                    st.code(explain(m))
-            # Mapa
-            try:
-                import folium
-                from streamlit_folium import st_folium
+                badge = "🌟 POSIBLE COINCIDENCIA DESTACADA" if m["notifica"] else "🔎 Posible coincidencia"
+                with st.container(border=True):
+                    st.markdown(f"**{badge}** · `{c['id']}` · **{m['score']*100:.1f}%** · 📍 {m['dist_km']} km")
+                    st.progress(min(max(m["score"], 0.0), 1.0))
+                    r1, r2 = st.columns(2)
+                    with r1:
+                        show_image(q["image_url"], caption=f"Perdido · {q['id']}")
+                    with r2:
+                        show_image(c["image_url"], caption=f"Encontrado · {c['id']}")
+                        st.write(c["description_text"])
+                    with st.expander("📊 Por qué este resultado"):
+                        s1, s2, s3, s4 = st.columns(4)
+                        s1.metric("👁️ Visual", f"{m['visual']:.2f}")
+                        s2.metric("📍 Geo", f"{m['geo']:.2f}")
+                        s3.metric("📝 Texto", f"{m['texto']:.2f}")
+                        s4.metric("🕒 Tiempo", f"{m['temporal']:.2f}")
+                        st.code(explain(m))
+            if visibles:
+                st.subheader("🗺️ Mapa de candidatos")
+                try:
+                    import folium
+                    from streamlit_folium import st_folium
 
-                fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=13)
-                folium.Marker([q["location"]["lat"], q["location"]["lng"]], tooltip=f"PERDIDO {q['id']}",
-                              icon=folium.Icon(color="red")).add_to(fmap)
-                for m in matches[:10]:
-                    c = m["candidato"]
-                    folium.Marker([c["location"]["lat"], c["location"]["lng"]],
-                                  tooltip=f"{c['id']} {m['score']*100:.0f}%",
-                                  icon=folium.Icon(color="green" if m["notifica"] else "blue")).add_to(fmap)
-                st_folium(fmap, width=900, height=450)
-            except Exception as e:
-                st.caption(f"Mapa no disponible ({e}).")
+                    fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=13)
+                    folium.Marker([q["location"]["lat"], q["location"]["lng"]],
+                                  tooltip=f"PERDIDO {q['id']}",
+                                  icon=folium.Icon(color="red")).add_to(fmap)
+                    for m in visibles:
+                        c = m["candidato"]
+                        folium.Marker([c["location"]["lat"], c["location"]["lng"]],
+                                      tooltip=f"{c['id']} {m['score']*100:.0f}%",
+                                      icon=folium.Icon(color="green" if m["notifica"] else "blue")).add_to(fmap)
+                    st_folium(fmap, width=900, height=450)
+                except Exception as e:
+                    st.caption(f"Mapa no disponible ({e}).")
 
+# ── TAB 2: Registrar ──────────────────────────────────────────────────
 with tab2:
-    st.subheader("Nuevo aviso (foto + texto + ubicación + fecha)")
-    tipo = st.selectbox("Tipo", ["lost", "found"])
-    animal = st.selectbox("Animal", ["dog", "cat", "other"])
-    foto = st.file_uploader("Foto", type=["jpg", "jpeg", "png"])
-    if foto:
-        st.image(foto, caption="Vista previa", use_container_width=True)
-    desc = st.text_area("Descripción libre", "Perro marrón mediano con mancha blanca en el pecho, collar rojo.")
-    c1 = st.text_input("color_primary", "marrón")
-    size = st.selectbox("Tamaño", ["small", "medium", "large"])
-    collar = st.checkbox("¿Lleva collar?", True)
-    lat = st.number_input("lat", value=36.6826, format="%.4f")
-    lng = st.number_input("lng", value=-6.1376, format="%.4f")
-    addr = st.text_input("Dirección (texto)", "Centro, Jerez")
-    if st.button("Guardar y buscar coincidencias"):
+    st.subheader("Publica un aviso de perdido o encontrado")
+    with st.container(border=True):
+        r1, r2 = st.columns([1, 1])
+        with r1:
+            tipo = st.selectbox("Tipo de aviso", ["lost", "found"],
+                                format_func=lambda t: "🔴 Mascota PERDIDA" if t == "lost" else "🟢 Animal ENCONTRADO")
+            animal = st.selectbox("Animal", ["dog", "cat", "other"],
+                                  format_func=lambda a: {"dog": "🐶 Perro", "cat": "🐱 Gato",
+                                                         "other": "🐾 Otro"}.get(a, a))
+            foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
+            if foto:
+                st.image(foto, caption="Vista previa", use_container_width=True)
+            else:
+                st.caption("📷 Sube una foto: es la señal que más pesa (40%).")
+        with r2:
+            desc = st.text_area("Descripción libre",
+                                "Perro marrón mediano con mancha blanca en el pecho, collar rojo.")
+            c1 = st.text_input("Color principal", "marrón")
+            size = st.selectbox("Tamaño", ["small", "medium", "large"],
+                                format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
+                                                       "large": "Grande"}.get(s, s))
+            collar = st.checkbox("¿Lleva collar?", True)
+            lat = st.number_input("Latitud", value=36.6826, format="%.4f")
+            lng = st.number_input("Longitud", value=-6.1376, format="%.4f")
+            addr = st.text_input("Zona (texto)", "Centro, Jerez")
+    if st.button("💾 Publicar aviso", type="primary"):
         try:
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
             img_path = f"data/uploads/{foto.name}" if foto else "data/seed/images/perro_marron_arenal.jpg"
             if foto:
                 Path(img_path).write_bytes(foto.getbuffer())
-            raw = {"type": tipo, "animal": animal, "color_primary": c1, "size": size,
-                   "has_collar": collar, "markings": [], "description_text": desc,
-                   "location": {"lat": lat, "lng": lng, "address_text": addr},
-                   "date_reported": "2026-09-23T12:00:00+02:00", "image_url": img_path,
-                   "contact_info": "", "status": "active"}
-            av = normalize_aviso(raw)
+            av = normalize_aviso({"type": tipo, "animal": animal, "color_primary": c1, "size": size,
+                                  "has_collar": collar, "markings": [], "description_text": desc,
+                                  "location": {"lat": lat, "lng": lng, "address_text": addr},
+                                  "date_reported": "2026-09-23T12:00:00+02:00", "image_url": img_path,
+                                  "contact_info": "", "status": "active"})
             av["image_embedding"] = get_image_embedding(img_path)
             dbmod.upsert_aviso(con, av)
-            st.success(f"Aviso {av['id']} guardado. Recarga y búscalo en la pestaña 1.")
+            st.balloons()
+            st.success(f"Aviso `{av['id']}` publicado. Búscalo en la pestaña 🔍.")
         except Exception as e:
             st.error(f"Error: {e}")
 
+# ── TAB 3: Alertas ────────────────────────────────────────────────────
 with tab3:
-    st.subheader("Log de notificaciones (>=85%)")
+    st.subheader("Alertas automáticas (score ≥85%)")
+    st.caption("Se generan solas al buscar. " + AVISO_LEGAL)
     rows = con.execute("SELECT * FROM notifications ORDER BY id DESC LIMIT 50").fetchall()
     if rows:
+        st.metric("Total alertas", len(rows))
         st.table([dict(r) for r in rows])
     else:
-        st.info("Aún no hay notificaciones.")
+        st.info("Aún no hay alertas. Lanza una búsqueda en 🔍.")
     logp = Path("data/notifications.log")
     if logp.exists():
-        st.code(logp.read_text(encoding="utf-8")[-2000:])
+        with st.expander("📄 Ver log técnico"):
+            st.code(logp.read_text(encoding="utf-8")[-2000:])
