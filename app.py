@@ -20,8 +20,27 @@ DB = "data/huellas.db"
 LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
              if Path(p).exists()), None)
 ANIMAL_EMOJI = {"dog": "🐶", "cat": "🐱", "other": "🐾"}
+TAGLINE = "Agente de Búsqueda y Comparativa Visual de Animales Perdidos"
+SUBTITLE = "Encuentra a tu mascota entre los avisos de avistamientos en Jerez de la Frontera"
 
 st.set_page_config(page_title="HUELLAS", page_icon=LOGO if LOGO else "🐾", layout="wide")
+
+_LOGO_IMG = None
+
+
+def get_logo_img():
+    """Logo con el fondo blanco convertido a transparente para fundirse con sidebar/cabecera."""
+    global _LOGO_IMG
+    if _LOGO_IMG is None and LOGO:
+        import numpy as np
+        from PIL import Image
+
+        img = Image.open(LOGO).convert("RGBA")
+        a = np.array(img)
+        blanco = (a[..., 0] > 240) & (a[..., 1] > 240) & (a[..., 2] > 240)
+        a[blanco, 3] = 0
+        _LOGO_IMG = Image.fromarray(a)
+    return _LOGO_IMG
 
 
 def show_image(path: str, caption: str = ""):
@@ -86,17 +105,18 @@ def etiqueta_corta(a: dict) -> str:
 if LOGO:
     hc1, hc2 = st.columns([2, 5])
     with hc1:
-        st.image(LOGO, use_container_width=True)
+        st.image(get_logo_img(), use_container_width=True)
     with hc2:
-        st.markdown("## MascotasLost&Found · Jerez de la Frontera")
-        st.caption("Encuentra a tu mascota entre los avisos de encontrados. " + AVISO_LEGAL)
+        st.markdown(f"## {TAGLINE}")
+        st.caption(SUBTITLE)
 else:
     hc1, hc2 = st.columns([1, 6])
     with hc1:
         st.markdown("# 🐾")
     with hc2:
         st.title("HUELLAS")
-        st.caption("MascotasLost&Found · Jerez de la Frontera — Encuentra a tu mascota entre los avisos de encontrados. " + AVISO_LEGAL)
+        st.markdown(f"## {TAGLINE}")
+        st.caption(SUBTITLE)
 
 con = ensure_db()
 
@@ -111,10 +131,10 @@ m3.metric("🔔 Alertas ≥85%", n_notif)
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
     if LOGO:
-        st.image(LOGO, use_container_width=True)
+        st.image(get_logo_img(), use_container_width=True)
     else:
         st.header("🐾 HUELLAS")
-    st.caption("MascotasLost&Found · Jerez — asistente lost ↔ found")
+    st.caption(TAGLINE)
     with st.expander("⚙️ Cómo puntúa (fórmula cerrada)"):
         st.code("0.40·visual + 0.30·geo\n+ 0.20·texto + 0.10·temporal")
         st.caption("≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días")

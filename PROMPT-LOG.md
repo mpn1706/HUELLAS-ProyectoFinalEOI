@@ -43,3 +43,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Logo real del alumno (brújula + huella + wordmark HUELLAS). Cabecera adaptativa: con logo no se duplica el título; `page_icon` usa el logo; sidebar sin cabecera redundante.
 - Pendiente: el alumno guarda el PNG en `assets/logo.png` (la app lo detecta sola).
 - Logo recibido y publicado como `assets/logo.png` (PNG 1262×832): cabecera, sidebar y favicon lo usan; se retira `assets/README-logo.md`.
+
+## S09 — 23/09/2026 — Logo sin fondo + tagline (OpenCode)
+- `get_logo_img()`: blancos >240 a transparente (94% píxeles) para fundirse con sidebar/cabecera.
+- Tagline "Agente de Búsqueda y Comparativa Visual de Animales Perdidos" en header y sidebar; subtítulo "…avisos de avistamientos en Jerez de la Frontera" (aviso legal sigue en resultados, alertas y log).
+- Verificación: pytest 13/13, smoke OK con logo real.
