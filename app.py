@@ -482,7 +482,7 @@ with tab1:
                         folium.Marker([c["location"]["lat"], c["location"]["lng"]],
                                       tooltip=f"{c['id']} {m['score']*100:.0f}%",
                                       icon=folium.Icon(color="green" if m["notifica"] else "blue")).add_to(fmap)
-                    st_folium(fmap, width=900, height=450)
+                    st_folium(fmap, key="res_map", width=900, height=450)
                 except Exception as e:
                     st.caption(f"Mapa no disponible ({e}).")
 
@@ -530,7 +530,9 @@ with tab2:
             fmap = folium.Map(location=[st.session_state.reg_lat, st.session_state.reg_lon], zoom_start=14)
             folium.Marker([st.session_state.reg_lat, st.session_state.reg_lon],
                           icon=folium.Icon(color="red")).add_to(fmap)
-            out = st_folium(fmap, width=900, height=380)
+            out = st_folium(fmap, key="reg_map",
+                            center=(st.session_state.reg_lat, st.session_state.reg_lon),
+                            zoom=14, width=900, height=380)
             if out and out.get("last_clicked"):
                 st.session_state.reg_lat = round(out["last_clicked"]["lat"], 4)
                 st.session_state.reg_lon = round(out["last_clicked"]["lng"], 4)
