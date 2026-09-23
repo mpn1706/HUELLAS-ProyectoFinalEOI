@@ -62,3 +62,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S13 — 23/09/2026 — Contraste de widgets (OpenCode)
 - Selects, inputs, file uploaders, sliders, expanders y botones secundarios con tarjeta blanca sólida + borde `#C9BFAE` + sombra sutil; botones primary intactos. Smoke OK.
+
+## S14 — 23/09/2026 — Tarjetas oscuras (OpenCode)
+- Corrección del alumno: las quería negras, no blancas. Tarjeta `#23201B` + etiquetas/valores en `#F5F1EA` (scopeado por widget para no romper checkbox/código), botones secundarios oscuros con hover. Smoke OK.

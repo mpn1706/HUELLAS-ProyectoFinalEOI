@@ -57,28 +57,47 @@ def inject_background():
                         url("data:{mime};base64,{b64}");
             background-size: 480px;
         }}
-        /* Zonas de interacción: tarjeta sólida con borde para contraste sobre el patrón */
+        /* Zonas de interacción: tarjetas oscuras para contraste sobre el patrón claro */
         [data-testid="stSelectbox"],
         [data-testid="stTextInput"],
         [data-testid="stTextArea"],
         [data-testid="stNumberInput"],
         [data-testid="stFileUploader"],
         [data-testid="stSlider"] {{
-            background-color: #FFFFFF;
-            border: 1.5px solid #C9BFAE;
+            background-color: #23201B;
+            border: 1.5px solid #57503F;
             border-radius: 10px;
             padding: 0.6rem 0.8rem;
-            box-shadow: 0 1px 4px rgba(120, 90, 60, 0.12);
+            box-shadow: 0 2px 8px rgba(60, 45, 30, 0.25);
+        }}
+        [data-testid="stSelectbox"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stTextInput"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stTextArea"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stNumberInput"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stFileUploader"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stSlider"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stSlider"] [data-testid="stTickBarMin"],
+        [data-testid="stSlider"] [data-testid="stTickBarMax"] {{
+            color: #F5F1EA !important;
         }}
         [data-testid="stExpander"] {{
-            background-color: #FFFFFF;
-            border: 1.5px solid #C9BFAE;
+            background-color: #23201B;
+            border: 1.5px solid #57503F;
             border-radius: 10px;
         }}
+        [data-testid="stExpander"] summary span,
+        [data-testid="stExpander"] [data-testid="stMarkdownContainer"] p {{
+            color: #F5F1EA !important;
+        }}
         [data-testid="stButton"] button[kind="secondary"] {{
-            background-color: #FFFFFF;
-            border: 1.5px solid #B9AE9C;
-            color: #1F2328;
+            background-color: #23201B;
+            border: 1.5px solid #6B6257;
+            color: #F5F1EA;
+        }}
+        [data-testid="stButton"] button[kind="secondary"]:hover {{
+            background-color: #353026;
+            border-color: #8A7F6A;
+            color: #FFFFFF;
         }}
         </style>""",
         unsafe_allow_html=True,
