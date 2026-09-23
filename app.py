@@ -19,11 +19,45 @@ from rag.retrieval import retrieve
 DB = "data/huellas.db"
 LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
              if Path(p).exists()), None)
+FONDO = next((p for p in ("assets/fondo.png", "assets/fondo.jpg", "assets/fondo.jpeg")
+              if Path(p).exists()), None)
 ANIMAL_EMOJI = {"dog": "🐶", "cat": "🐱", "other": "🐾"}
 TAGLINE = "Agente de Búsqueda y Comparativa Visual de Animales Perdidos"
 SUBTITLE = "Encuentra a tu mascota entre los avisos de avistamientos en Jerez de la Frontera"
 
 st.set_page_config(page_title="HUELLAS", page_icon=LOGO if LOGO else "🐾", layout="wide")
+
+
+def inject_background():
+    """Fondo con el patrón assets/fondo.png en toda la app.
+
+    Velo blanco por encima para que el texto siga legible; si no hay
+    archivo, no hace nada (la app funciona igual).
+    """
+    if not FONDO:
+        return
+    import base64
+
+    mime = "image/jpeg" if Path(FONDO).suffix.lower() in (".jpg", ".jpeg") else "image/png"
+    b64 = base64.b64encode(Path(FONDO).read_bytes()).decode()
+    st.markdown(
+        f"""<style>
+        [data-testid="stAppViewContainer"] {{
+            background: linear-gradient(rgba(255,255,255,0.90), rgba(255,255,255,0.90)),
+                        url("data:{mime};base64,{b64}");
+            background-size: 480px;
+        }}
+        [data-testid="stSidebar"] {{
+            background: linear-gradient(rgba(255,255,255,0.94), rgba(255,255,255,0.94)),
+                        url("data:{mime};base64,{b64}");
+            background-size: 380px;
+        }}
+        </style>""",
+        unsafe_allow_html=True,
+    )
+
+
+inject_background()
 
 _LOGO_IMG = None
 
