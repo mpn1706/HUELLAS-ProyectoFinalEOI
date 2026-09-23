@@ -1,0 +1,26 @@
+{
+  "id": "lost_006",
+  "type": "lost",
+  "animal": "cat",
+  "breed_guess": "europeo",
+  "color_primary": "gris",
+  "color_secondary": "blanco",
+  "markings": [
+    "rayas"
+  ],
+  "size": "small",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Gatito gris atigrado que se perdió en La Granja. Apareció al día siguiente en casa.",
+  "location": {
+    "lat": 36.69331,
+    "lng": -6.1034,
+    "address_text": "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera"
+  },
+  "date_reported": "2026-09-11T10:00:00+02:00",
+  "date_last_seen": "2026-09-10T09:00:00+02:00",
+  "image_url": "data/seed/images/gato 3.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "resolved"
+}

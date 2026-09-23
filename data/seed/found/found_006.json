@@ -1,25 +1,25 @@
 {
   "id": "found_006",
   "type": "found",
-  "animal": "cat",
-  "breed_guess": "atigrado",
+  "animal": "dog",
+  "breed_guess": "mestizo",
   "color_primary": "gris",
   "color_secondary": null,
   "markings": [
-    "rayas"
+    "pelo rizado"
   ],
   "size": "small",
-  "has_collar": true,
-  "collar_description": "collar verde",
-  "description_text": "Gato atigrado gris con collar verde en el barrio de Santiago.",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Perrito joven gris de pelo rizado encontrado junto al aeropuerto. Macho joven. Lo llevan a la perrera.",
   "location": {
-    "lat": 36.68787,
-    "lng": -6.14329,
-    "address_text": "Plaza Santiago, Santiago, Jerez de la Frontera"
+    "lat": 36.7446,
+    "lng": -6.0606,
+    "address_text": "Aeropuerto de Jerez, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-17T10:00:00+02:00",
+  "date_reported": "2026-09-19T11:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/gato_gris_santiago.jpg",
+  "image_url": "data/seed/images/perrete 6.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

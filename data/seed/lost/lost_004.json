@@ -1,25 +1,25 @@
 {
   "id": "lost_004",
   "type": "lost",
-  "animal": "other",
-  "breed_guess": null,
-  "color_primary": "verde",
+  "animal": "cat",
+  "breed_guess": "mestizo",
+  "color_primary": "blanco",
   "color_secondary": null,
   "markings": [
-    "anillo gris"
+    "ojos azules"
   ],
   "size": "small",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Loro verde con anillo gris escapado en La Granja. Responde al nombre Curro.",
+  "description_text": "Gatito blanco de ojos azules perdido en San Joaquín. Pequeño, de pelo claro, muy cariñoso.",
   "location": {
-    "lat": 36.69331,
-    "lng": -6.1034,
-    "address_text": "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera"
+    "lat": 36.69125,
+    "lng": -6.13173,
+    "address_text": "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-19T08:00:00+02:00",
-  "date_last_seen": "2026-09-18T09:00:00+02:00",
-  "image_url": "data/seed/images/loro_verde_granja.jpg",
+  "date_reported": "2026-09-19T09:00:00+02:00",
+  "date_last_seen": "2026-09-18T20:00:00+02:00",
+  "image_url": "data/seed/images/gato 4.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

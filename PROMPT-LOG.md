@@ -94,6 +94,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S35 — 23/09/2026 — Alertas sin duplicados + flujo fotos reales (OpenCode)
 - Notifier con upsert por par (misma score se ignora, distinta se actualiza) + 4 tests. Infra fotos: `backfill_embeddings()` + `compute_embeddings.py` (torch solo local) + `embeddings.json` versionado; README con flujo y nota de licencias. Pytest 21/21, E2E 96.6%, smoke OK.
 
+## S36 — 24/09/2026 — Seed v2 con fotos reales + admin editable (OpenCode)
+- 16 fotos del alumno (9 perros, 6 gatos, 1 loro): seed nueva 6 lost + 10 found con rasgos visibles y pool de ubicaciones reciclado; placeholders viejos eliminados.
+- Hallazgos: histograma insuficiente (fondos dominan) y rama CLIP rota (`BaseModelOutputWithPooling` → `pooler_output`); CLIP real da 0.63-0.75 en parejas. `embeddings.json` con 16 vectores versionado.
+- Admin edita cualquier campo (validado + log). Smoke con timeout 60s (árbol grande). Pytest 27/27, parejas 5/5 ≥65%, E2E OK.
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 

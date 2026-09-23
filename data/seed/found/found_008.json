@@ -1,25 +1,26 @@
 {
   "id": "found_008",
   "type": "found",
-  "animal": "other",
-  "breed_guess": null,
-  "color_primary": "blanco",
-  "color_secondary": null,
+  "animal": "dog",
+  "breed_guess": "galgo",
+  "color_primary": "negro",
+  "color_secondary": "blanco",
   "markings": [
-    "orejas largas"
+    "pecho blanco",
+    "patas blancas"
   ],
-  "size": "small",
+  "size": "medium",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Conejo blanco de orejas largas encontrado en el parque de La Plata.",
+  "description_text": "Perro negro esbelto con pecho y patas blancas visto en Santiago. Mediano, sin collar, huidizo.",
   "location": {
-    "lat": 36.6937,
-    "lng": -6.14194,
-    "address_text": "La Plata, Jerez de la Frontera"
+    "lat": 36.68787,
+    "lng": -6.14329,
+    "address_text": "Plaza Santiago, Santiago, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-18T10:00:00+02:00",
+  "date_reported": "2026-09-17T10:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/conejo_blanco.jpg",
+  "image_url": "data/seed/images/perrete 10.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

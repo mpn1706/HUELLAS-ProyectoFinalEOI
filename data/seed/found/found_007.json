@@ -2,24 +2,24 @@
   "id": "found_007",
   "type": "found",
   "animal": "dog",
-  "breed_guess": "bulldog",
-  "color_primary": "blanco",
-  "color_secondary": "marrón",
+  "breed_guess": "pastor",
+  "color_primary": "marrón",
+  "color_secondary": "negro",
   "markings": [
-    "mancha ojo"
+    "lomo negro"
   ],
-  "size": "medium",
+  "size": "large",
   "has_collar": true,
-  "collar_description": "collar negro",
-  "description_text": "Bulldog blanco y marrón con collar negro en Puerta del Sur.",
+  "collar_description": "collar de cadena",
+  "description_text": "Pastor marrón y negro de tamaño grande visto en Puerta del Sur. Lleva collar de cadena. Imponente pero bueno.",
   "location": {
     "lat": 36.66871,
     "lng": -6.13587,
     "address_text": "Avenida Puerta del Sur, Santo Tomás, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-12T10:00:00+02:00",
+  "date_reported": "2026-09-18T10:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/bulldog_sur.jpg",
+  "image_url": "data/seed/images/perrete 5.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

@@ -151,6 +151,7 @@ Restricciones: los 4 pesos suman 1.0. No se reponderan sin nueva spec.
 - REQ-11.1: Un único administrador; acceso por contraseña (Secrets `ADMIN_PASSWORD` en Cloud, variable `HUELLAS_ADMIN_PASSWORD` o defecto documentado `huellas123` en local).
 - REQ-11.2: Puede listar con filtros, eliminar (borra aviso + notificaciones ligadas + foto subida, nunca seed) y resolver.
 - REQ-11.3: Toda acción se registra en `data/admin.log` con fecha.
+- REQ-11.4: El admin puede editar cualquier campo del aviso (con validación del esquema y log de campos cambiados).
 
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 

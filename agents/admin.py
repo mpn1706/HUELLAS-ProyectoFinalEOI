@@ -36,6 +36,10 @@ def _log(log_path: str, msg: str):
         f.write(f"{datetime.now().astimezone().isoformat()} {msg}\n")
 
 
+def log_action(msg: str, log_path: str = "data/admin.log"):
+    _log(log_path, msg)
+
+
 def delete_aviso(con, aviso_id: str, log_path: str = "data/admin.log") -> bool:
     """Borrado total: aviso + notificaciones ligadas + foto si es subida (no seed)."""
     row = con.execute("SELECT image_url FROM avisos WHERE id=?", (aviso_id,)).fetchone()

@@ -5,6 +5,6 @@ from streamlit.testing.v1 import AppTest
 
 APP = Path(__file__).resolve().parents[1] / "app.py"
 at = AppTest.from_file(str(APP))
-at.run()
+at.run(timeout=60)
 assert not at.exception, f"La app lanzó excepción: {at.exception}"
 print(f"SMOKE OK: app.py ejecuta sin excepciones ({len(at.tabs)} tabs)")

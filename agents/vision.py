@@ -26,6 +26,25 @@ def _fallback_embedding(key: str, dim: int = DIM) -> list:
     return v.tolist()
 
 
+def _histogram_embedding(image_path: str, dim: int = DIM) -> list:
+    """Paleta de color 8x8x8 (=512-dim) sobre recorte central.
+
+    Fallback honesto sin torch: animales del mismo color dan similitud
+    alta aunque sean fotos distintas. Determinista y normalizado.
+    """
+    from PIL import Image
+
+    img = Image.open(image_path).convert("RGB")
+    w, h = img.size
+    img = img.crop((int(w * 0.2), int(h * 0.2), int(w * 0.8), int(h * 0.8))).resize((64, 64))
+    px = np.asarray(img).reshape(-1, 3) // 32
+    hist = np.zeros(512)
+    for idx in (px[:, 0] * 64 + px[:, 1] * 8 + px[:, 2]):
+        hist[int(idx)] += 1.0
+    hist = hist / hist.sum()
+    return hist.tolist()
+
+
 def get_image_embedding(image_path: str) -> list:
     """Devuelve vector 512 normalizado. Intenta CLIP real, si no fallback.
 
@@ -47,15 +66,23 @@ def get_image_embedding(image_path: str) -> list:
         img = Image.open(image_path).convert("RGB")
         inputs = _processor(images=img, return_tensors="pt")
         with torch.no_grad():
-            feat = _model.get_image_features(**inputs).cpu().numpy()[0]
+            out = _model.get_image_features(**inputs)
+            # transformers>=4.4x devuelve BaseModelOutputWithPooling; antes Tensor
+            feat = out.pooler_output if hasattr(out, "pooler_output") else out
+            feat = feat.cpu().numpy()[0]
         feat = feat / np.linalg.norm(feat)
         return feat.tolist()
     except Exception:
-        try:
-            with open(image_path, "rb") as f:
-                key = f.read()
-        except OSError:
-            key = f"img:{image_path}"
+        pass
+    try:
+        return _histogram_embedding(image_path)
+    except Exception:
+        pass
+    try:
+        with open(image_path, "rb") as f:
+            key = f.read()
+    except OSError:
+        key = f"img:{image_path}"
         if isinstance(key, bytes):
             h = hashlib.sha256(key).digest()
             seed = int.from_bytes(h[:8], "big") % (2**32)

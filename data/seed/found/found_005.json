@@ -1,23 +1,25 @@
 {
   "id": "found_005",
   "type": "found",
-  "animal": "other",
-  "breed_guess": null,
-  "color_primary": "verde",
-  "color_secondary": null,
-  "markings": [],
+  "animal": "dog",
+  "breed_guess": "bodeguero",
+  "color_primary": "blanco",
+  "color_secondary": "marrón",
+  "markings": [
+    "manchas marrones"
+  ],
   "size": "small",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Loro verde encontrado en un balcón de La Granja.",
+  "description_text": "Bodeguero blanco con manchas marrones encontrado de noche en Icovesa. Pequeño, movido, sin collar.",
   "location": {
-    "lat": 36.69331,
-    "lng": -6.1034,
-    "address_text": "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera"
+    "lat": 36.69404,
+    "lng": -6.14574,
+    "address_text": "Icovesa, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-19T14:00:00+02:00",
+  "date_reported": "2026-09-16T15:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/loro_verde.jpg",
+  "image_url": "data/seed/images/perrete 9.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

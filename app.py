@@ -301,7 +301,7 @@ def ensure_db():
     con = get_con()
     n = con.execute("SELECT COUNT(*) FROM avisos").fetchone()[0]
     if n == 0:
-        with st.spinner("Cargando corpus demo de Jerez (17 avisos)…"):
+        with st.spinner("Cargando corpus demo de Jerez (16 avisos)…"):
             total = 0
             for folder in ("lost", "found"):
                 for fp in sorted(Path("data/seed", folder).glob("*.json")):
@@ -404,7 +404,7 @@ with st.sidebar:
                  "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.divider()
     st.subheader("Datos demo")
-    if st.button("Cargar seed Jerez (17 avisos)"):
+    if st.button("Cargar seed Jerez (16 avisos)"):
         import subprocess
 
         subprocess.run(["python", "scripts/make_seed.py"], check=False)
@@ -464,6 +464,78 @@ with st.sidebar:
                     admmod.resolve_aviso(con, a["id"])
                     st.success(f"Aviso {a['id']} resuelto.")
                     st.rerun()
+                with st.expander(f"Editar datos · {a['id']}"):
+                    e_tipo = st.selectbox("Tipo", ["lost", "found"],
+                                          index=["lost", "found"].index(a["type"]),
+                                          key=f"e_tipo_{a['id']}",
+                                          format_func=lambda t: TIPO_ES.get(t, t))
+                    e_animal = st.selectbox("Animal", ["dog", "cat", "other"],
+                                            index=["dog", "cat", "other"].index(a["animal"]),
+                                            key=f"e_an_{a['id']}",
+                                            format_func=lambda x: {"dog": "Perro", "cat": "Gato",
+                                                                   "other": "Otro"}.get(x, x))
+                    e_breed = st.text_input("Raza aprox.", value=a.get("breed_guess") or "",
+                                            key=f"e_br_{a['id']}")
+                    e_c1 = st.text_input("Color principal", value=a.get("color_primary") or "",
+                                         key=f"e_c1_{a['id']}")
+                    e_c2 = st.text_input("Color secundario", value=a.get("color_secondary") or "",
+                                         key=f"e_c2_{a['id']}")
+                    e_marks = st.text_input("Marcas (separadas por comas)",
+                                            value=", ".join(a.get("markings") or ""),
+                                            key=f"e_mk_{a['id']}")
+                    e_size = st.selectbox("Tamaño", ["small", "medium", "large"],
+                                          index=["small", "medium", "large"].index(a["size"]),
+                                          key=f"e_sz_{a['id']}",
+                                          format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
+                                                                 "large": "Grande"}.get(s, s))
+                    e_collar = st.checkbox("Lleva collar", value=bool(a.get("has_collar")),
+                                           key=f"e_co_{a['id']}")
+                    e_collar_d = st.text_input("Descripción collar",
+                                               value=a.get("collar_description") or "",
+                                               key=f"e_cd_{a['id']}")
+                    e_desc = st.text_area("Descripción", value=a.get("description_text") or "",
+                                          key=f"e_de_{a['id']}")
+                    e_addr = st.text_input("Dirección",
+                                           value=(a.get("location") or {}).get("address_text") or "",
+                                           key=f"e_ad_{a['id']}")
+                    e_status = st.selectbox("Estado", ["active", "resolved", "expired"],
+                                            index=["active", "resolved", "expired"].index(a["status"]),
+                                            key=f"e_st_{a['id']}",
+                                            format_func=lambda s: ESTADO_ES.get(s, s))
+                    if st.button("Guardar cambios", key=f"e_sv_{a['id']}", type="primary"):
+                        try:
+                            from agents.ingestor import validate_aviso
+
+                            nuevo = dict(a)
+                            nuevo.update({
+                                "type": e_tipo, "animal": e_animal,
+                                "breed_guess": (e_breed.strip() or None) if e_animal != "other" else None,
+                                "color_primary": e_c1.strip().lower(),
+                                "color_secondary": e_c2.strip().lower() or None,
+                                "markings": [m.strip().lower() for m in e_marks.split(",") if m.strip()],
+                                "size": e_size, "has_collar": bool(e_collar),
+                                "collar_description": e_collar_d.strip() or None,
+                                "description_text": e_desc.strip(), "status": e_status})
+                            nuevo["location"] = dict(a.get("location") or {},
+                                                     address_text=e_addr.strip() or None)
+                            errs = validate_aviso(nuevo)
+                            if errs:
+                                st.error("Revisa: " + "; ".join(errs))
+                            else:
+                                campos = ("type", "animal", "breed_guess", "color_primary",
+                                          "color_secondary", "markings", "size", "has_collar",
+                                          "collar_description", "description_text", "status")
+                                cambiados = [k for k in campos if nuevo.get(k) != a.get(k)]
+                                if (nuevo.get("location") or {}).get("address_text") != (
+                                        a.get("location") or {}).get("address_text"):
+                                    cambiados.append("address_text")
+                                dbmod.upsert_aviso(con, nuevo)
+                                admmod.log_action(
+                                    f"EDIT {a['id']} ({', '.join(cambiados) if cambiados else 'sin cambios'})")
+                                st.success(f"Aviso {a['id']} actualizado.")
+                                st.rerun()
+                        except Exception as e:
+                            st.error(f"Error: {e}")
         loga = Path("data/admin.log")
         if loga.exists():
             with st.expander("Ver registro de administración"):
@@ -658,7 +730,7 @@ with tabP:
             lng = float(st.session_state.get("reg_lon", -6.1376))
             addr = st.session_state.get("addr_in", "Centro, Jerez")
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
-            img_path = f"data/uploads/{foto.name}" if foto else "data/seed/images/perro_marron_arenal.jpg"
+            img_path = f"data/uploads/{foto.name}" if foto else "data/seed/images/perrete 3.jpg"
             if foto:
                 Path(img_path).write_bytes(foto.getbuffer())
             av = normalize_aviso({"type": tipo, "animal": animal, "color_primary": c1, "size": size,

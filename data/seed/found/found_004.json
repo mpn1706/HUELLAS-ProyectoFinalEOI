@@ -1,23 +1,25 @@
 {
   "id": "found_004",
   "type": "found",
-  "animal": "dog",
-  "breed_guess": "podenco",
+  "animal": "cat",
+  "breed_guess": "europeo",
   "color_primary": "blanco",
-  "color_secondary": "marrón",
-  "markings": [],
-  "size": "medium",
+  "color_secondary": "gris",
+  "markings": [
+    "manchas grises"
+  ],
+  "size": "small",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Podenco blanco sin collar visto corriendo por Chapín.",
+  "description_text": "Gato blanco con manchas grises recogido de noche en el parque González Hontoria. Pequeño y manso.",
   "location": {
-    "lat": 36.68934,
-    "lng": -6.12052,
-    "address_text": "Avenida Chema Rodríguez, El Pelirón, Jerez de la Frontera"
+    "lat": 36.69524,
+    "lng": -6.12599,
+    "address_text": "Parque González Hontoria, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-16T10:00:00+02:00",
+  "date_reported": "2026-09-19T15:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/podenco_blanco.jpg",
+  "image_url": "data/seed/images/gato 7.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

@@ -1,25 +1,23 @@
 {
   "id": "found_003",
   "type": "found",
-  "animal": "cat",
-  "breed_guess": "europeo",
-  "color_primary": "negro",
+  "animal": "dog",
+  "breed_guess": "mestizo",
+  "color_primary": "marrón",
   "color_secondary": null,
-  "markings": [
-    "patas blancas"
-  ],
-  "size": "small",
+  "markings": [],
+  "size": "medium",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Gata negra con patas blancas recogida en San Joaquín, maúlla mucho.",
+  "description_text": "Perro marrón claro encontrado en El Pelirón. Mediano, sin collar, bueno con la gente.",
   "location": {
-    "lat": 36.69125,
-    "lng": -6.13173,
-    "address_text": "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera"
+    "lat": 36.68714,
+    "lng": -6.12447,
+    "address_text": "El Pelirón, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-18T15:00:00+02:00",
+  "date_reported": "2026-09-17T11:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/gata_negra_encontrada.jpg",
+  "image_url": "data/seed/images/perrete 8.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

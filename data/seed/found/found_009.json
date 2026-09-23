@@ -2,22 +2,25 @@
   "id": "found_009",
   "type": "found",
   "animal": "cat",
-  "breed_guess": "persa",
+  "breed_guess": "europeo",
   "color_primary": "blanco",
-  "color_secondary": null,
-  "markings": [],
-  "size": "medium",
+  "color_secondary": "marrón",
+  "markings": [
+    "mancha negra",
+    "máscara oscura"
+  ],
+  "size": "small",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Gato persa blanco sin collar en Vallesequillo.",
+  "description_text": "Gata blanca con manchas marrones y máscara oscura encontrada en la calle Larga. Estaba tras una reja.",
   "location": {
-    "lat": 36.67981,
-    "lng": -6.1261,
-    "address_text": "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera"
+    "lat": 36.68366,
+    "lng": -6.13661,
+    "address_text": "Calle Larga, San Pedro, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-10T10:00:00+02:00",
+  "date_reported": "2026-09-18T15:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/persa_vallesequillo.jpg",
+  "image_url": "data/seed/images/gato 6.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

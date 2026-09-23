@@ -2,22 +2,25 @@
   "id": "found_002",
   "type": "found",
   "animal": "dog",
-  "breed_guess": "mestizo",
-  "color_primary": "negro",
-  "color_secondary": null,
-  "markings": [],
+  "breed_guess": "pointer",
+  "color_primary": "blanco",
+  "color_secondary": "negro",
+  "markings": [
+    "mancha negra",
+    "moteado"
+  ],
   "size": "large",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Perro negro grande sin collar encontrado junto al parque González Hontoria.",
+  "description_text": "Perra blanca con manchas negras encontrada en La Plata. Grande, sin collar, moteada en el lomo. Tranquila.",
   "location": {
-    "lat": 36.69524,
-    "lng": -6.12599,
-    "address_text": "Parque González Hontoria, Jerez de la Frontera"
+    "lat": 36.6937,
+    "lng": -6.14194,
+    "address_text": "La Plata, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-19T11:00:00+02:00",
+  "date_reported": "2026-09-18T15:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/perro_negro_parque.jpg",
+  "image_url": "data/seed/images/perrete 11.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

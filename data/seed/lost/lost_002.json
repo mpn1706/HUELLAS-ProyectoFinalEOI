@@ -1,25 +1,26 @@
 {
   "id": "lost_002",
   "type": "lost",
-  "animal": "cat",
-  "breed_guess": "europeo",
-  "color_primary": "negro",
-  "color_secondary": null,
+  "animal": "dog",
+  "breed_guess": "bodeguero",
+  "color_primary": "blanco",
+  "color_secondary": "negro",
   "markings": [
-    "patas blancas"
+    "mancha negra",
+    "ojo"
   ],
-  "size": "small",
-  "has_collar": false,
-  "collar_description": null,
-  "description_text": "Gata negra pequeña con patas blancas, vista por última vez en el barrio de San Joaquín.",
+  "size": "medium",
+  "has_collar": true,
+  "collar_description": "collar rosa con correa",
+  "description_text": "Perra blanca mediana con una mancha negra sobre el ojo. Lleva collar rosa con correa. Se escapó por la zona de Chapín. Muy dócil.",
   "location": {
-    "lat": 36.69125,
-    "lng": -6.13173,
-    "address_text": "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera"
+    "lat": 36.68934,
+    "lng": -6.12052,
+    "address_text": "Estadio Municipal de Chapín, Avenida Chema Rodríguez, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-18T09:00:00+02:00",
+  "date_reported": "2026-09-18T10:00:00+02:00",
   "date_last_seen": "2026-09-17T20:00:00+02:00",
-  "image_url": "data/seed/images/gata_negra_sanjoaquin.jpg",
+  "image_url": "data/seed/images/perrete 4.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

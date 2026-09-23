@@ -46,6 +46,7 @@ Aviso legal único en el sidebar (expander AVISO LEGAL): "Este análisis no prom
 | Base datos | SQLite (`data/huellas.db`) + sqlite3 | Cero setup |
 | Vector store | Misma SQLite: `image_embedding` JSON 512-dim + `text_embedding` opcional | Coseno en numpy, sin FAISS/Chroma |
 | Visión | CLIP `openai/clip-vit-base-patch32` 512-dim | `breed_guess` NULL si `other` |
+| Visión fallback | Histograma color 8³ 512 (sin torch) → hash | Vectores seed precomputados en `data/seed/embeddings.json` (Cloud sin torch) |
 | Texto | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` sobre `description_text` + 70% estructurado | Campos: `color_primary`, `markings`, `has_collar`, `size` |
 | Geo | haversine local + `max(0, 1 - km/15)` | Radio fijo 15 km |
 | Temporal | `max(0, 1 - dias/30)`, fecha = `date_last_seen` si existe si no `date_reported` | Ventana 30d |

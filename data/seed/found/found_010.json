@@ -1,25 +1,25 @@
 {
   "id": "found_010",
   "type": "found",
-  "animal": "dog",
-  "breed_guess": "galgo",
-  "color_primary": "marrón",
+  "animal": "other",
+  "breed_guess": null,
+  "color_primary": "verde",
   "color_secondary": null,
   "markings": [
-    "delgado"
+    "cabeza amarilla"
   ],
-  "size": "large",
+  "size": "small",
   "has_collar": false,
   "collar_description": null,
-  "description_text": "Galgo marrón delgado sin collar en la carretera de Sevilla, lejos del centro.",
+  "description_text": "Loro verde visto en un árbol del parque González Hontoria. No se deja coger.",
   "location": {
-    "lat": 36.75,
-    "lng": -6.05,
-    "address_text": "Ctra. Sevilla"
+    "lat": 36.69524,
+    "lng": -6.12599,
+    "address_text": "Parque González Hontoria, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-19T10:00:00+02:00",
+  "date_reported": "2026-09-19T14:00:00+02:00",
   "date_last_seen": null,
-  "image_url": "data/seed/images/galgo_ctra.jpg",
+  "image_url": "data/seed/images/loro 1.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

@@ -1,17 +1,18 @@
 {
   "id": "lost_001",
   "type": "lost",
-  "animal": "dog",
-  "breed_guess": "mestizo",
-  "color_primary": "marrón",
+  "animal": "cat",
+  "breed_guess": "europeo",
+  "color_primary": "naranja",
   "color_secondary": null,
   "markings": [
-    "mancha blanca pecho"
+    "rayas",
+    "cola anillada"
   ],
-  "size": "medium",
-  "has_collar": true,
-  "collar_description": "collar rojo",
-  "description_text": "Perro marrón mediano perdido cerca de la plaza del Arenal, con mancha blanca en el pecho y collar rojo.",
+  "size": "small",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Gatito naranja atigrado perdido cerca de la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable.",
   "location": {
     "lat": 36.68152,
     "lng": -6.13829,
@@ -19,7 +20,7 @@
   },
   "date_reported": "2026-09-20T10:00:00+02:00",
   "date_last_seen": "2026-09-19T18:00:00+02:00",
-  "image_url": "data/seed/images/perro_marron_arenal.jpg",
+  "image_url": "data/seed/images/gato 1.jpg",
   "image_embedding": null,
   "contact_info": "600 123 456",
   "status": "active"

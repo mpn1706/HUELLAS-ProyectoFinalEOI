@@ -1,7 +1,8 @@
-"""Genera seed Jerez (17 avisos: 5 lost + 12 found). Trazable a REQ-03.8.
+"""Genera el seed Jerez v2 (16 avisos con fotos reales: 6 lost + 10 found).
 
-Un par lost↔found casi idéntico garantiza ÉXITO-01 en demo.
-Imágenes: placeholders sólidos por color (solo para que la app abra algo).
+Cada foto se asigna a un aviso con atributos según rasgos visibles y una
+ubicación exacta reciclada del pool validado (Nominatim, S28).
+Trazable a REQ-03.8.
 """
 import json
 from pathlib import Path
@@ -11,65 +12,58 @@ LOST = ROOT / "data" / "seed" / "lost"
 FOUND = ROOT / "data" / "seed" / "found"
 IMG = ROOT / "data" / "seed" / "images"
 
-# Jerez: centro 36.6826,-6.1376
+# (fichero, tipo, animal, raza, color1, color2, marcas, tamaño, collar, collar_desc,
+#  descripción, lat, lng, dirección, reported, last_seen, imagen, estado)
 A = [
-    # LOST (5)
-    ("lost_001.json", "lost", "dog", "mestizo", "marrón", None, ["mancha blanca pecho"], "medium", True, "collar rojo",
-     "Perro marrón mediano perdido cerca de la plaza del Arenal, con mancha blanca en el pecho y collar rojo.",
-     36.68152, -6.13829, "Plaza del Arenal, San Miguel, Jerez de la Frontera", "2026-09-20T10:00:00+02:00", "2026-09-19T18:00:00+02:00", "perro_marron_arenal.jpg", "active"),
-    ("lost_002.json", "lost", "cat", "europeo", "negro", None, ["patas blancas"], "small", False, None,
-     "Gata negra pequeña con patas blancas, vista por última vez en el barrio de San Joaquín.",
-     36.69125, -6.13173, "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera", "2026-09-18T09:00:00+02:00", "2026-09-17T20:00:00+02:00", "gata_negra_sanjoaquin.jpg", "active"),
-    ("lost_003.json", "lost", "dog", "podenco", "blanco", "marrón", ["oreja marrón"], "medium", True, "collar azul",
-     "Podenco blanco con oreja marrón, collar azul, perdido por la zona de Chapín.",
-     36.68934, -6.12052, "Avenida Chema Rodríguez, El Pelirón, Jerez de la Frontera", "2026-09-15T12:00:00+02:00", "2026-09-14T19:00:00+02:00", "podenco_chapin.jpg", "active"),
-    ("lost_004.json", "lost", "other", None, "verde", None, ["anillo gris"], "small", False, None,
-     "Loro verde con anillo gris escapado en La Granja. Responde al nombre Curro.",
-     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-19T08:00:00+02:00", "2026-09-18T09:00:00+02:00", "loro_verde_granja.jpg", "active"),
-    ("lost_005.json", "lost", "cat", "siamés", "crema", "marrón", [], "small", True, "collar rosa con cascabel",
-     "Gato siamés crema con collar rosa, dócil, perdido en el centro.",
-     36.68366, -6.13661, "Calle Larga, San Pedro, Jerez de la Frontera", "2026-08-10T10:00:00+02:00", "2026-08-09T10:00:00+02:00", "siames_centro.jpg", "resolved"),
-    # FOUND (12)
-    ("found_001.json", "found", "dog", "mestizo", "marrón", None, ["mancha blanca pecho"], "medium", True, "collar rojo",
-     "Encontrado perro marrón mediano con mancha blanca en el pecho y collar rojo por el centro, muy dócil.",
-     36.68152, -6.13829, "Plaza del Arenal, San Miguel, Jerez de la Frontera", "2026-09-20T12:00:00+02:00", "2026-09-20T08:00:00+02:00", "perro_marron_centro.jpg", "active"),
-    ("found_002.json", "found", "dog", "mestizo", "negro", None, [], "large", False, None,
-     "Perro negro grande sin collar encontrado junto al parque González Hontoria.",
-     36.69524, -6.12599, "Parque González Hontoria, Jerez de la Frontera", "2026-09-19T11:00:00+02:00", None, "perro_negro_parque.jpg", "active"),
-    ("found_003.json", "found", "cat", "europeo", "negro", None, ["patas blancas"], "small", False, None,
-     "Gata negra con patas blancas recogida en San Joaquín, maúlla mucho.",
-     36.69125, -6.13173, "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera", "2026-09-18T15:00:00+02:00", None, "gata_negra_encontrada.jpg", "active"),
-    ("found_004.json", "found", "dog", "podenco", "blanco", "marrón", [], "medium", False, None,
-     "Podenco blanco sin collar visto corriendo por Chapín.",
-     36.68934, -6.12052, "Avenida Chema Rodríguez, El Pelirón, Jerez de la Frontera", "2026-09-16T10:00:00+02:00", None, "podenco_blanco.jpg", "active"),
-    ("found_005.json", "found", "other", None, "verde", None, [], "small", False, None,
-     "Loro verde encontrado en un balcón de La Granja.",
-     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-19T14:00:00+02:00", None, "loro_verde.jpg", "active"),
-    ("found_006.json", "found", "cat", "atigrado", "gris", None, ["rayas"], "small", True, "collar verde",
-     "Gato atigrado gris con collar verde en el barrio de Santiago.",
-     36.68787, -6.14329, "Plaza Santiago, Santiago, Jerez de la Frontera", "2026-09-17T10:00:00+02:00", None, "gato_gris_santiago.jpg", "active"),
-    ("found_007.json", "found", "dog", "bulldog", "blanco", "marrón", ["mancha ojo"], "medium", True, "collar negro",
-     "Bulldog blanco y marrón con collar negro en Puerta del Sur.",
-     36.66871, -6.13587, "Avenida Puerta del Sur, Santo Tomás, Jerez de la Frontera", "2026-09-12T10:00:00+02:00", None, "bulldog_sur.jpg", "active"),
-    ("found_008.json", "found", "other", None, "blanco", None, ["orejas largas"], "small", False, None,
-     "Conejo blanco de orejas largas encontrado en el parque de La Plata.",
-     36.6937, -6.14194, "La Plata, Jerez de la Frontera", "2026-09-18T10:00:00+02:00", None, "conejo_blanco.jpg", "active"),
-    ("found_009.json", "found", "cat", "persa", "blanco", None, [], "medium", False, None,
-     "Gato persa blanco sin collar en Vallesequillo.",
-     36.67981, -6.1261, "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera", "2026-09-10T10:00:00+02:00", None, "persa_vallesequillo.jpg", "active"),
-    ("found_010.json", "found", "dog", "galgo", "marrón", None, ["delgado"], "large", False, None,
-     "Galgo marrón delgado sin collar en la carretera de Sevilla, lejos del centro.",
-     36.75, -6.05, "Ctra. Sevilla", "2026-09-19T10:00:00+02:00", None, "galgo_ctra.jpg", "active"),
-    ("found_011.json", "found", "dog", "mestizo", "marrón", None, [], "small", True, "collar rojo",
-     "Cachorro marrón pequeño con collar rojo en El Pelirón.",
-     36.68714, -6.12447, "El Pelirón, Jerez de la Frontera", "2026-08-01T10:00:00+02:00", None, "cachorro_peliron.jpg", "active"),
-    ("found_012.json", "found", "cat", "europeo", "naranja", None, ["cola rayada"], "medium", False, None,
-     "Gato naranja de cola rayada en Icovesa.",
-     36.69404, -6.14574, "Icovesa, Jerez de la Frontera", "2026-09-20T09:00:00+02:00", None, "gato_naranja.jpg", "active"),
+    ("lost_001.json", "lost", "cat", "europeo", "naranja", None, ["rayas", "cola anillada"], "small", False, None,
+     "Gatito naranja atigrado perdido cerca de la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable.",
+     36.68152, -6.13829, "Plaza del Arenal, San Miguel, Jerez de la Frontera", "2026-09-20T10:00:00+02:00", "2026-09-19T18:00:00+02:00", "gato 1.jpg", "active"),
+    ("lost_002.json", "lost", "dog", "bodeguero", "blanco", "negro", ["mancha negra", "ojo"], "medium", True, "collar rosa con correa",
+     "Perra blanca mediana con una mancha negra sobre el ojo. Lleva collar rosa con correa. Se escapó por la zona de Chapín. Muy dócil.",
+     36.68934, -6.12052, "Estadio Municipal de Chapín, Avenida Chema Rodríguez, Jerez de la Frontera", "2026-09-18T10:00:00+02:00", "2026-09-17T20:00:00+02:00", "perrete 4.jpg", "active"),
+    ("lost_003.json", "lost", "dog", "mestizo", "marrón", None, ["atigrado"], "medium", False, None,
+     "Perro marrón atigrado de tamaño mediano perdido en Santiago. Delgado, sin collar, algo asustadizo.",
+     36.68787, -6.14329, "Plaza Santiago, Santiago, Jerez de la Frontera", "2026-09-17T10:00:00+02:00", "2026-09-16T19:00:00+02:00", "perrete 3.jpg", "active"),
+    ("lost_004.json", "lost", "cat", "mestizo", "blanco", None, ["ojos azules"], "small", False, None,
+     "Gatito blanco de ojos azules perdido en San Joaquín. Pequeño, de pelo claro, muy cariñoso.",
+     36.69125, -6.13173, "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera", "2026-09-19T09:00:00+02:00", "2026-09-18T20:00:00+02:00", "gato 4.jpg", "active"),
+    ("lost_005.json", "lost", "dog", "pitbull", "marrón", "blanco", ["pecho blanco"], "medium", False, None,
+     "Pitbull marrón y blanco perdido en Vallesequillo. Mediano, fuerte, con el pecho blanco. No es agresivo.",
+     36.67981, -6.1261, "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera", "2026-09-16T10:00:00+02:00", "2026-09-15T19:00:00+02:00", "perrete 12.jpg", "active"),
+    ("lost_006.json", "lost", "cat", "europeo", "gris", "blanco", ["rayas"], "small", False, None,
+     "Gatito gris atigrado que se perdió en La Granja. Apareció al día siguiente en casa.",
+     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-11T10:00:00+02:00", "2026-09-10T09:00:00+02:00", "gato 3.jpg", "resolved"),
+    ("found_001.json", "found", "cat", "europeo", "naranja", "blanco", ["pecho blanco"], "small", False, None,
+     "Gata naranja y blanca encontrada en la calle Larga. Joven, con el pecho blanco, maúlla mucho. Está a salvo.",
+     36.68366, -6.13661, "Calle Larga, San Pedro, Jerez de la Frontera", "2026-09-20T12:00:00+02:00", None, "gato 5.jpg", "active"),
+    ("found_002.json", "found", "dog", "pointer", "blanco", "negro", ["mancha negra", "moteado"], "large", False, None,
+     "Perra blanca con manchas negras encontrada en La Plata. Grande, sin collar, moteada en el lomo. Tranquila.",
+     36.6937, -6.14194, "La Plata, Jerez de la Frontera", "2026-09-18T15:00:00+02:00", None, "perrete 11.jpg", "active"),
+    ("found_003.json", "found", "dog", "mestizo", "marrón", None, [], "medium", False, None,
+     "Perro marrón claro encontrado en El Pelirón. Mediano, sin collar, bueno con la gente.",
+     36.68714, -6.12447, "El Pelirón, Jerez de la Frontera", "2026-09-17T11:00:00+02:00", None, "perrete 8.jpg", "active"),
+    ("found_004.json", "found", "cat", "europeo", "blanco", "gris", ["manchas grises"], "small", False, None,
+     "Gato blanco con manchas grises recogido de noche en el parque González Hontoria. Pequeño y manso.",
+     36.69524, -6.12599, "Parque González Hontoria, Jerez de la Frontera", "2026-09-19T15:00:00+02:00", None, "gato 7.jpg", "active"),
+    ("found_005.json", "found", "dog", "bodeguero", "blanco", "marrón", ["manchas marrones"], "small", False, None,
+     "Bodeguero blanco con manchas marrones encontrado de noche en Icovesa. Pequeño, movido, sin collar.",
+     36.69404, -6.14574, "Icovesa, Jerez de la Frontera", "2026-09-16T15:00:00+02:00", None, "perrete 9.jpg", "active"),
+    ("found_006.json", "found", "dog", "mestizo", "gris", None, ["pelo rizado"], "small", False, None,
+     "Perrito joven gris de pelo rizado encontrado junto al aeropuerto. Macho joven. Lo llevan a la perrera.",
+     36.7446, -6.0606, "Aeropuerto de Jerez, Jerez de la Frontera", "2026-09-19T11:00:00+02:00", None, "perrete 6.jpg", "active"),
+    ("found_007.json", "found", "dog", "pastor", "marrón", "negro", ["lomo negro"], "large", True, "collar de cadena",
+     "Pastor marrón y negro de tamaño grande visto en Puerta del Sur. Lleva collar de cadena. Imponente pero bueno.",
+     36.66871, -6.13587, "Avenida Puerta del Sur, Santo Tomás, Jerez de la Frontera", "2026-09-18T10:00:00+02:00", None, "perrete 5.jpg", "active"),
+    ("found_008.json", "found", "dog", "galgo", "negro", "blanco", ["pecho blanco", "patas blancas"], "medium", False, None,
+     "Perro negro esbelto con pecho y patas blancas visto en Santiago. Mediano, sin collar, huidizo.",
+     36.68787, -6.14329, "Plaza Santiago, Santiago, Jerez de la Frontera", "2026-09-17T10:00:00+02:00", None, "perrete 10.jpg", "active"),
+    ("found_009.json", "found", "cat", "europeo", "blanco", "marrón", ["mancha negra", "máscara oscura"], "small", False, None,
+     "Gata blanca con manchas marrones y máscara oscura encontrada en la calle Larga. Estaba tras una reja.",
+     36.68366, -6.13661, "Calle Larga, San Pedro, Jerez de la Frontera", "2026-09-18T15:00:00+02:00", None, "gato 6.jpg", "active"),
+    ("found_010.json", "found", "other", None, "verde", None, ["cabeza amarilla"], "small", False, None,
+     "Loro verde visto en un árbol del parque González Hontoria. No se deja coger.",
+     36.69524, -6.12599, "Parque González Hontoria, Jerez de la Frontera", "2026-09-19T14:00:00+02:00", None, "loro 1.jpg", "active"),
 ]
-
-COLORS = {"marrón": (139, 69, 19), "negro": (30, 30, 30), "blanco": (230, 230, 230),
-          "verde": (60, 160, 60), "gris": (130, 130, 130), "crema": (235, 220, 190), "naranja": (230, 140, 40)}
 
 
 def main():
@@ -87,25 +81,7 @@ def main():
                "image_url": f"data/seed/images/{img}", "image_embedding": None,
                "contact_info": "600 123 456", "status": status}
         (folder / fn).write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
-    # placeholders
-    try:
-        from PIL import Image
-        done = 0
-        for (fn, *_rest, img, _s) in A:
-            color = COLORS.get((_rest[3] if len(_rest) > 3 else "gris"), (130, 130, 130)) if False else None
-            p = IMG / img
-            if p.exists():
-                continue
-            # color por color_primary del doc
-            import json as j
-            folder = LOST if fn.startswith("lost") else FOUND
-            doc = j.loads((folder / fn).read_text(encoding="utf-8"))
-            rgb = COLORS.get(doc["color_primary"], (130, 130, 130))
-            Image.new("RGB", (320, 240), rgb).save(p, "JPEG")
-            done += 1
-        print(f"seed: {len(A)} avisos + {done} imágenes placeholder")
-    except ImportError:
-        print(f"seed: {len(A)} avisos (sin PIL, imágenes no generadas)")
+    print(f"seed v2: {len(A)} avisos")
 
 
 if __name__ == "__main__":
