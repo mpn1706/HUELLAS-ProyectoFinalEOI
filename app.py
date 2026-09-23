@@ -21,7 +21,8 @@ LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg
              if Path(p).exists()), None)
 FONDO = next((p for p in ("assets/fondo.png", "assets/fondo.jpg", "assets/fondo.jpeg")
               if Path(p).exists()), None)
-ANIMAL_EMOJI = {"dog": "Perro", "cat": "Gato", "other": "Otro"}
+ANIMAL_ES = {"dog": "Perro", "cat": "Gato", "other": "Otro"}
+SIZE_ES = {"small": "Pequeño", "medium": "Mediano", "large": "Grande"}
 TAGLINE = "Agente de Búsqueda y Comparativa Visual de Animales Perdidos"
 SUBTITLE = "Encuentra a tu mascota entre los avisos de avistamientos en Jerez de la Frontera"
 
@@ -64,6 +65,16 @@ def inject_background():
         }}
         input, textarea, code, pre {{
             text-transform: none !important;
+        }}
+        /* El menú del desplegable vive en un portal fuera del contenedor: mayúsculas + Inter también aquí */
+        div[data-baseweb="popover"], div[data-baseweb="menu"] {{
+            font-family: 'Inter', system-ui, sans-serif;
+            text-transform: uppercase;
+        }}
+        /* Los botones no heredan text-transform: se fuerza */
+        [data-testid="stAppViewContainer"] button,
+        [data-testid="stSidebar"] button {{
+            text-transform: uppercase;
         }}
         /* Cajas de destacados: cuadradas, borde grueso, alto contraste */
         .huellas-stat {{
@@ -259,7 +270,8 @@ def visual_fn_factory():
 
 
 def animal_tag(a: dict) -> str:
-    return f"{ANIMAL_EMOJI.get(a.get('animal'), 'Otro')} {a.get('animal')} · {a.get('color_primary')} · {a.get('size')}"
+    return (f"{ANIMAL_ES.get(a.get('animal'), a.get('animal'))} · "
+            f"{a.get('color_primary')} · {SIZE_ES.get(a.get('size'), a.get('size'))}")
 
 
 def etiqueta_corta(a: dict) -> str:
@@ -340,8 +352,9 @@ with tab1:
             with c_datos:
                 st.markdown(f"### {animal_tag(q)}")
                 st.write(q["description_text"])
-                st.caption(f"Collar: {'sí' if q['has_collar'] else 'no'} · "
-                           f"Visto: {effective_date(q).date()} · {q['location'].get('address_text', '')}")
+                st.write(f"Collar: {'sí' if q['has_collar'] else 'no'}")
+                st.write(f"Visto: {effective_date(q).date()}")
+                st.write(q["location"].get("address_text", ""))
 
         st.subheader("2. Foto actual (opcional)")
         foto_q = st.file_uploader("Sube una foto reciente para afinar la búsqueda visual",
