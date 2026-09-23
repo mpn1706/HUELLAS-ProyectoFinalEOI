@@ -105,6 +105,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S38 — 24/09/2026 — Evidencia Engram (OpenCode)
 - Engram CLI localizado (`engram.exe`, sin proyecto HUELLAS previo: esta sesión no estaba conectada). 6 hitos guardados con `--project HUELLAS` (#56-61) + exportado a `docs/engram/` (6 notas + hub). Verificado contenido.
 
+## S39 — 24/09/2026 — Captura automática Engram (OpenCode)
+- `engram setup opencode` ejecutado: plugin en `.config/opencode/plugins/engram.ts`. Requiere reiniciar OpenCode; desde entonces las sesiones se registran solas (+hito #62). Lo previo queda cubierto por PROMPT-LOG + `docs/engram/`.
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 
