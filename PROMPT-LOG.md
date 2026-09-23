@@ -68,3 +68,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S15 — 23/09/2026 — Divisores oscuros (OpenCode)
 - `st.divider` en `#23201B` 2px para la misma línea visual. Smoke OK.
+
+## S16 — 23/09/2026 — Todas las líneas en negro + pin de versiones (OpenCode)
+- El alumno no veía cambios: el `st.divider` no tiene testid propio en 1.64 → regla sobre `hr`; tarjetas con borde nativo vía `border-color` en `stVerticalBlock` (verificado en el bundle: el borde sale del tema, sin testid propio); filete bajo pestañas vía `stTabs [role=tablist]`.
+- `requirements.txt` fija `streamlit==1.64.0` y `streamlit-folium==0.27.4` para que Cloud sea idéntica al local. Smoke OK, pytest 13/13.

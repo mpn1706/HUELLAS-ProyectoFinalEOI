@@ -99,9 +99,23 @@ def inject_background():
             border-color: #8A7F6A;
             color: #FFFFFF;
         }}
-        [data-testid="stDivider"] {{
+        [data-testid="stDivider"],
+        [data-testid="stAppViewContainer"] hr,
+        [data-testid="stSidebar"] hr {{
+            border: none;
             border-top: 2px solid #23201B !important;
+            margin: 1rem 0;
             background: transparent;
+            opacity: 1;
+        }}
+        /* Tarjetas con borde nativo (query, resultados): solo afecta a bloques CON borde */
+        [data-testid="stAppViewContainer"] [data-testid="stVerticalBlock"],
+        [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
+            border-color: #23201B !important;
+        }}
+        /* Filete bajo las pestañas Buscar/Publicar/Alertas */
+        [data-testid="stTabs"] [role="tablist"] {{
+            border-bottom: 2px solid #23201B !important;
         }}
         </style>""",
         unsafe_allow_html=True,
