@@ -12,3 +12,4 @@ tags:
 - [[huellas-s41-perdidos-chinchetas-alertas-conteo-64]]
 - [[huellas-s42-botonera-negra-roja-65]]
 - [[huellas-s43-sidebar-leyenda-retirada-demo-66]]
+- [[huellas-s44-filtros-clusters-foto-seed-67]]

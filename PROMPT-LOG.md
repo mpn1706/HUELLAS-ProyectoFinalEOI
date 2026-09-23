@@ -166,3 +166,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Botoneras: `PERDIDOS ACTIVOS (5)`, `ENCONTRADOS (10)`, `ALERTAS (1)`.
 - Alerta demo retirada (no era el mismo gato): fuera `ensure_demo_alert()` + botón demo; nuevo `retirar_alerta_demo()` borra la fila 0.963 en local y Cloud con traza en log; Alertas solo muestra reales ≥85% (vacía hasta que el alumno suba foto correcta).
 - Verificación: pytest 27/27, smoke 5 páginas OK, demo local eliminada (0 alertas).
+
+## S44 — 24/09/2026 — Filtros, clusters con foto y seed (Muse Spark)
+- Filtros en Perdidos y Encontrados: `aplicar_filtros()` con animal + color (del seed: blanco, gris, marrón, naranja, negro, verde) + tamaño, en 3 columnas.
+- Chinchetas: las faltantes estaban solapadas (found_001/009, found_004/010 y lost_003/found_008 comparten coords) → `MarkerCluster` por tipo con contador y despliegue al pulsar; popup con foto (`thumb_uri()` JPEG 240px base64, funciona en Cloud) + datos + DESTACADA.
+- Seed: botón "CARGAR SEED JEREZ (15 AVISOS ACTIVOS)" y toast coherente.
+- Verificación: pytest 27/27, smoke 5 páginas OK, MarkerCluster verificado.

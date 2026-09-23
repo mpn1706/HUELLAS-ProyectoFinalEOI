@@ -346,6 +346,62 @@ def pin_color(a: dict) -> str:
     return "green" if a.get("type") == "found" else "blue"
 
 
+def aplicar_filtros(lista: list, pref: str) -> list:
+    """Filtros por animal + color + tamaño (tres columnas). Devuelve la lista filtrada."""
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        f_an = st.selectbox("Filtrar por animal", ["Todos", "Perro", "Gato", "Otro"],
+                            key=f"{pref}_animal")
+    with c2:
+        colores = ["Todos"] + sorted({(a.get("color_primary") or "").strip() for a in lista
+                                      if (a.get("color_primary") or "").strip()})
+        f_col = st.selectbox("Filtrar por color", colores, key=f"{pref}_color",
+                             format_func=lambda c: "Todos" if c == "Todos" else c.capitalize())
+    with c3:
+        f_sz = st.selectbox("Filtrar por tamaño", ["Todos", "Pequeño", "Mediano", "Grande"],
+                            key=f"{pref}_tam")
+    inv = {"Todos": None, "Perro": "dog", "Gato": "cat", "Otro": "other"}
+    invsz = {"Todos": None, "Pequeño": "small", "Mediano": "medium", "Grande": "large"}
+    return [a for a in lista
+            if (not inv[f_an] or a["animal"] == inv[f_an])
+            and (f_col == "Todos" or (a.get("color_primary") or "") == f_col)
+            and (not invsz[f_sz] or a["size"] == invsz[f_sz])]
+
+
+@st.cache_data(show_spinner=False)
+def thumb_uri(path: str) -> str:
+    """Miniatura JPEG en base64 para el popup de la chincheta (funciona en Cloud).
+
+    Si la foto no existe, cadena vacía y el popup sale solo con texto.
+    """
+    try:
+        from PIL import Image
+        import base64
+        import io
+
+        img = Image.open(path).convert("RGB")
+        img.thumbnail((240, 240))
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=65)
+        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        return ""
+
+
+def popup_html(c: dict, marca: str = "", dist=None) -> str:
+    """HTML del popup: foto + datos (la foto faltante no rompe)."""
+    uri = thumb_uri(c.get("image_url") or "")
+    img = f'<img src="{uri}" width="220"><br>' if uri else ""
+    dd = f"<br>{dist} km" if dist is not None else ""
+    return (f"<b>{c['id']}{marca}</b><br>{img}"
+            f"{animal_tag(c)}<br>{c['location'].get('address_text', '')}{dd}")
+    """Verde = encontrados · azul = perdidos activos (el query va en rojo).
+
+    Las destacadas ≥85% se anuncian en el popup, sin cambiar el color.
+    """
+    return "green" if a.get("type") == "found" else "blue"
+
+
 def leyenda_mapa():
     """Leyenda al lado del mapa: rojo = tu mascota, azul = perdidos, verde = encontrados."""
     st.markdown(
@@ -367,11 +423,13 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
     """Mapa Leaflet con chinchetas + leyenda al lado.
 
     Roja = tu mascota · azules = perdidos activos · verdes = encontrados.
-    Cada chincheta lleva tooltip corto + popup con animal, dirección,
-    distancia y marca DESTACADA si ≥85%. Si folium no está, aviso sin romper.
+    Los avisos con la misma ubicación se agrupan (círculo con el nº);
+    pulsa para desplegarlos. Cada chincheta lleva foto + datos en el popup
+    y marca DESTACADA si ≥85%. Si folium no está, aviso sin romper.
     """
     try:
         import folium
+        from folium.plugins import MarkerCluster
         from streamlit_folium import st_folium
 
         c_map, c_leg = st.columns([5, 1])
@@ -380,33 +438,34 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
             folium.Marker(
                 [q["location"]["lat"], q["location"]["lng"]],
                 tooltip=f"PERDIDO {q['id']}",
-                popup=f"TU MASCOTA · {q['id']} · {q['location'].get('address_text', '')}",
+                popup=folium.Popup(popup_html(q, marca=" · TU MASCOTA"), max_width=260),
                 icon=folium.Icon(color="red"),
             ).add_to(fmap)
+            cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
             for o in otros_lost or []:
                 if o["id"] == q["id"]:
                     continue
                 folium.Marker(
                     [o["location"]["lat"], o["location"]["lng"]],
                     tooltip=f"PERDIDO {o['id']}",
-                    popup=f"PERDIDO {o['id']} · {animal_tag(o)} · "
-                          f"{o['location'].get('address_text', '')}",
+                    popup=folium.Popup(popup_html(o), max_width=260),
                     icon=folium.Icon(color="blue"),
-                ).add_to(fmap)
+                ).add_to(cl_lost)
+            cl_found = MarkerCluster(name="Encontrados").add_to(fmap)
             for it in items:
                 c = it.get("candidato", it)
                 score = it.get("score")
                 marca = " · DESTACADA" if (score is not None and score >= 0.85) else ""
+                if score is not None:
+                    marca += f" · {score*100:.0f}%"
                 etiqueta = f"{c['id']}" + (f" {score*100:.0f}%" if score is not None else "")
-                detalle = (f"{c['id']}{marca} · {animal_tag(c)} · "
-                           f"{c['location'].get('address_text', '')}"
-                           + (f" · {it.get('dist_km')} km" if it.get("dist_km") is not None else ""))
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
                     tooltip=etiqueta,
-                    popup=detalle,
+                    popup=folium.Popup(
+                        popup_html(c, marca=marca, dist=it.get("dist_km")), max_width=260),
                     icon=folium.Icon(color=pin_color(c)),
-                ).add_to(fmap)
+                ).add_to(cl_found)
             st_folium(fmap, key=key, width=900, height=450)
         with c_leg:
             leyenda_mapa()
@@ -554,7 +613,7 @@ with st.sidebar:
                  "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.divider()
     st.subheader("Datos demo")
-    if st.button("Cargar seed Jerez (16 avisos · 15 activos)"):
+    if st.button("Cargar seed Jerez (15 avisos activos)"):
         import json as _json
 
         con2 = get_con()
@@ -569,8 +628,8 @@ with st.sidebar:
 
         _bf(con2)
         retirar_alerta_demo(con2)
-        st.success(f"Seed v{dbmod.SEED_VERSION} cargada: {total} avisos "
-                   f"(5 perdidos activos + 1 resuelto demo + 10 encontrados).")
+        st.success(f"Seed cargada: 15 avisos activos "
+                   f"(5 perdidos + 10 encontrados, +1 resuelto demo).")
         st.rerun()
     if st.button("Expirar avisos >30 días"):
         n = dbmod.expire_old(get_con(), 30)
@@ -808,9 +867,7 @@ if page == "perdidos":
     if not lost_list:
         st.info("No hay perdidos activos.")
     else:
-        p_filtro = st.selectbox("Filtrar por animal", ["Todos", "Perro", "Gato", "Otro"], key="filtro_lost")
-        invp = {"Todos": None, "Perro": "dog", "Gato": "cat", "Otro": "other"}
-        lista_p = [a for a in lost_list if not invp[p_filtro] or a["animal"] == invp[p_filtro]]
+        lista_p = aplicar_filtros(lost_list, "lost")
         stat_box(len(lista_p), "Perdidos activos")
         for a in lista_p:
             with st.container(border=True):
@@ -831,9 +888,7 @@ if page == "encontrados":
     if not found:
         st.info("Aún no hay avisos de encontrados.")
     else:
-        f_filtro = st.selectbox("Filtrar por animal", ["Todos", "Perro", "Gato", "Otro"], key="filtro_found")
-        inv = {"Todos": None, "Perro": "dog", "Gato": "cat", "Otro": "other"}
-        lista = [a for a in found if not inv[f_filtro] or a["animal"] == inv[f_filtro]]
+        lista = aplicar_filtros(found, "found")
         stat_box(len(lista), "Encontrados")
         for a in lista:
             with st.container(border=True):
