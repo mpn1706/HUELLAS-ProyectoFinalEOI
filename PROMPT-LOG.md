@@ -59,3 +59,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S12 — 23/09/2026 — Tema claro forzado (OpenCode)
 - En dark mode el texto blanco sobre nuestro fondo claro era ilegible: `.streamlit/config.toml` fija `base="light"` + paleta cálida acorde al patrón. Smoke OK, pytest 13/13.
+
+## S13 — 23/09/2026 — Contraste de widgets (OpenCode)
+- Selects, inputs, file uploaders, sliders, expanders y botones secundarios con tarjeta blanca sólida + borde `#C9BFAE` + sombra sutil; botones primary intactos. Smoke OK.

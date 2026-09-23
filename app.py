@@ -57,6 +57,29 @@ def inject_background():
                         url("data:{mime};base64,{b64}");
             background-size: 480px;
         }}
+        /* Zonas de interacción: tarjeta sólida con borde para contraste sobre el patrón */
+        [data-testid="stSelectbox"],
+        [data-testid="stTextInput"],
+        [data-testid="stTextArea"],
+        [data-testid="stNumberInput"],
+        [data-testid="stFileUploader"],
+        [data-testid="stSlider"] {{
+            background-color: #FFFFFF;
+            border: 1.5px solid #C9BFAE;
+            border-radius: 10px;
+            padding: 0.6rem 0.8rem;
+            box-shadow: 0 1px 4px rgba(120, 90, 60, 0.12);
+        }}
+        [data-testid="stExpander"] {{
+            background-color: #FFFFFF;
+            border: 1.5px solid #C9BFAE;
+            border-radius: 10px;
+        }}
+        [data-testid="stButton"] button[kind="secondary"] {{
+            background-color: #FFFFFF;
+            border: 1.5px solid #B9AE9C;
+            color: #1F2328;
+        }}
         </style>""",
         unsafe_allow_html=True,
     )
