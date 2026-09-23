@@ -2,7 +2,7 @@
 # Sin esto, el modo dark pinta texto blanco sobre fondo claro (ilegible).
 [theme]
 base = "light"
-primaryColor = "#C2410C"
+primaryColor = "#E30613"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F5F1EA"
 textColor = "#000000"

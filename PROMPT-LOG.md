@@ -81,3 +81,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S19 — 23/09/2026 — Sistema de diseño corporativo (OpenCode)
 - Inter (texto) + Montserrat 800 (títulos); todo a MAYÚSCULAS por CSS salvo inputs/código; texto `#000000` vía tema (crema `!important` solo dentro de tarjetas oscuras); cero emojis verificado por script; métricas sustituidas por cajas negras cuadradas `stat_box()` (st.metric no tiene hook en 1.64); tagline en cursiva. Smoke OK, pytest 13/13, E2E OK.
+
+## S20 — 23/09/2026 — Paleta negro/blanco/rojo (OpenCode)
+- `primaryColor` terracota → rojo brillante `#E30613`: sliders, botón primario, pestaña activa y barra de progreso pasan a rojo de una vez. Smoke OK.
