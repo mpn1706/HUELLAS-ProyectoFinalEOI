@@ -99,6 +99,10 @@ def inject_background():
             border-color: #8A7F6A;
             color: #FFFFFF;
         }}
+        [data-testid="stDivider"] {{
+            border-top: 2px solid #23201B !important;
+            background: transparent;
+        }}
         </style>""",
         unsafe_allow_html=True,
     )

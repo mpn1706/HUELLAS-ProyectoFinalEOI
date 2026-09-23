@@ -65,3 +65,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S14 — 23/09/2026 — Tarjetas oscuras (OpenCode)
 - Corrección del alumno: las quería negras, no blancas. Tarjeta `#23201B` + etiquetas/valores en `#F5F1EA` (scopeado por widget para no romper checkbox/código), botones secundarios oscuros con hover. Smoke OK.
+
+## S15 — 23/09/2026 — Divisores oscuros (OpenCode)
+- `st.divider` en `#23201B` 2px para la misma línea visual. Smoke OK.
