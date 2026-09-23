@@ -261,6 +261,34 @@ def stat_box(value, label: str, mini: bool = False):
                 f'<div class="huellas-stat-label">{label}</div></div>', unsafe_allow_html=True)
 
 
+def celebrate_search():
+    """Lluvia de lupas y huellas (paleta negro/rojo) al publicar. Solo CSS, efímera."""
+    paw = ('<svg viewBox="0 0 100 100" width="{s}" height="{s}">'
+           '<g fill="#111111"><ellipse cx="50" cy="66" rx="22" ry="17"/>'
+           '<circle cx="24" cy="36" r="10"/><circle cx="41" cy="25" r="10"/>'
+           '<circle cx="59" cy="25" r="10"/><circle cx="76" cy="36" r="10"/></g></svg>')
+    lupa = ('<svg viewBox="0 0 100 100" width="{s}" height="{s}">'
+            '<circle cx="40" cy="40" r="22" fill="none" stroke="#E30613" stroke-width="9"/>'
+            '<line x1="57" y1="57" x2="82" y2="82" stroke="#111111" stroke-width="11" '
+            'stroke-linecap="round"/></svg>')
+    items = [(paw, 70, 6, 0.0), (lupa, 60, 18, 0.2), (paw, 85, 32, 0.4), (lupa, 55, 47, 0.1),
+             (paw, 62, 61, 0.5), (lupa, 78, 74, 0.3), (paw, 58, 86, 0.15), (lupa, 66, 93, 0.55)]
+    floats = "".join(
+        f'<div class="huellas-float" style="left:{x}%;animation-delay:{d}s">{svg.format(s=s)}</div>'
+        for svg, s, x, d in items)
+    st.markdown(
+        """<style>
+        .huellas-cele { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+        .huellas-float { position: absolute; bottom: -130px; opacity: 0; animation: huellas-rise 3s ease-out forwards; }
+        @keyframes huellas-rise {
+            0% { transform: translateY(0) rotate(-8deg); opacity: 0; }
+            12% { opacity: 1; }
+            100% { transform: translateY(-115vh) rotate(20deg); opacity: 0; }
+        }
+        </style>"""
+        f'<div class="huellas-cele">{floats}</div>', unsafe_allow_html=True)
+
+
 def get_con():
     return dbmod.connect(DB)
 
@@ -558,7 +586,7 @@ with tab2:
                                   "contact_info": "", "status": "active"})
             av["image_embedding"] = get_image_embedding(img_path)
             dbmod.upsert_aviso(con, av)
-            st.balloons()
+            celebrate_search()
             st.success(f"Aviso `{av['id']}` publicado. Búscalo en la pestaña de buscar.")
         except Exception as e:
             st.error(f"Error: {e}")
