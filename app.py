@@ -16,9 +16,18 @@ from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
 
 DB = "data/huellas.db"
-st.set_page_config(page_title="MascotasLost&Found", layout="wide")
-st.title("MascotasLost&Found — Jerez de la Frontera")
+st.set_page_config(page_title="HUELLAS", page_icon="🐾", layout="wide")
+st.title("🐾 HUELLAS")
+st.subheader("MascotasLost&Found — Jerez de la Frontera")
 st.caption("Sistema de posibles coincidencias lost ↔ found. " + AVISO_LEGAL)
+
+
+def show_image(path: str, caption: str = ""):
+    """Muestra imagen si existe; si no, placeholder textual (rutas locales ausentes en Cloud)."""
+    if path and Path(path).exists():
+        st.image(path, caption=caption, use_container_width=True)
+    else:
+        st.info("📷 Imagen no disponible en este despliegue." + (f" {caption}" if caption else ""))
 
 
 def get_con():
@@ -92,16 +101,36 @@ all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in con.execute("SELE
 tab1, tab2, tab3 = st.tabs(["🔍 Buscar coincidencias", "➕ Registrar aviso", "🔔 Notificaciones"])
 
 with tab1:
+    st.subheader("Busca a tu mascota entre los avisos de encontrados")
     if not all_lost:
         st.info("No hay avisos lost activos.")
     else:
+        etiquetas = {a["id"]: f"[{a['id']}] {a['animal']} · {a['color_primary']} · {a['size']}" for a in all_lost}
         qid = st.selectbox("Aviso perdido", [a["id"] for a in all_lost],
-                           format_func=lambda i: f"{i} — {next(a['description_text'][:60] for a in all_lost if a['id']==i)}")
+                           format_func=lambda i: etiquetas.get(i, i))
         q = dbmod.get_aviso(con, qid)
-        st.write(f"**{q['animal']}** · {q['color_primary']} · {q['size']} · collar: {q['has_collar']} · fecha: {effective_date(q).date()}")
+        col_foto, col_datos = st.columns([1, 1])
+        with col_foto:
+            show_image(q["image_url"], caption=f"Foto registrada · {q['id']}")
+        with col_datos:
+            st.markdown(f"### [{q['id']}] {q['animal']} · {q['color_primary']} · {q['size']}")
+            st.write(q["description_text"])
+            st.write(f"Collar: {'sí' if q['has_collar'] else 'no'} · Fecha: {effective_date(q).date()} · {q['location'].get('address_text', '')}")
+        foto_q = st.file_uploader("Sube una foto actual para refinar la búsqueda visual (opcional)",
+                                  type=["jpg", "jpeg", "png"], key="q_foto")
+        embed_fn = visual_fn_factory()
+        if foto_q:
+            st.image(foto_q, caption="Vista previa de tu foto", use_container_width=True)
+            Path("data/uploads").mkdir(parents=True, exist_ok=True)
+            qpath = "data/uploads/_query_preview.jpg"
+            Path(qpath).write_bytes(foto_q.getbuffer())
+            q_emb = get_image_embedding(qpath)
+            base_fn = embed_fn
+            embed_fn = lambda a, _b=base_fn, _q=q_emb, _qid=q["id"]: _q if a["id"] == _qid else _b(a)
+            st.caption("Búsqueda visual con tu foto subida.")
         if st.button("Buscar"):
             cands = dbmod.get_active_opuestos(con, "lost")
-            matches = retrieve(q, cands, visual_fn_factory(), semantic_similarity)
+            matches = retrieve(q, cands, embed_fn, semantic_similarity)
             notificados = notificar(con, q["id"], matches)
             if notificados:
                 st.success(f"{len(notificados)} posible(s) coincidencia(s) destacada(s) >=85% (ver Notificaciones).")
@@ -115,8 +144,7 @@ with tab1:
                     for col, av, tag in ((col1, q, "PERDIDO"), (col2, c, "ENCONTRADO")):
                         with col:
                             st.markdown(f"**{tag}** `{av['id']}`")
-                            if Path(av["image_url"]).exists():
-                                st.image(av["image_url"], use_column_width=True)
+                            show_image(av["image_url"])
                             st.write(av["description_text"])
                             st.write(f"{av['color_primary']} · {av['size']} · collar {av['has_collar']} · {av['location'].get('address_text','')}")
                     st.code(explain(m))
@@ -142,6 +170,8 @@ with tab2:
     tipo = st.selectbox("Tipo", ["lost", "found"])
     animal = st.selectbox("Animal", ["dog", "cat", "other"])
     foto = st.file_uploader("Foto", type=["jpg", "jpeg", "png"])
+    if foto:
+        st.image(foto, caption="Vista previa", use_container_width=True)
     desc = st.text_area("Descripción libre", "Perro marrón mediano con mancha blanca en el pecho, collar rojo.")
     c1 = st.text_input("color_primary", "marrón")
     size = st.selectbox("Tamaño", ["small", "medium", "large"])
