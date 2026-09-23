@@ -87,3 +87,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S21 — 23/09/2026 — Aviso legal único en sidebar (OpenCode)
 - Fuera de alertas, resultados (`explain`), log y cabecera; sidebar sin logo/tagline redundantes; expander negro AVISO LEGAL con el texto nuevo + título FUNCIONAMIENTO WEB sobre Cómo puntúa. Specs y README actualizados. Pytest 13/13, smoke y E2E OK.
+
+## S22 — 23/09/2026 — Aviso legal al final del sidebar (OpenCode)
+- Expander movido bajo DATOS DEMO con divisor negro como el de Funcionamiento/Datos. Smoke OK.
