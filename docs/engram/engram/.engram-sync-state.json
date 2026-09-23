@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-23T23:43:59Z",
+  "last_export_at": "2026-09-23T23:56:01Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -13,7 +13,8 @@
     "65": "huellas\\manual\\huellas-s42-botonera-negra-roja-65.md",
     "66": "huellas\\manual\\huellas-s43-sidebar-leyenda-retirada-demo-66.md",
     "67": "huellas\\manual\\huellas-s44-filtros-clusters-foto-seed-67.md",
-    "68": "huellas\\manual\\huellas-s45-alerta-real-found-011-68.md"
+    "68": "huellas\\manual\\huellas-s45-alerta-real-found-011-68.md",
+    "69": "huellas\\manual\\huellas-s46-foto-found-011-calidad-69.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

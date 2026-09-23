@@ -310,8 +310,9 @@ def ensure_db():
                     total += 1
             dbmod.set_seed_version(con)
         st.toast(f"Seed v{dbmod.SEED_VERSION} cargada: {total} avisos.")
-    from agents.vision import backfill_embeddings
+    from agents.vision import backfill_embeddings, sync_seed_embeddings
     backfill_embeddings(con)
+    sync_seed_embeddings(con)
     return con
 
 
@@ -624,9 +625,10 @@ with st.sidebar:
                 dbmod.upsert_aviso(con2, normalize_aviso(_json.loads(fp.read_text(encoding="utf-8"))))
                 total += 1
         dbmod.set_seed_version(con2)
-        from agents.vision import backfill_embeddings as _bf
+        from agents.vision import backfill_embeddings as _bf, sync_seed_embeddings as _sy
 
         _bf(con2)
+        _sy(con2)
         retirar_alerta_demo(con2)
         st.success(f"Seed cargada: 16 avisos activos "
                    f"(5 perdidos + 11 encontrados, +1 resuelto demo).")

@@ -92,6 +92,33 @@ def get_image_embedding(image_path: str) -> list:
         return _fallback_embedding(key)
 
 
+def sync_seed_embeddings(con) -> int:
+    """Actualiza image_embedding si embeddings.json trae otro vector.
+
+    Caso: se sustituye la foto de un aviso (misma descripción e id).
+    Evita subir SEED_VERSION (y el wipe) cuando solo cambia una imagen.
+    Devuelve nº de avisos actualizados.
+    """
+    import json as _json
+
+    try:
+        with open(EMBEDDINGS_JSON, encoding="utf-8") as f:
+            pre = _json.load(f)
+    except OSError:
+        return 0
+    n = 0
+    for _id, vec in pre.items():
+        r = con.execute("SELECT image_embedding FROM avisos WHERE id=?", (_id,)).fetchone()
+        if not r:
+            continue
+        want = _json.dumps(vec)
+        if r["image_embedding"] != want:
+            con.execute("UPDATE avisos SET image_embedding=? WHERE id=?", (want, _id))
+            n += 1
+    con.commit()
+    return n
+
+
 def backfill_embeddings(con) -> int:
     """Rellena image_embedding NULL sin tocar los ya fijados.
 

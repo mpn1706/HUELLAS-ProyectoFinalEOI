@@ -14,3 +14,4 @@ tags:
 - [[huellas-s43-sidebar-leyenda-retirada-demo-66]]
 - [[huellas-s44-filtros-clusters-foto-seed-67]]
 - [[huellas-s45-alerta-real-found-011-68]]
+- [[huellas-s46-foto-found-011-calidad-69]]

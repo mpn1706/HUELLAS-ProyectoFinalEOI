@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-23 23:44:01",
+  "exported_at": "2026-09-23 23:56:02",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1294,6 +1294,21 @@
       "last_seen_at": "2026-09-23 23:43:58",
       "created_at": "2026-09-23 23:43:58",
       "updated_at": "2026-09-23 23:43:58"
+    },
+    {
+      "id": 69,
+      "sync_id": "obs-28013a04e92f6dda",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S46 foto found_011 calidad",
+      "content": "S46 24/09/2026 (Muse Spark): alumno sustituye foto found_011 por 320x427, embeddings.json regenerado, nuevo sync_seed_embeddings en vision.py (sin wipe, local+Cloud), score real 85.6% Alerta actualizada. Pytest 27/27, smoke y E2E OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-23 23:56:01",
+      "created_at": "2026-09-23 23:56:01",
+      "updated_at": "2026-09-23 23:56:01"
     }
   ],
   "prompts": [
@@ -2872,6 +2887,14 @@
       "content": "Mira, usaremos esta como demo para la alerta. Haz un registro nuevo, con descripción similar y dirección de avistamiento cerca a Lost_001, luego genera la alerta entre ambos [Image 1]",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-23 23:38:38"
+    },
+    {
+      "id": 198,
+      "sync_id": "prompt-cca0bd99c03d2972",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Cambié la imagen por otra de mayor calidad, no tienes que hacer nada más que cambiar la imagen que había por esta. Deja la misma descripción, coincidencia, etc. [Image 1]",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-23 23:53:57"
     }
   ]
 }

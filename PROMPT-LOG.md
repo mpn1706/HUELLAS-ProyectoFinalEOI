@@ -178,3 +178,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - `make_seed.py` + `SEED_VERSION=3` (Cloud recarga sola) + `embeddings.json` con 17 vectores CLIP (imprescindible: Cloud no tiene torch).
 - Score real 89.9% (v=0.81, g=0.99, t=0.89, tmp=0.97) → `notificar()` genera la alerta; `demo_check.py` ahora exige top=found_011 ≥85% (found_001 sigue ≥65%).
 - Textos a 17 avisos / 16 activos / 11 encontrados. Verificación: pytest 27/27, smoke 5 páginas OK, E2E OK.
+
+## S46 — 24/09/2026 — Foto found_011 de mayor calidad (Muse Spark)
+- Alumno sustituye el JPG (320×427); misma descripción e id. `embeddings.json` regenerado (17 CLIP) + nuevo `sync_seed_embeddings()` en `agents/vision.py` (actualiza vectores cambiados en local y Cloud sin wipe; llamado en `ensure_db` y recarga seed).
+- Nuevo score real 85.6% (visual 0.71, antes 0.81 con la foto pequeña): sigue ≥85, alerta actualizada. Verificación: pytest 27/27, smoke 5 páginas OK, E2E OK.
