@@ -386,7 +386,7 @@ m1, m2, m3 = st.columns(3)
 with m1:
     stat_box(n_lost, "Perdidos activos")
 with m2:
-    stat_box(n_found, "Encontrados activos")
+    stat_box(n_found, "Encontrados")
 with m3:
     stat_box(n_notif, "Alertas ≥85%")
 
@@ -414,7 +414,7 @@ with st.sidebar:
 all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in
                         con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()) if a]
 
-tab1, tab2, tab3 = st.tabs(["Buscar a mi mascota", "Publicar aviso", "Alertas"])
+tab1, tabF, tab2, tab3 = st.tabs(["Buscar a mi mascota", "Encontrados", "Publicar aviso", "Alertas"])
 
 # ── TAB 1: Buscar ─────────────────────────────────────────────────────
 with tab1:
@@ -513,6 +513,29 @@ with tab1:
                     st_folium(fmap, key="res_map", width=900, height=450)
                 except Exception as e:
                     st.caption(f"Mapa no disponible ({e}).")
+
+# ── TAB: Encontrados ────────────────────────────────────────────────
+with tabF:
+    st.subheader("Animales encontrados")
+    found = dbmod.get_active_opuestos(con, "lost")
+    if not found:
+        st.info("Aún no hay avisos de encontrados.")
+    else:
+        f_filtro = st.selectbox("Filtrar por animal", ["Todos", "Perro", "Gato", "Otro"], key="filtro_found")
+        inv = {"Todos": None, "Perro": "dog", "Gato": "cat", "Otro": "other"}
+        lista = [a for a in found if not inv[f_filtro] or a["animal"] == inv[f_filtro]]
+        stat_box(len(lista), "Encontrados")
+        for a in lista:
+            with st.container(border=True):
+                c1, c2 = st.columns([1, 1])
+                with c1:
+                    show_image(a["image_url"], caption=f"Foto · {a['id']}")
+                with c2:
+                    st.markdown(f"### {animal_tag(a)}")
+                    st.write(a["description_text"])
+                    st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
+                    st.write(f"- Visto: {effective_date(a).date()}")
+                    st.write(f"- {a['location'].get('address_text', '')}")
 
 # ── TAB 2: Registrar ──────────────────────────────────────────────────
 with tab2:

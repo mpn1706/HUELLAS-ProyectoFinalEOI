@@ -79,6 +79,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S30 — 23/09/2026 — Celebración con lupas y huellas (OpenCode)
 - Fuera `st.balloons()`: `celebrate_search()` con 8 SVG (huella negra + lupa roja) flotando 3s, solo CSS efímero, sin emojis. Smoke OK, pytest 13/13.
 
+## S31 — 23/09/2026 — Pestaña Encontrados (OpenCode)
+- Nueva pestaña con tarjetas foto+dato+viñetas y filtro por animal; métrica "Encontrados" (sin "activos"). Smoke OK (4 tabs), pytest 13/13.
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 
