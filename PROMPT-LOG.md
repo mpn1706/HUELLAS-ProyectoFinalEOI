@@ -99,6 +99,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Hallazgos: histograma insuficiente (fondos dominan) y rama CLIP rota (`BaseModelOutputWithPooling` → `pooler_output`); CLIP real da 0.63-0.75 en parejas. `embeddings.json` con 16 vectores versionado.
 - Admin edita cualquier campo (validado + log). Smoke con timeout 60s (árbol grande). Pytest 27/27, parejas 5/5 ≥65%, E2E OK.
 
+## S37 — 24/09/2026 — Seed versionado (OpenCode)
+- Cloud mostraba datos viejos con código nuevo: la DB sobrevive al redespliegue y el autoseed solo cargaba si vacía. `PRAGMA user_version` + `SEED_VERSION=2`: al subir, wipe + recarga + avisos frescos (también limpia fantasmas found_011/012 en local). Pytest 27/27, E2E y smoke OK.
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 

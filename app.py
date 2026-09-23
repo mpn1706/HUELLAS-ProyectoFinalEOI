@@ -300,14 +300,16 @@ def ensure_db():
 
     con = get_con()
     n = con.execute("SELECT COUNT(*) FROM avisos").fetchone()[0]
-    if n == 0:
-        with st.spinner("Cargando corpus demo de Jerez (16 avisos)…"):
+    if dbmod.get_seed_version(con) != dbmod.SEED_VERSION or n == 0:
+        with st.spinner("Actualizando corpus demo de Jerez…"):
+            dbmod.wipe_all(con)
             total = 0
             for folder in ("lost", "found"):
                 for fp in sorted(Path("data/seed", folder).glob("*.json")):
                     dbmod.upsert_aviso(con, normalize_aviso(json.loads(fp.read_text(encoding="utf-8"))))
                     total += 1
-        st.toast(f"Seed cargada: {total} avisos.")
+            dbmod.set_seed_version(con)
+        st.toast(f"Seed v{dbmod.SEED_VERSION} cargada: {total} avisos.")
     from agents.vision import backfill_embeddings
     backfill_embeddings(con)
     return con

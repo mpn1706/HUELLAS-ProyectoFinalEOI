@@ -4,6 +4,9 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
+# Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
+SEED_VERSION = 2
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
   id TEXT PRIMARY KEY,
@@ -33,6 +36,21 @@ COLS = ["id", "type", "animal", "breed_guess", "color_primary", "color_secondary
         "markings", "size", "has_collar", "collar_description", "description_text",
         "lat", "lng", "address_text", "date_reported", "date_last_seen",
         "image_url", "image_embedding", "contact_info", "status"]
+
+
+def get_seed_version(con: sqlite3.Connection) -> int:
+    return con.execute("PRAGMA user_version").fetchone()[0]
+
+
+def set_seed_version(con: sqlite3.Connection, v: int = SEED_VERSION):
+    con.execute(f"PRAGMA user_version={int(v)}")
+    con.commit()
+
+
+def wipe_all(con: sqlite3.Connection):
+    con.execute("DELETE FROM notifications")
+    con.execute("DELETE FROM avisos")
+    con.commit()
 
 
 def connect(db_path: str) -> sqlite3.Connection:
