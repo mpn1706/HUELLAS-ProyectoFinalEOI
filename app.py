@@ -613,7 +613,7 @@ with st.sidebar:
                  "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.divider()
     st.subheader("Datos demo")
-    if st.button("Cargar seed Jerez (15 avisos activos)"):
+    if st.button("Cargar seed Jerez (16 avisos activos)"):
         import json as _json
 
         con2 = get_con()
@@ -628,8 +628,8 @@ with st.sidebar:
 
         _bf(con2)
         retirar_alerta_demo(con2)
-        st.success(f"Seed cargada: 15 avisos activos "
-                   f"(5 perdidos + 10 encontrados, +1 resuelto demo).")
+        st.success(f"Seed cargada: 16 avisos activos "
+                   f"(5 perdidos + 11 encontrados, +1 resuelto demo).")
         st.rerun()
     if st.button("Expirar avisos >30 días"):
         n = dbmod.expire_old(get_con(), 30)

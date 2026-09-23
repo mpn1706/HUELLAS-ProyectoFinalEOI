@@ -1,4 +1,4 @@
-"""Genera el seed Jerez v2 (16 avisos con fotos reales: 6 lost + 10 found).
+"""Genera el seed Jerez v3 (17 avisos con fotos reales: 6 lost + 11 found).
 
 Cada foto se asigna a un aviso con atributos según rasgos visibles y una
 ubicación exacta reciclada del pool validado (Nominatim, S28).
@@ -63,6 +63,9 @@ A = [
     ("found_010.json", "found", "other", None, "verde", None, ["cabeza amarilla"], "small", False, None,
      "Loro verde visto en un árbol del parque González Hontoria. No se deja coger.",
      36.69524, -6.12599, "Parque González Hontoria, Jerez de la Frontera", "2026-09-19T14:00:00+02:00", None, "loro 1.jpg", "active"),
+    ("found_011.json", "found", "cat", "europeo", "naranja", None, ["rayas", "cola anillada"], "small", False, None,
+     "Gatito naranja atigrado encontrado junto a la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable, se deja coger. Está a salvo.",
+     36.6821, -6.1376, "Calle San Miguel, junto a la plaza del Arenal, Jerez de la Frontera", "2026-09-20T18:00:00+02:00", None, "gato alert coincidencia con lost_001.jpg", "active"),
 ]
 
 

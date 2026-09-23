@@ -172,3 +172,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Chinchetas: las faltantes estaban solapadas (found_001/009, found_004/010 y lost_003/found_008 comparten coords) → `MarkerCluster` por tipo con contador y despliegue al pulsar; popup con foto (`thumb_uri()` JPEG 240px base64, funciona en Cloud) + datos + DESTACADA.
 - Seed: botón "CARGAR SEED JEREZ (15 AVISOS ACTIVOS)" y toast coherente.
 - Verificación: pytest 27/27, smoke 5 páginas OK, MarkerCluster verificado.
+
+## S45 — 24/09/2026 — Alerta real lost_001→found_011 (Muse Spark)
+- Foto del alumno guardada como `data/seed/images/gato alert coincidencia con lost_001.jpg`; alta `found_011` (gato naranja, rayas + cola anillada, small, sin collar, Calle San Miguel a 90 m de lost_001, 20/09).
+- `make_seed.py` + `SEED_VERSION=3` (Cloud recarga sola) + `embeddings.json` con 17 vectores CLIP (imprescindible: Cloud no tiene torch).
+- Score real 89.9% (v=0.81, g=0.99, t=0.89, tmp=0.97) → `notificar()` genera la alerta; `demo_check.py` ahora exige top=found_011 ≥85% (found_001 sigue ≥65%).
+- Textos a 17 avisos / 16 activos / 11 encontrados. Verificación: pytest 27/27, smoke 5 páginas OK, E2E OK.

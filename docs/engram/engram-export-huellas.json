@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-23 23:37:36",
+  "exported_at": "2026-09-23 23:44:01",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1279,6 +1279,21 @@
       "last_seen_at": "2026-09-23 23:37:35",
       "created_at": "2026-09-23 23:37:35",
       "updated_at": "2026-09-23 23:37:35"
+    },
+    {
+      "id": 68,
+      "sync_id": "obs-6507b6a1d5e98ae3",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S45 alerta real found_011",
+      "content": "S45 24/09/2026 (Muse Spark): foto alumno -\u003e found_011 junto a lost_001, SEED_VERSION 3, embeddings.json 17 vectores CLIP, score real 89.9% con alerta generada, demo_check exige top found_011 \u003e=85%. Pytest 27/27, smoke y E2E OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-23 23:43:58",
+      "created_at": "2026-09-23 23:43:58",
+      "updated_at": "2026-09-23 23:43:58"
     }
   ],
   "prompts": [
@@ -2849,6 +2864,14 @@
       "content": "- En perdidos y encontrados pon filtros no solo por tipo de animal, también por color y tamaño.\n\n- En las chinchetas solo aparecen 3 azules y 9 verdes, ¿y las faltantes? Lo ideal es que cuando seleccionemos una de las chinchetas nos aparezca una foto del animal, no solo la descripción.\n\n- en CARGAR SEED JEREZ pon solo esto: CARGAR SEED JEREZ (15 AVISOS ACTIVOS)",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-23 23:34:34"
+    },
+    {
+      "id": 197,
+      "sync_id": "prompt-a7673660a0ea43c2",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Mira, usaremos esta como demo para la alerta. Haz un registro nuevo, con descripción similar y dirección de avistamiento cerca a Lost_001, luego genera la alerta entre ambos [Image 1]",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-23 23:38:38"
     }
   ]
 }

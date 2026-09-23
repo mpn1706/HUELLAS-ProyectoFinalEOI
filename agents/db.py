@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
-SEED_VERSION = 2
+SEED_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
