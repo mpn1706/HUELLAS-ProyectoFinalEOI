@@ -63,8 +63,32 @@ def inject_background():
             font-style: italic;
             font-weight: 600;
         }}
-        input, textarea, code, pre {{
+        code, pre {{
             text-transform: none !important;
+        }}
+        /* Todo en mayúsculas también dentro de campos (solo visual; el valor guardado no cambia) */
+        input, textarea,
+        div[data-baseweb="select"], div[data-baseweb="select"] *,
+        div[data-baseweb="popover"], div[data-baseweb="popover"] *,
+        div[data-baseweb="menu"], div[data-baseweb="menu"] * {{
+            font-family: 'Inter', system-ui, sans-serif;
+            text-transform: uppercase !important;
+        }}
+        /* Streamlit 1.64 no tiene i18n: se traducen los textos fijos del uploader */
+        [data-testid="stFileUploader"] button {{
+            font-size: 0 !important;
+        }}
+        [data-testid="stFileUploader"] button::after {{
+            content: "SUBIR FOTO";
+            font-size: 0.875rem;
+            font-weight: 600;
+        }}
+        [data-testid="stFileUploaderDropzoneInstructions"] {{
+            font-size: 0 !important;
+        }}
+        [data-testid="stFileUploaderDropzoneInstructions"]::after {{
+            content: "MÁX. 200MB POR ARCHIVO • JPG, PNG";
+            font-size: 0.75rem;
         }}
         /* El menú del desplegable vive en un portal fuera del contenedor: mayúsculas + Inter también aquí */
         div[data-baseweb="popover"], div[data-baseweb="menu"] {{
@@ -351,9 +375,9 @@ with tab1:
             with c_datos:
                 st.markdown(f"### {animal_tag(q)}")
                 st.write(q["description_text"])
-                st.write(f"Collar: {'sí' if q['has_collar'] else 'no'}")
-                st.write(f"Visto: {effective_date(q).date()}")
-                st.write(q["location"].get("address_text", ""))
+                st.write(f"- Collar: {'sí' if q['has_collar'] else 'no'}")
+                st.write(f"- Visto: {effective_date(q).date()}")
+                st.write(f"- {q['location'].get('address_text', '')}")
 
         st.subheader("2. Foto actual (opcional)")
         foto_q = st.file_uploader("Sube una foto reciente para afinar la búsqueda visual",

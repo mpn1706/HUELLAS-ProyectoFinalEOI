@@ -94,5 +94,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S24 — 23/09/2026 — Aviso legal dentro de Funcionamiento web (OpenCode)
 - El expander pasa a ser el segundo de FUNCIONAMIENTO WEB (tras Cómo puntúa); se retira el bloque inferior. Smoke OK.
 
+## S25 — 23/09/2026 — Mayúsculas totales + uploader en español (OpenCode)
+- `text-transform` también en inputs/selects/portales (solo visual); botón Upload→SUBIR FOTO y límites→español por CSS (1.64 sin i18n, verificado en el chunk FileUploader); datos de tarjeta con viñetas. Pytest 13/13, smoke y E2E OK.
+
 ## S23 — 23/09/2026 — Español total + mayúsculas en portal y botones (OpenCode)
 - Mapas ES en display (`Perro/Gato/Otro`, `Pequeño/Mediano/Grande`; la BD sigue en inglés por spec); datos collar/visto/zona en vertical; `text-transform` también en popover del desplegable y en `button` (no heredan). Pytest 13/13, smoke y E2E OK.
