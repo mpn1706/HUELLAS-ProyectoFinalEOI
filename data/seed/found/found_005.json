@@ -1,0 +1,24 @@
+{
+  "id": "found_005",
+  "type": "found",
+  "animal": "other",
+  "breed_guess": null,
+  "color_primary": "verde",
+  "color_secondary": null,
+  "markings": [],
+  "size": "small",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Loro verde encontrado en un balcón de La Granja.",
+  "location": {
+    "lat": 36.7005,
+    "lng": -6.121,
+    "address_text": "La Granja, Jerez"
+  },
+  "date_reported": "2026-09-19T14:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/loro_verde.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}

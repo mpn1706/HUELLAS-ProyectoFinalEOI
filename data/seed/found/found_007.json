@@ -1,0 +1,26 @@
+{
+  "id": "found_007",
+  "type": "found",
+  "animal": "dog",
+  "breed_guess": "bulldog",
+  "color_primary": "blanco",
+  "color_secondary": "marrón",
+  "markings": [
+    "mancha ojo"
+  ],
+  "size": "medium",
+  "has_collar": true,
+  "collar_description": "collar negro",
+  "description_text": "Bulldog blanco y marrón con collar negro en Puerta del Sur.",
+  "location": {
+    "lat": 36.67,
+    "lng": -6.15,
+    "address_text": "Puerta del Sur, Jerez"
+  },
+  "date_reported": "2026-09-12T10:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/bulldog_sur.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}

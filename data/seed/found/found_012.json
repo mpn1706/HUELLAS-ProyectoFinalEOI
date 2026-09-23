@@ -1,0 +1,26 @@
+{
+  "id": "found_012",
+  "type": "found",
+  "animal": "cat",
+  "breed_guess": "europeo",
+  "color_primary": "naranja",
+  "color_secondary": null,
+  "markings": [
+    "cola rayada"
+  ],
+  "size": "medium",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Gato naranja de cola rayada en Icovesa.",
+  "location": {
+    "lat": 36.686,
+    "lng": -6.128,
+    "address_text": "Icovesa, Jerez"
+  },
+  "date_reported": "2026-09-20T09:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/gato_naranja.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}

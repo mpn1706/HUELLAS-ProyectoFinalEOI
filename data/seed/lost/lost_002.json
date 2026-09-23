@@ -1,0 +1,26 @@
+{
+  "id": "lost_002",
+  "type": "lost",
+  "animal": "cat",
+  "breed_guess": "europeo",
+  "color_primary": "negro",
+  "color_secondary": null,
+  "markings": [
+    "patas blancas"
+  ],
+  "size": "small",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Gata negra pequeña con patas blancas, vista por última vez en el barrio de San Joaquín.",
+  "location": {
+    "lat": 36.695,
+    "lng": -6.13,
+    "address_text": "San Joaquín, Jerez"
+  },
+  "date_reported": "2026-09-18T09:00:00+02:00",
+  "date_last_seen": "2026-09-17T20:00:00+02:00",
+  "image_url": "data/seed/images/gata_negra_sanjoaquin.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}

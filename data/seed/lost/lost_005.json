@@ -1,0 +1,24 @@
+{
+  "id": "lost_005",
+  "type": "lost",
+  "animal": "cat",
+  "breed_guess": "siamés",
+  "color_primary": "crema",
+  "color_secondary": "marrón",
+  "markings": [],
+  "size": "small",
+  "has_collar": true,
+  "collar_description": "collar rosa con cascabel",
+  "description_text": "Gato siamés crema con collar rosa, dócil, perdido en el centro.",
+  "location": {
+    "lat": 36.681,
+    "lng": -6.139,
+    "address_text": "Centro, Jerez"
+  },
+  "date_reported": "2026-08-10T10:00:00+02:00",
+  "date_last_seen": "2026-08-09T10:00:00+02:00",
+  "image_url": "data/seed/images/siames_centro.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "resolved"
+}

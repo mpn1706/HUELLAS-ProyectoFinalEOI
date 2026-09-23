@@ -1,0 +1,24 @@
+{
+  "id": "found_004",
+  "type": "found",
+  "animal": "dog",
+  "breed_guess": "podenco",
+  "color_primary": "blanco",
+  "color_secondary": "marrón",
+  "markings": [],
+  "size": "medium",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Podenco blanco sin collar visto corriendo por Chapín.",
+  "location": {
+    "lat": 36.691,
+    "lng": -6.148,
+    "address_text": "Chapín, Jerez"
+  },
+  "date_reported": "2026-09-16T10:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/podenco_blanco.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}

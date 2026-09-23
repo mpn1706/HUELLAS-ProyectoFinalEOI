@@ -1,0 +1,26 @@
+{
+  "id": "found_006",
+  "type": "found",
+  "animal": "cat",
+  "breed_guess": "atigrado",
+  "color_primary": "gris",
+  "color_secondary": null,
+  "markings": [
+    "rayas"
+  ],
+  "size": "small",
+  "has_collar": true,
+  "collar_description": "collar verde",
+  "description_text": "Gato atigrado gris con collar verde en el barrio de Santiago.",
+  "location": {
+    "lat": 36.688,
+    "lng": -6.14,
+    "address_text": "Santiago, Jerez"
+  },
+  "date_reported": "2026-09-17T10:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/gato_gris_santiago.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}

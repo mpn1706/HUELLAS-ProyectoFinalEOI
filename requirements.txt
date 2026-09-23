@@ -1,0 +1,15 @@
+# Núcleo ligero (ejecución local <10 min, sin claves)
+streamlit>=1.32
+streamlit-folium>=0.18
+numpy>=1.26
+pillow>=10.0
+scikit-learn>=1.3
+
+# IA local (pesados, opcionales en primera ejecución; hay fallback determinista)
+# Se instalan para la demo completa con embeddings reales:
+# torch>=2.0
+# transformers>=4.38
+# sentence-transformers>=2.2
+
+# Dev
+pytest>=8.0

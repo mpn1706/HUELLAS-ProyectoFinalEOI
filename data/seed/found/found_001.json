@@ -1,0 +1,26 @@
+{
+  "id": "found_001",
+  "type": "found",
+  "animal": "dog",
+  "breed_guess": "mestizo",
+  "color_primary": "marrón",
+  "color_secondary": null,
+  "markings": [
+    "mancha blanca pecho"
+  ],
+  "size": "medium",
+  "has_collar": true,
+  "collar_description": "collar rojo",
+  "description_text": "Encontrado perro marrón mediano con mancha blanca en el pecho y collar rojo por el centro, muy dócil.",
+  "location": {
+    "lat": 36.6836,
+    "lng": -6.1386,
+    "address_text": "Centro, Jerez"
+  },
+  "date_reported": "2026-09-20T12:00:00+02:00",
+  "date_last_seen": "2026-09-20T08:00:00+02:00",
+  "image_url": "data/seed/images/perro_marron_centro.jpg",
+  "image_embedding": null,
+  "contact_info": "600 123 456",
+  "status": "active"
+}
