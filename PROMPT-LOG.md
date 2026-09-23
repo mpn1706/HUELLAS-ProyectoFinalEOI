@@ -91,5 +91,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S22 — 23/09/2026 — Aviso legal al final del sidebar (OpenCode)
 - Expander movido bajo DATOS DEMO con divisor negro como el de Funcionamiento/Datos. Smoke OK.
 
+## S24 — 23/09/2026 — Aviso legal dentro de Funcionamiento web (OpenCode)
+- El expander pasa a ser el segundo de FUNCIONAMIENTO WEB (tras Cómo puntúa); se retira el bloque inferior. Smoke OK.
+
 ## S23 — 23/09/2026 — Español total + mayúsculas en portal y botones (OpenCode)
 - Mapas ES en display (`Perro/Gato/Otro`, `Pequeño/Mediano/Grande`; la BD sigue en inglés por spec); datos collar/visto/zona en vertical; `text-transform` también en popover del desplegable y en `button` (no heredan). Pytest 13/13, smoke y E2E OK.

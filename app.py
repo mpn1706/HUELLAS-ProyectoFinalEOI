@@ -314,6 +314,9 @@ with st.sidebar:
     with st.expander("Cómo puntúa (fórmula cerrada)"):
         st.code("0.40·visual + 0.30·geo\n+ 0.20·texto + 0.10·temporal")
         st.caption("≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días")
+    with st.expander("Aviso legal"):
+        st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
+                 "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.divider()
     st.subheader("Datos demo")
     if st.button("Cargar seed Jerez (17 avisos)"):
@@ -325,10 +328,6 @@ with st.sidebar:
     if st.button("Expirar avisos >30 días"):
         n = dbmod.expire_old(get_con(), 30)
         st.info(f"Avisos expirados: {n}")
-    st.divider()
-    with st.expander("Aviso legal"):
-        st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
-                 "Una imagen no permite confirmar la identidad, verifique en persona.")
 
 all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in
                         con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()) if a]
