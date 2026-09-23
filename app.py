@@ -113,9 +113,16 @@ def inject_background():
         [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
             border-color: #23201B !important;
         }}
-        /* Filete bajo las pestañas Buscar/Publicar/Alertas */
+        /* Pestañas: sin doble línea; la activa lleva un único subrayado negro grueso */
         [data-testid="stTabs"] [role="tablist"] {{
-            border-bottom: 2px solid #23201B !important;
+            border-bottom: none !important;
+        }}
+        [data-testid="stTab"] {{
+            border-bottom: 3px solid transparent;
+        }}
+        [data-testid="stTab"][aria-selected="true"] {{
+            border-bottom: 3px solid #23201B !important;
+            font-weight: 600;
         }}
         </style>""",
         unsafe_allow_html=True,

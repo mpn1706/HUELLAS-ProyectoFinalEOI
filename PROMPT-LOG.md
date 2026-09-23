@@ -72,3 +72,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S16 — 23/09/2026 — Todas las líneas en negro + pin de versiones (OpenCode)
 - El alumno no veía cambios: el `st.divider` no tiene testid propio en 1.64 → regla sobre `hr`; tarjetas con borde nativo vía `border-color` en `stVerticalBlock` (verificado en el bundle: el borde sale del tema, sin testid propio); filete bajo pestañas vía `stTabs [role=tablist]`.
 - `requirements.txt` fija `streamlit==1.64.0` y `streamlit-folium==0.27.4` para que Cloud sea idéntica al local. Smoke OK, pytest 13/13.
+
+## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
+- El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
