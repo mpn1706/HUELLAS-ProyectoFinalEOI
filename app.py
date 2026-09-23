@@ -411,12 +411,67 @@ with st.sidebar:
     if st.button("Expirar avisos >30 días"):
         n = dbmod.expire_old(get_con(), 30)
         st.info(f"Avisos expirados: {n}")
+    st.divider()
+    st.subheader("Administración")
+    TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
+    ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
+
+    def _expected_pw() -> str:
+        try:
+            v = st.secrets.get("ADMIN_PASSWORD", "")
+            if v:
+                return str(v)
+        except Exception:
+            pass
+        import os
+        return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
+
+    if not st.session_state.get("admin_ok"):
+        pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
+        if st.button("Entrar"):
+            if admmod.check_password(pw, _expected_pw()):
+                st.session_state.admin_ok = True
+                st.success("Sesión de administrador iniciada.")
+                st.rerun()
+            else:
+                st.error("Contraseña incorrecta.")
+    else:
+        f_tipo = st.selectbox("Tipo", ["todos", "lost", "found"], key="adm_tipo",
+                              format_func=lambda t: TIPO_ES.get(t, t))
+        f_txt = st.text_input("Buscar texto", key="adm_txt")
+        if st.button("Salir"):
+            st.session_state.admin_ok = False
+            st.rerun()
+        for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
+            with st.container(border=True):
+                show_image(a["image_url"], caption=a["id"])
+                st.markdown(f"### {animal_tag(a)}")
+                st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
+                st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
+                st.write(a["description_text"])
+                if st.session_state.get("confirm_del") == a["id"]:
+                    if st.button("Confirmar eliminación", key=f"cf_{a['id']}", type="primary"):
+                        admmod.delete_aviso(con, a["id"])
+                        st.session_state.pop("confirm_del", None)
+                        st.success(f"Aviso {a['id']} eliminado.")
+                        st.rerun()
+                elif st.button("Eliminar", key=f"del_{a['id']}"):
+                    st.session_state.confirm_del = a["id"]
+                    st.rerun()
+                if a["status"] == "active" and st.button("Marcar resuelto", key=f"ok_{a['id']}"):
+                    admmod.resolve_aviso(con, a["id"])
+                    st.success(f"Aviso {a['id']} resuelto.")
+                    st.rerun()
+        loga = Path("data/admin.log")
+        if loga.exists():
+            with st.expander("Ver registro de administración"):
+                st.code(loga.read_text(encoding="utf-8")[-2000:])
 
 all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in
                         con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()) if a]
 
-tab1, tabF, tab2, tab3, tabA = st.tabs(["Buscar a mi mascota", "Encontrados", "Publicar aviso",
-                                        "Alertas", "Administrar"])
+tabP, tab1, tabF, tab3 = st.tabs(["Publicar aviso", "Buscar a mi mascota", "Encontrados",
+                                  "Alertas"])
 
 # ── TAB 1: Buscar ─────────────────────────────────────────────────────
 with tab1:
@@ -539,8 +594,8 @@ with tabF:
                     st.write(f"- Visto: {effective_date(a).date()}")
                     st.write(f"- {a['location'].get('address_text', '')}")
 
-# ── TAB 2: Registrar ──────────────────────────────────────────────────
-with tab2:
+# ── TAB: Publicar ───────────────────────────────────────────────────
+with tabP:
     st.subheader("Publica un aviso de perdido o encontrado")
     with st.container(border=True):
         r1, r2 = st.columns([1, 1])
@@ -625,75 +680,8 @@ with tab3:
         st.table([dict(r) for r in rows])
     else:
         st.info("Aún no hay alertas. Lanza una búsqueda en la pestaña de buscar.")
-    logp = Path("data/notifications.log")
+        logp = Path("data/notifications.log")
     if logp.exists():
         with st.expander("Ver log técnico"):
             st.code(logp.read_text(encoding="utf-8")[-2000:])
 
-# ── TAB: Administrar (REQ-11, CU-06) ─────────────────────────────────
-with tabA:
-    st.subheader("Administración")
-    TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
-    ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
-
-    def _expected_pw() -> str:
-        try:
-            v = st.secrets.get("ADMIN_PASSWORD", "")
-            if v:
-                return str(v)
-        except Exception:
-            pass
-        import os
-        return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
-
-    if not st.session_state.get("admin_ok"):
-        pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
-        if st.button("Entrar"):
-            if admmod.check_password(pw, _expected_pw()):
-                st.session_state.admin_ok = True
-                st.success("Sesión de administrador iniciada.")
-                st.rerun()
-            else:
-                st.error("Contraseña incorrecta.")
-    else:
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c1:
-            f_tipo = st.selectbox("Tipo", ["todos", "lost", "found"], key="adm_tipo",
-                                  format_func=lambda t: TIPO_ES.get(t, t))
-        with c2:
-            f_txt = st.text_input("Buscar texto", key="adm_txt")
-        with c3:
-            st.write("")
-            if st.button("Salir"):
-                st.session_state.admin_ok = False
-                st.rerun()
-        for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
-            with st.container(border=True):
-                r1, r2 = st.columns([1, 2])
-                with r1:
-                    show_image(a["image_url"], caption=a["id"])
-                with r2:
-                    st.markdown(f"### {animal_tag(a)}")
-                    st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])} · "
-                             f"Estado: {ESTADO_ES.get(a['status'], a['status'])}")
-                    st.write(a["description_text"])
-                    b1, b2 = st.columns(2)
-                    with b1:
-                        if st.session_state.get("confirm_del") == a["id"]:
-                            if st.button("Confirmar eliminación", key=f"cf_{a['id']}", type="primary"):
-                                admmod.delete_aviso(con, a["id"])
-                                st.session_state.pop("confirm_del", None)
-                                st.success(f"Aviso {a['id']} eliminado.")
-                                st.rerun()
-                        elif st.button("Eliminar", key=f"del_{a['id']}"):
-                            st.session_state.confirm_del = a["id"]
-                            st.rerun()
-                    with b2:
-                        if a["status"] == "active" and st.button("Marcar resuelto", key=f"ok_{a['id']}"):
-                            admmod.resolve_aviso(con, a["id"])
-                            st.success(f"Aviso {a['id']} resuelto.")
-                            st.rerun()
-        loga = Path("data/admin.log")
-        if loga.exists():
-            with st.expander("Ver registro de administración"):
-                st.code(loga.read_text(encoding="utf-8")[-2000:])

@@ -85,6 +85,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S32 — 23/09/2026 — Administrador (OpenCode)
 - Cambio de alcance formal (spec v1.1: REQ-04.3 excepcionado, CU-06, REQ-11). `agents/admin.py`: login por contraseña (Secrets/env/defecto), borrado con confirmación + limpieza de notifs/foto, resolver, `admin.log`. Pestaña Administrar. Pytest 17/17, smoke OK (5 tabs).
 
+## S33 — 23/09/2026 — Admin al sidebar + reorden de pestañas (OpenCode)
+- Administración compacta bajo DATOS DEMO con divisor; orden: Publicar, Buscar, Encontrados, Alertas. Spec CU-06 actualizada. Pytest 17/17, smoke OK (4 tabs).
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 

@@ -56,7 +56,7 @@ Actor: dueño. Marca aviso como `resolved` mediante botón manual "Marcar como r
 Fuera de MVP: CU-07 ingesta automática externa, CU-08 chat asistente, CU-09 impresión cartel.
 
 ### CU-06 — Moderar avisos (administrador)
-Actor: administrador autenticado (contraseña). Flujo: entra en pestaña Administrar → filtra por tipo/texto → elimina duplicados o vandalismo (con confirmación) o marca resueltos → la acción queda en `data/admin.log`.
+Actor: administrador autenticado (contraseña). Flujo: entra en el apartado Administración del sidebar → filtra por tipo/texto → elimina duplicados o vandalismo (con confirmación) o marca resueltos → la acción queda en `data/admin.log`.
 
 ## 6. Esquema de datos — Entidad Aviso (REQ-05)
 
