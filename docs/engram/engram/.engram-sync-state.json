@@ -1,15 +1,19 @@
 {
-  "last_export_at": "2026-09-23T22:30:07Z",
+  "last_export_at": "2026-09-23T22:56:56Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
     "58": "huellas\\manual\\huellas-despliegue-cloud-58.md",
     "59": "huellas\\manual\\huellas-seed-v2-fotos-reales-59.md",
     "60": "huellas\\manual\\huellas-admin-y-diseno-60.md",
-    "61": "huellas\\manual\\huellas-estado-verificacion-61.md"
+    "61": "huellas\\manual\\huellas-estado-verificacion-61.md",
+    "62": "huellas\\manual\\huellas-captura-automatica-engram-62.md",
+    "63": "huellas\\manual\\huellas-s40-evidencia-proceso-ia-63.md",
+    "64": "huellas\\manual\\huellas-s41-perdidos-chinchetas-alertas-conteo-64.md"
   },
   "session_hubs": {
-    "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md"
+    "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",
+    "manual-save-huellas": "_sessions\\manual-save-huellas.md"
   },
   "topic_hubs": {},
   "version": 1

@@ -1,16 +1,12 @@
 ---
 type: session-hub
-session_id: manual-save-HUELLAS
+session_id: manual-save-huellas
 tags:
   - session
 ---
 
-# Session: manual-save-HUELLAS
+# Session: manual-save-huellas
 
 ## Observations
-- [[huellas-s01-specs-v1-0-56]]
-- [[huellas-s02-scaffolding-verificado-57]]
-- [[huellas-despliegue-cloud-58]]
-- [[huellas-seed-v2-fotos-reales-59]]
-- [[huellas-admin-y-diseno-60]]
-- [[huellas-estado-verificacion-61]]
+- [[huellas-s40-evidencia-proceso-ia-63]]
+- [[huellas-s41-perdidos-chinchetas-alertas-conteo-64]]

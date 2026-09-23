@@ -143,3 +143,15 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S23 — 23/09/2026 — Español total + mayúsculas en portal y botones (OpenCode)
 - Mapas ES en display (`Perro/Gato/Otro`, `Pequeño/Mediano/Grande`; la BD sigue en inglés por spec); datos collar/visto/zona en vertical; `text-transform` también en popover del desplegable y en `button` (no heredan). Pytest 13/13, smoke y E2E OK.
+
+## S40 — 24/09/2026 — Evidencia proceso IA para entrega (Muse Spark)
+- El alumno pregunta si Engram estaba activo y cómo cumplir el punto 4 del profe (`PROMPT-LOG.md` + exportación Engram).
+- Se reconoce por escrito: S01-S37 no tuvieron Engram conectado; S38 reconstruyó 6 hitos a posteriori en proyecto `huellas` (#56-61) + export a `docs/engram/`; S39 activó captura automática (`engram setup opencode`, +hito #62). La sesión actual autodetecta `huellas-proyectofinaleoi` (0 obs, 2 prompts), separada del histórico `huellas`.
+- Acción: hito #63 guardado en `huellas` (S40), PROMPT-LOG actualizado y re-exportado vault + JSON para acreditar pasos ante el profesor.
+
+## S41 — 24/09/2026 — Perdidos + chinchetas + alertas demo + conteo (Muse Spark)
+- Chinchetas: nuevo `render_mapa_avistados()` con tooltip + popup (id, animal, dirección, distancia); mapa previo "Avistados cerca" con los 10 found en azul + mapa de resultados (verde ≥85 / azul).
+- Conteo 16 vs 15: no era bug — `lost_006` es resuelto demo ("volvió a casa"). UI lo explica: caption "16 totales (5 activos +1 resuelto +10 encontrados)", botón seed "16 avisos · 15 activos" con recarga real (wipe + 16 + backfill + demo, antes llamaba a make_seed).
+- Alertas demo: `ensure_demo_alert()` precarga lost_001→found_001 si la tabla está vacía + botón "Generar alerta demo" + tarjetas con fotos (antes tabla vacía + solo tabla). Honesto: sin sentence-transformers el par da 79.8% (top-1 OK, bajo umbral); la demo usa 96.3% de referencia con modelos completos y log `#demo-referencia`.
+- Navegación: fuera `st.tabs` (4); ahora `session_state.page` con 5 páginas (buscar/perdidos/encontrados/alertas/publicar): 3 botones negros arriba con conteos + 2 rojos primary centrados abajo (Publicar / Buscar). Nueva página Perdidos con filtro y tarjetas como Encontrados.
+- Verificación: pytest 27/27, smoke 5 páginas OK, E2E found_001 top-1 79.8% ≥65%. `smoke_app.py` recorre las 5 páginas.
