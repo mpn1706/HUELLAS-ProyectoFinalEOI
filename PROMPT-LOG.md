@@ -38,3 +38,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - La imagen adjunta por el alumno no era un logo (foto de producto Lacoste): no se usa; hueco `assets/logo.png` con fallback 🐾.
 - Nueva UI: cabecera con logo, métricas (lost/found/alertas), Buscar en 3 pasos (aviso→foto→filtros), tarjetas con borde, barra de score, sub-scores en métricas, mapa, Registrar en 2 columnas con preview, Alertas con log plegable.
 - Lógica intacta: pytest 13/13, smoke OK, E2E found_001 top-1 96.3%.
+
+## S08 — 23/09/2026 — Integración del logo (OpenCode)
+- Logo real del alumno (brújula + huella + wordmark HUELLAS). Cabecera adaptativa: con logo no se duplica el título; `page_icon` usa el logo; sidebar sin cabecera redundante.
+- Pendiente: el alumno guarda el PNG en `assets/logo.png` (la app lo detecta sola).

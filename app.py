@@ -21,7 +21,7 @@ LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg
              if Path(p).exists()), None)
 ANIMAL_EMOJI = {"dog": "🐶", "cat": "🐱", "other": "🐾"}
 
-st.set_page_config(page_title="HUELLAS", page_icon="🐾", layout="wide")
+st.set_page_config(page_title="HUELLAS", page_icon=LOGO if LOGO else "🐾", layout="wide")
 
 
 def show_image(path: str, caption: str = ""):
@@ -82,16 +82,21 @@ def etiqueta_corta(a: dict) -> str:
     return f"[{a['id']}] {animal_tag(a)}"
 
 
-# ── Cabecera ──────────────────────────────────────────────────────────
-hc1, hc2 = st.columns([1, 6])
-with hc1:
-    if LOGO:
+# ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
+if LOGO:
+    hc1, hc2 = st.columns([2, 5])
+    with hc1:
         st.image(LOGO, use_container_width=True)
-    else:
+    with hc2:
+        st.markdown("## MascotasLost&Found · Jerez de la Frontera")
+        st.caption("Encuentra a tu mascota entre los avisos de encontrados. " + AVISO_LEGAL)
+else:
+    hc1, hc2 = st.columns([1, 6])
+    with hc1:
         st.markdown("# 🐾")
-with hc2:
-    st.title("HUELLAS")
-    st.caption("MascotasLost&Found · Jerez de la Frontera — Encuentra a tu mascota entre los avisos de encontrados. " + AVISO_LEGAL)
+    with hc2:
+        st.title("HUELLAS")
+        st.caption("MascotasLost&Found · Jerez de la Frontera — Encuentra a tu mascota entre los avisos de encontrados. " + AVISO_LEGAL)
 
 con = ensure_db()
 
@@ -107,8 +112,9 @@ m3.metric("🔔 Alertas ≥85%", n_notif)
 with st.sidebar:
     if LOGO:
         st.image(LOGO, use_container_width=True)
-    st.header("🐾 HUELLAS")
-    st.caption("Asistente de búsqueda lost ↔ found")
+    else:
+        st.header("🐾 HUELLAS")
+    st.caption("MascotasLost&Found · Jerez — asistente lost ↔ found")
     with st.expander("⚙️ Cómo puntúa (fórmula cerrada)"):
         st.code("0.40·visual + 0.30·geo\n+ 0.20·texto + 0.10·temporal")
         st.caption("≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días")
