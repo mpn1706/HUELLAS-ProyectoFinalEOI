@@ -56,3 +56,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S11 — 23/09/2026 — Patrón también en la barra superior (OpenCode)
 - La barra `stHeader` (Share/⋮) trae fondo propio del tema: se le aplica el mismo mosaico + velo. Smoke OK.
+
+## S12 — 23/09/2026 — Tema claro forzado (OpenCode)
+- En dark mode el texto blanco sobre nuestro fondo claro era ilegible: `.streamlit/config.toml` fija `base="light"` + paleta cálida acorde al patrón. Smoke OK, pytest 13/13.

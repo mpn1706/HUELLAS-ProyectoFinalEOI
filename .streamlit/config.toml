@@ -1,0 +1,9 @@
+# Fuerza tema claro: el fondo con patrón es claro y el texto oscuro.
+# Sin esto, el modo dark pinta texto blanco sobre fondo claro (ilegible).
+[theme]
+base = "light"
+primaryColor = "#C2410C"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F1EA"
+textColor = "#1F2328"
+font = "sans serif"
