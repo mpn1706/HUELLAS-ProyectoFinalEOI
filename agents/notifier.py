@@ -8,8 +8,6 @@ from pathlib import Path
 from .db import save_notification
 from .matcher import UMBRAL_NOTIF
 
-AVISO_LEGAL = "La imagen no permite confirmar identidad. Verifica en persona."
-
 
 def notificar(con, query_id: str, matches: list, log_path: str = "data/notifications.log") -> list:
     """Filtra matches >=0.85, persiste y añade al log. Devuelve notificados."""
@@ -20,5 +18,5 @@ def notificar(con, query_id: str, matches: list, log_path: str = "data/notificat
     with open(log_path, "a", encoding="utf-8") as f:
         for m in hechos:
             save_notification(con, query_id, m["candidato_id"], m["score"])
-            f.write(f"{query_id} -> {m['candidato_id']} {m['score']:.4f} | {AVISO_LEGAL}\n")
+            f.write(f"{query_id} -> {m['candidato_id']} {m['score']:.4f}\n")
     return hechos

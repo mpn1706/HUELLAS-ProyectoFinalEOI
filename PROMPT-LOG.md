@@ -84,3 +84,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S20 — 23/09/2026 — Paleta negro/blanco/rojo (OpenCode)
 - `primaryColor` terracota → rojo brillante `#E30613`: sliders, botón primario, pestaña activa y barra de progreso pasan a rojo de una vez. Smoke OK.
+
+## S21 — 23/09/2026 — Aviso legal único en sidebar (OpenCode)
+- Fuera de alertas, resultados (`explain`), log y cabecera; sidebar sin logo/tagline redundantes; expander negro AVISO LEGAL con el texto nuevo + título FUNCIONAMIENTO WEB sobre Cómo puntúa. Specs y README actualizados. Pytest 13/13, smoke y E2E OK.

@@ -10,7 +10,7 @@ Construir un MVP funcional que centralice avisos de mascotas perdidas (`lost`) y
 
 El valor no es identificar con certeza, sino **priorizar candidatos** para que el dueño revise visualmente y contacte.
 
-Principio transversal: **el sistema nunca afirma "es el mismo animal"**. Siempre muestra "posible coincidencia" con porcentaje y señales que la sustentan + aviso de que la imagen no permite confirmar identidad.
+Principio transversal: **el sistema nunca afirma "es el mismo animal"**. Siempre muestra "posible coincidencia" con porcentaje y señales que la sustentan. El aviso legal vive en un único apartado del sidebar ("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. Una imagen no permite confirmar la identidad, verifique en persona.").
 
 ## 2. Problema que resuelve (REQ-02)
 

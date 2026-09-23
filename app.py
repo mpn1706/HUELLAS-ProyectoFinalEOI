@@ -11,7 +11,7 @@ import streamlit as st
 from agents import db as dbmod
 from agents.ingestor import effective_date, normalize_aviso
 from agents.matcher import explain
-from agents.notifier import AVISO_LEGAL, notificar
+from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
@@ -298,11 +298,10 @@ with m3:
 
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
-    if LOGO:
-        st.image(get_logo_img(), use_container_width=True)
-    else:
-        st.header("HUELLAS")
-    st.markdown(f'<p class="huellas-tagline">{TAGLINE}</p>', unsafe_allow_html=True)
+    with st.expander("Aviso legal"):
+        st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
+                 "Una imagen no permite confirmar la identidad, verifique en persona.")
+    st.subheader("Funcionamiento web")
     with st.expander("Cómo puntúa (fórmula cerrada)"):
         st.code("0.40·visual + 0.30·geo\n+ 0.20·texto + 0.10·temporal")
         st.caption("≥85% alerta · ≥65% en lista · radio 15 km · ventana 30 días")
@@ -468,7 +467,6 @@ with tab2:
 # ── TAB 3: Alertas ────────────────────────────────────────────────────
 with tab3:
     st.subheader("Alertas automáticas (score ≥85%)")
-    st.caption("Se generan solas al buscar. " + AVISO_LEGAL)
     rows = con.execute("SELECT * FROM notifications ORDER BY id DESC LIMIT 50").fetchall()
     if rows:
         stat_box(len(rows), "Total alertas")

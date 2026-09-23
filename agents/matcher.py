@@ -94,6 +94,5 @@ def explain(m: dict) -> str:
     return (
         f"Posible coincidencia {m['score']*100:.1f}% — "
         f"visual {m['visual']:.2f}, geo {m['geo']:.2f} ({m['dist_km']} km), "
-        f"texto {m['texto']:.2f}, temporal {m['temporal']:.2f}. "
-        "La imagen no permite confirmar identidad. Verifica en persona."
+        f"texto {m['texto']:.2f}, temporal {m['temporal']:.2f}."
     )

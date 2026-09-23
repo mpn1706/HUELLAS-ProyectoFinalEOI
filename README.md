@@ -3,7 +3,7 @@
 Sistema de búsqueda y comparativa visual de animales perdidos/encontrados (Jerez de la Frontera).
 Proyecto final del curso de IA Generativa y Vibe Coding (EOI) — MVP funcional con metodología **Spec-Driven Development**.
 
-> El sistema **nunca afirma "es el mismo animal"**. Solo muestra **posibles coincidencias** con porcentaje y desglose de señales. *La imagen no permite confirmar identidad. Verifica en persona.*
+> El sistema **nunca afirma "es el mismo animal"**. Solo muestra **posibles coincidencias** con porcentaje y desglose de señales. Aviso legal único en el sidebar: *"Este análisis no promete una coincidencia inequívoca respecto al animal buscado. Una imagen no permite confirmar la identidad, verifique en persona."*
 
 ## Problema que resuelve
 

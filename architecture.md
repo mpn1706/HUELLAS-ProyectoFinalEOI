@@ -35,7 +35,7 @@ Elección justificada por restricciones: 2 semanas, evaluación local <10 min, c
 [Mapa + Detalle "posible coincidencia" + aviso no-identidad]
 ```
 
-Texto del aviso legal obligatorio en UI/detalle/notificación: "La imagen no permite confirmar identidad. Verifica en persona."
+Aviso legal único en el sidebar (expander AVISO LEGAL): "Este análisis no promete una coincidencia inequívoca respecto al animal buscado. Una imagen no permite confirmar la identidad, verifique en persona."
 
 ## 2. Stack cerrado 23/09/2026 (100% local)
 
