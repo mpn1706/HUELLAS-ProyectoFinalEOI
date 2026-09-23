@@ -1,0 +1,11 @@
+# Binarios / DB local / caches modelos / venv
+huellas.db
+data/huellas.db
+data/uploads/
+data/notifications.log
+__pycache__/
+*.pyc
+.venv/
+venv/
+.streamlit/secrets.toml
+models_cache/
