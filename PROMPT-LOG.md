@@ -42,3 +42,4 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S08 — 23/09/2026 — Integración del logo (OpenCode)
 - Logo real del alumno (brújula + huella + wordmark HUELLAS). Cabecera adaptativa: con logo no se duplica el título; `page_icon` usa el logo; sidebar sin cabecera redundante.
 - Pendiente: el alumno guarda el PNG en `assets/logo.png` (la app lo detecta sola).
+- Logo recibido y publicado como `assets/logo.png` (PNG 1262×832): cabecera, sidebar y favicon lo usan; se retira `assets/README-logo.md`.
