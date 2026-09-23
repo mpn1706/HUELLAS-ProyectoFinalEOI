@@ -249,7 +249,7 @@ def get_logo_img():
 def show_image(path: str, caption: str = ""):
     """Muestra imagen si existe; si no, placeholder textual (rutas locales ausentes en Cloud)."""
     if path and Path(path).exists():
-        st.image(path, caption=caption, use_container_width=True)
+        st.image(path, caption=caption, width="stretch")
     else:
         st.info("[ IMAGEN NO DISPONIBLE EN ESTE DESPLIEGUE ]" + (f" {caption}" if caption else ""))
 
@@ -303,6 +303,26 @@ def visual_fn_factory():
     return fn
 
 
+def geocode_nominatim(q: str):
+    """Calle/número → (lat, lng, nombre) vía Nominatim OSM con sesgo a Jerez.
+
+    Sin dependencias ni claves. Devuelve None si no hay red o no se encuentra.
+    """
+    import json as _json
+    import urllib.parse
+    import urllib.request
+
+    url = ("https://nominatim.openstreetmap.org/search?" + urllib.parse.urlencode(
+        {"q": q, "format": "json", "limit": 1,
+         "viewbox": "-6.25,36.75,-6.00,36.60", "bounded": 0}))
+    req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
+    with urllib.request.urlopen(req, timeout=8) as r:
+        data = _json.loads(r.read().decode("utf-8"))
+    if not data:
+        return None
+    return float(data[0]["lat"]), float(data[0]["lon"]), data[0].get("display_name", q)
+
+
 def animal_tag(a: dict) -> str:
     return (f"{ANIMAL_ES.get(a.get('animal'), a.get('animal'))} · "
             f"{a.get('color_primary')} · {SIZE_ES.get(a.get('size'), a.get('size'))}")
@@ -316,7 +336,7 @@ def etiqueta_corta(a: dict) -> str:
 if LOGO:
     hc1, hc2 = st.columns([2, 5])
     with hc1:
-        st.image(get_logo_img(), use_container_width=True)
+        st.image(get_logo_img(), width="stretch")
     with hc2:
         st.markdown(f"## {TAGLINE}")
         st.markdown(f'<p class="huellas-tagline">{SUBTITLE}</p>', unsafe_allow_html=True)
@@ -394,7 +414,7 @@ with tab1:
                                   type=["jpg", "jpeg", "png"], key="q_foto")
         embed_fn = visual_fn_factory()
         if foto_q:
-            st.image(foto_q, caption="Vista previa de tu foto", use_container_width=True)
+            st.image(foto_q, caption="Vista previa de tu foto", width="stretch")
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
             qpath = "data/uploads/_query_preview.jpg"
             Path(qpath).write_bytes(foto_q.getbuffer())
@@ -479,7 +499,7 @@ with tab2:
                                                          "other": "Otro"}.get(a, a))
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
             if foto:
-                st.image(foto, caption="Vista previa", use_container_width=True)
+                st.image(foto, caption="Vista previa", width="stretch")
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
         with r2:
@@ -490,11 +510,41 @@ with tab2:
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                        "large": "Grande"}.get(s, s))
             collar = st.checkbox("¿Lleva collar?", True)
-            lat = st.number_input("Latitud", value=36.6826, format="%.4f")
-            lng = st.number_input("Longitud", value=-6.1376, format="%.4f")
-            addr = st.text_input("Zona (texto)", "Centro, Jerez")
+    st.subheader("Ubicación exacta")
+    with st.container(border=True):
+        if "reg_lat" not in st.session_state:
+            st.session_state.reg_lat, st.session_state.reg_lon = 36.6826, -6.1376
+        addr_in = st.text_input("Calle, número y zona", value="Centro, Jerez", key="addr_in")
+        if st.button("Buscar dirección en el mapa"):
+            res = geocode_nominatim(addr_in)
+            if res:
+                st.session_state.reg_lat, st.session_state.reg_lon = round(res[0], 4), round(res[1], 4)
+                st.success(f"Localizada: {res[2][:90]}")
+            else:
+                st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
+        st.caption("O marca el punto exacto clicando en el mapa:")
+        try:
+            import folium
+            from streamlit_folium import st_folium
+
+            fmap = folium.Map(location=[st.session_state.reg_lat, st.session_state.reg_lon], zoom_start=14)
+            folium.Marker([st.session_state.reg_lat, st.session_state.reg_lon],
+                          icon=folium.Icon(color="red")).add_to(fmap)
+            out = st_folium(fmap, width=900, height=380)
+            if out and out.get("last_clicked"):
+                st.session_state.reg_lat = round(out["last_clicked"]["lat"], 4)
+                st.session_state.reg_lon = round(out["last_clicked"]["lng"], 4)
+        except Exception as e:
+            st.caption(f"Mapa no disponible ({e}). Usa el ajuste manual.")
+        st.write(f"- Punto seleccionado: {st.session_state.reg_lat}, {st.session_state.reg_lon}")
+        with st.expander("Ajuste manual de coordenadas"):
+            st.number_input("Latitud", format="%.4f", key="reg_lat")
+            st.number_input("Longitud", format="%.4f", key="reg_lon")
     if st.button("Publicar aviso", type="primary"):
         try:
+            lat = float(st.session_state.get("reg_lat", 36.6826))
+            lng = float(st.session_state.get("reg_lon", -6.1376))
+            addr = st.session_state.get("addr_in", "Centro, Jerez")
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
             img_path = f"data/uploads/{foto.name}" if foto else "data/seed/images/perro_marron_arenal.jpg"
             if foto:

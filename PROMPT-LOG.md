@@ -100,5 +100,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S26 — 23/09/2026 — Hint oculto y uploader sin solapes (OpenCode)
 - `InputInstructions` ("Press Enter...") oculto: el envío va por botón. El ocultado del uploader bajó a los hijos (llevan tamaño propio): solo SUBIR FOTO + límites en español. Smoke OK.
 
+## S27 — 23/09/2026 — Selector de ubicación (OpenCode)
+- Dirección→coords vía Nominatim (stdlib, con sesgo Jerez) + clic en mapa Leaflet + ajuste manual en expander; sustituye a los number_inputs (estaba en REQ-05.8 y faltaba). Corregido warning de sesión en `reg_lat` y migrado `use_container_width`→`width="stretch"`. Pytest 13/13, smoke y E2E OK.
+
 ## S23 — 23/09/2026 — Español total + mayúsculas en portal y botones (OpenCode)
 - Mapas ES en display (`Perro/Gato/Otro`, `Pequeño/Mediano/Grande`; la BD sigue en inglés por spec); datos collar/visto/zona en vertical; `text-transform` también en popover del desplegable y en `button` (no heredan). Pytest 13/13, smoke y E2E OK.
