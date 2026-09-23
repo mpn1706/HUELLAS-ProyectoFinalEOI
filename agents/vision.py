@@ -26,7 +26,12 @@ def _fallback_embedding(key: str, dim: int = DIM) -> list:
 
 
 def get_image_embedding(image_path: str) -> list:
-    """Devuelve vector 512 normalizado. Intenta CLIP real, si no fallback."""
+    """Devuelve vector 512 normalizado. Intenta CLIP real, si no fallback.
+
+    Fallback: hash de los bytes del fichero (dos fotos placeholder del
+    mismo color sólido dan el mismo vector → similitud alta, coherente).
+    Si el fichero no existe, hash de la ruta.
+    """
     global _model, _processor
     try:
         from PIL import Image
@@ -45,4 +50,15 @@ def get_image_embedding(image_path: str) -> list:
         feat = feat / np.linalg.norm(feat)
         return feat.tolist()
     except Exception:
-        return _fallback_embedding(f"img:{image_path}")
+        try:
+            with open(image_path, "rb") as f:
+                key = f.read()
+        except OSError:
+            key = f"img:{image_path}"
+        if isinstance(key, bytes):
+            h = hashlib.sha256(key).digest()
+            seed = int.from_bytes(h[:8], "big") % (2**32)
+            rng = np.random.RandomState(seed)
+            v = rng.randn(DIM)
+            return (v / np.linalg.norm(v)).tolist()
+        return _fallback_embedding(key)

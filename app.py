@@ -33,20 +33,21 @@ def ensure_db():
 
 
 def visual_fn_factory():
+    """Devuelve embed_fn(aviso) -> vector. El coseno lo calcula retrieval."""
     cache = {}
 
-    def fn(c):
-        if c.get("image_embedding"):
-            return c["image_embedding"]
-        if c["id"] in cache:
-            return cache[c["id"]]
+    def fn(a):
+        if a.get("image_embedding"):
+            return a["image_embedding"]
+        if a["id"] in cache:
+            return cache[a["id"]]
         try:
-            v = get_image_embedding(c["image_url"])
+            v = get_image_embedding(a["image_url"])
         except Exception:
             from agents.vision import _fallback_embedding
 
-            v = _fallback_embedding(f"img:{c['id']}")
-        cache[c["id"]] = v
+            v = _fallback_embedding(f"img:{a['id']}")
+        cache[a["id"]] = v
         return v
 
     return fn
