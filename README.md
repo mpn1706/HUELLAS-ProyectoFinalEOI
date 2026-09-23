@@ -16,6 +16,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
 - **Automatización**: al registrar o buscar, si un candidato supera el 85% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos >30 días" (`expire_old()`, sin cron).
+- **Administración** (pestaña Administrar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. Contraseña: Secrets `ADMIN_PASSWORD` en Cloud, o variable `HUELLAS_ADMIN_PASSWORD`, o defecto local `huellas123`.
 - Corpus demo propio de **17 avisos de Jerez** (5 lost + 12 found), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)

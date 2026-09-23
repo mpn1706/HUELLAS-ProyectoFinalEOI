@@ -31,7 +31,7 @@ Cuando una mascota se pierde, los avisos quedan dispersos en redes sociales y pr
 
 - REQ-04.1: **NO scraping en vivo** de Facebook, Instagram, protectoras ni ninguna fuente externa. Queda fuera del MVP como ampliación futura documentable en memoria/slides, no a construir.
 - REQ-04.2: **NO afirma identidad**: prohibido el literal "es el mismo animal" en UI, logs o notificaciones.
-- REQ-04.3: NO autenticación multi-usuario, NO roles, NO moderación avanzada.
+- REQ-04.3: NO autenticación multi-usuario ni roles. Excepción v1.1: UN único administrador con contraseña para moderación básica (ver REQ-11).
 - REQ-04.4: NO app móvil nativa. Solo web MVP ejecutable en local + despliegue simple.
 - REQ-04.5: NO Telegram/webhook real. Notifier MVP = panel/tabla en Streamlit + log (decisión 9, 23/09/2026).
 - REQ-04.6: NO genera cartel PDF "SE BUSCA" en MVP (ampliación propuesta fuera de alcance salvo decisión explícita posterior).
@@ -53,7 +53,10 @@ Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos c
 ### CU-05 — Resolver / expirar aviso
 Actor: dueño. Marca aviso como `resolved` mediante botón manual "Marcar como resuelto". Función `expire_old()` marca `expired` a los avisos con más de 30 días (invocable bajo demanda, sin cron). Los no-`active` no entran en matching.
 
-Fuera de MVP: CU-06 ingesta automática externa, CU-07 chat asistente, CU-08 impresión cartel.
+Fuera de MVP: CU-07 ingesta automática externa, CU-08 chat asistente, CU-09 impresión cartel.
+
+### CU-06 — Moderar avisos (administrador)
+Actor: administrador autenticado (contraseña). Flujo: entra en pestaña Administrar → filtra por tipo/texto → elimina duplicados o vandalismo (con confirmación) o marca resueltos → la acción queda en `data/admin.log`.
 
 ## 6. Esquema de datos — Entidad Aviso (REQ-05)
 
@@ -143,7 +146,13 @@ Restricciones: los 4 pesos suman 1.0. No se reponderan sin nueva spec.
 - ÉXITO-05: Repo GitHub con historial progresivo + PROMPT-LOG.md + sesiones Engram + informe reflexión.
 - ÉXITO-06: Demo 5 min: registro → ranking → mapa → detalle explicable.
 
-## 12. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
+## 12. Administración (REQ-11, añadido v1.1)
+
+- REQ-11.1: Un único administrador; acceso por contraseña (Secrets `ADMIN_PASSWORD` en Cloud, variable `HUELLAS_ADMIN_PASSWORD` o defecto documentado `huellas123` en local).
+- REQ-11.2: Puede listar con filtros, eliminar (borra aviso + notificaciones ligadas + foto subida, nunca seed) y resolver.
+- REQ-11.3: Toda acción se registra en `data/admin.log` con fecha.
+
+## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅
 2. `image_embedding`: CLIP `openai/clip-vit-base-patch32`, 512-dim. ✅
