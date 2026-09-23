@@ -52,6 +52,11 @@ def inject_background():
                         url("data:{mime};base64,{b64}");
             background-size: 380px;
         }}
+        [data-testid="stHeader"] {{
+            background: linear-gradient(rgba(255,255,255,0.90), rgba(255,255,255,0.90)),
+                        url("data:{mime};base64,{b64}");
+            background-size: 480px;
+        }}
         </style>""",
         unsafe_allow_html=True,
     )

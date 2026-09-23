@@ -53,3 +53,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - `inject_background()`: `assets/fondo.png` como fondo de app + sidebar con velo blanco (legibilidad), base64 inline, sin dependencias; inactivo si falta el archivo.
 - Pendiente: el alumno guarda el patrón en `assets/fondo.png`.
 - Fondo recibido y publicado (`assets/fondo.png`, PNG 1262×832): mosaico en app + sidebar con velo blanco; smoke OK con fondo activo.
+
+## S11 — 23/09/2026 — Patrón también en la barra superior (OpenCode)
+- La barra `stHeader` (Share/⋮) trae fondo propio del tema: se le aplica el mismo mosaico + velo. Smoke OK.
