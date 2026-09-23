@@ -75,3 +75,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
+
+## S18 — 23/09/2026 — Apagado del indicador rojo (OpenCode)
+- El rojo era `.react-aria-SelectionIndicator` (verificado en el bundle 1.64, no el borde del botón): `transparent !important`. Queda solo el subrayado negro. Smoke OK.

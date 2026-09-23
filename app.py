@@ -124,6 +124,10 @@ def inject_background():
             border-bottom: 3px solid #23201B !important;
             font-weight: 600;
         }}
+        /* Apaga el indicador rojo nativo (react-aria SelectionIndicator) */
+        [data-testid="stTab"] .react-aria-SelectionIndicator {{
+            background-color: transparent !important;
+        }}
         </style>""",
         unsafe_allow_html=True,
     )
