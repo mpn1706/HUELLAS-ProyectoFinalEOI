@@ -103,5 +103,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S27 — 23/09/2026 — Selector de ubicación (OpenCode)
 - Dirección→coords vía Nominatim (stdlib, con sesgo Jerez) + clic en mapa Leaflet + ajuste manual en expander; sustituye a los number_inputs (estaba en REQ-05.8 y faltaba). Corregido warning de sesión en `reg_lat` y migrado `use_container_width`→`width="stretch"`. Pytest 13/13, smoke y E2E OK.
 
+## S28 — 23/09/2026 — Seed con ubicaciones exactas (OpenCode)
+- `geocode_seed.py` (Nominatim, 1.2s pausa): 13/17 exactas (calle/barrio); 4 sin resultado conservan valor previo (found_010 aposta lejos); etiqueta manual del parque; el estadio cae en El Pelirón según OSM (mi recuerdo del oeste era erróneo). `sync_seed_gen.py` alinea el generador (regen no-op verificado). E2E 96.6%, pytest 13/13.
+
 ## S23 — 23/09/2026 — Español total + mayúsculas en portal y botones (OpenCode)
 - Mapas ES en display (`Perro/Gato/Otro`, `Pequeño/Mediano/Grande`; la BD sigue en inglés por spec); datos collar/visto/zona en vertical; `text-transform` también en popover del desplegable y en `button` (no heredan). Pytest 13/13, smoke y E2E OK.

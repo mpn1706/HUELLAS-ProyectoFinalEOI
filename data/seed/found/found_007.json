@@ -13,9 +13,9 @@
   "collar_description": "collar negro",
   "description_text": "Bulldog blanco y marrón con collar negro en Puerta del Sur.",
   "location": {
-    "lat": 36.67,
-    "lng": -6.15,
-    "address_text": "Puerta del Sur, Jerez"
+    "lat": 36.66871,
+    "lng": -6.13587,
+    "address_text": "Avenida Puerta del Sur, Santo Tomás, Jerez de la Frontera"
   },
   "date_reported": "2026-09-12T10:00:00+02:00",
   "date_last_seen": null,

@@ -11,9 +11,9 @@
   "collar_description": "collar rojo",
   "description_text": "Cachorro marrón pequeño con collar rojo en El Pelirón.",
   "location": {
-    "lat": 36.66,
-    "lng": -6.16,
-    "address_text": "El Pelirón, Jerez"
+    "lat": 36.68714,
+    "lng": -6.12447,
+    "address_text": "El Pelirón, Jerez de la Frontera"
   },
   "date_reported": "2026-08-01T10:00:00+02:00",
   "date_last_seen": null,

@@ -13,9 +13,9 @@
   "collar_description": null,
   "description_text": "Conejo blanco de orejas largas encontrado en el parque de La Plata.",
   "location": {
-    "lat": 36.676,
-    "lng": -6.135,
-    "address_text": "La Plata, Jerez"
+    "lat": 36.6937,
+    "lng": -6.14194,
+    "address_text": "La Plata, Jerez de la Frontera"
   },
   "date_reported": "2026-09-18T10:00:00+02:00",
   "date_last_seen": null,

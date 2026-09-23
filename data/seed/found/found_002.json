@@ -11,9 +11,9 @@
   "collar_description": null,
   "description_text": "Perro negro grande sin collar encontrado junto al parque González Hontoria.",
   "location": {
-    "lat": 36.675,
-    "lng": -6.119,
-    "address_text": "Parque González Hontoria"
+    "lat": 36.69524,
+    "lng": -6.12599,
+    "address_text": "Parque González Hontoria, Jerez de la Frontera"
   },
   "date_reported": "2026-09-19T11:00:00+02:00",
   "date_last_seen": null,

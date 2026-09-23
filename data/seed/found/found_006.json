@@ -13,9 +13,9 @@
   "collar_description": "collar verde",
   "description_text": "Gato atigrado gris con collar verde en el barrio de Santiago.",
   "location": {
-    "lat": 36.688,
-    "lng": -6.14,
-    "address_text": "Santiago, Jerez"
+    "lat": 36.68787,
+    "lng": -6.14329,
+    "address_text": "Plaza Santiago, Santiago, Jerez de la Frontera"
   },
   "date_reported": "2026-09-17T10:00:00+02:00",
   "date_last_seen": null,
