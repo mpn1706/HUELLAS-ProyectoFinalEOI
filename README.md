@@ -51,7 +51,7 @@ python scripts/demo_check.py       # E2E: lost_001 → found_001 top-1 (96.3%)
 ## Despliegue
 
 - Local (evaluación oficial): `streamlit run app.py` — ver instrucciones arriba.
-- Nube (pendiente): Streamlit Community Cloud sobre este repo, rama `main`, `app.py`. Se añadirá el enlace aquí al desplegar.
+- Nube: Streamlit Community Cloud sobre este repo, rama `main`, fichero `app.py`. La app **auto-carga el seed de Jerez** si la DB está vacía (el filesystem cloud es efímero y `data/huellas.db` no viaja en git): cero comandos tras el deploy. Se añadirá el enlace aquí al desplegar.
 
 ## Estructura
 

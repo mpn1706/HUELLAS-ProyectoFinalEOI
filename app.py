@@ -26,10 +26,25 @@ def get_con():
 
 
 def ensure_db():
-    if not Path(DB).exists():
-        st.warning("Base de datos vacía. Pulsa «Cargar seed Jerez» en la barra lateral.")
-        return None
-    return get_con()
+    """Conecta y auto-carga el seed si la DB está vacía.
+
+    En Streamlit Cloud el filesystem es efímero y data/huellas.db no viaja
+    en el repo (gitignored): los JSON de data/seed sí, así que la app se
+    auto-abastece sin comandos ni secretos. Trazable a REQ-03.8 + REQ-09.
+    """
+    import json
+
+    con = get_con()
+    n = con.execute("SELECT COUNT(*) FROM avisos").fetchone()[0]
+    if n == 0:
+        with st.spinner("Cargando corpus demo de Jerez (17 avisos)…"):
+            total = 0
+            for folder in ("lost", "found"):
+                for fp in sorted(Path("data/seed", folder).glob("*.json")):
+                    dbmod.upsert_aviso(con, normalize_aviso(json.loads(fp.read_text(encoding="utf-8"))))
+                    total += 1
+        st.toast(f"Seed cargada: {total} avisos.")
+    return con
 
 
 def visual_fn_factory():
@@ -69,8 +84,6 @@ with st.sidebar:
     st.markdown("Umbrales: **>=85%** notifica · **>=65%** lista · Fórmula `0.40V+0.30G+0.20T+0.10t`")
 
 con = ensure_db()
-if con is None:
-    st.stop()
 
 avisos_lost = dbmod.get_active_opuestos(con, "found")  # lost activos
 avisos_found = dbmod.get_active_opuestos(con, "lost")  # found activos
