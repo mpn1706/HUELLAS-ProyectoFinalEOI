@@ -97,5 +97,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S25 — 23/09/2026 — Mayúsculas totales + uploader en español (OpenCode)
 - `text-transform` también en inputs/selects/portales (solo visual); botón Upload→SUBIR FOTO y límites→español por CSS (1.64 sin i18n, verificado en el chunk FileUploader); datos de tarjeta con viñetas. Pytest 13/13, smoke y E2E OK.
 
+## S26 — 23/09/2026 — Hint oculto y uploader sin solapes (OpenCode)
+- `InputInstructions` ("Press Enter...") oculto: el envío va por botón. El ocultado del uploader bajó a los hijos (llevan tamaño propio): solo SUBIR FOTO + límites en español. Smoke OK.
+
 ## S23 — 23/09/2026 — Español total + mayúsculas en portal y botones (OpenCode)
 - Mapas ES en display (`Perro/Gato/Otro`, `Pequeño/Mediano/Grande`; la BD sigue en inglés por spec); datos collar/visto/zona en vertical; `text-transform` también en popover del desplegable y en `button` (no heredan). Pytest 13/13, smoke y E2E OK.

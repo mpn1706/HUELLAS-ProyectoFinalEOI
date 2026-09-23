@@ -74,21 +74,31 @@ def inject_background():
             font-family: 'Inter', system-ui, sans-serif;
             text-transform: uppercase !important;
         }}
+        /* El envío va por botón: se oculta el hint flotante "Press Enter..." */
+        [data-testid="InputInstructions"] {{
+            display: none !important;
+        }}
         /* Streamlit 1.64 no tiene i18n: se traducen los textos fijos del uploader */
-        [data-testid="stFileUploader"] button {{
+        [data-testid="stFileUploader"] button,
+        [data-testid="stFileUploader"] button * {{
             font-size: 0 !important;
+            line-height: 0 !important;
         }}
         [data-testid="stFileUploader"] button::after {{
             content: "SUBIR FOTO";
             font-size: 0.875rem;
+            line-height: 1.4;
             font-weight: 600;
         }}
-        [data-testid="stFileUploaderDropzoneInstructions"] {{
+        [data-testid="stFileUploaderDropzoneInstructions"],
+        [data-testid="stFileUploaderDropzoneInstructions"] * {{
             font-size: 0 !important;
+            line-height: 0 !important;
         }}
         [data-testid="stFileUploaderDropzoneInstructions"]::after {{
             content: "MÁX. 200MB POR ARCHIVO • JPG, PNG";
             font-size: 0.75rem;
+            line-height: 1.4;
         }}
         /* El menú del desplegable vive en un portal fuera del contenedor: mayúsculas + Inter también aquí */
         div[data-baseweb="popover"], div[data-baseweb="menu"] {{
