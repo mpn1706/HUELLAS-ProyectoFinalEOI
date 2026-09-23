@@ -680,7 +680,7 @@ with tab3:
         st.table([dict(r) for r in rows])
     else:
         st.info("Aún no hay alertas. Lanza una búsqueda en la pestaña de buscar.")
-        logp = Path("data/notifications.log")
+    logp = Path("data/notifications.log")
     if logp.exists():
         with st.expander("Ver log técnico"):
             st.code(logp.read_text(encoding="utf-8")[-2000:])

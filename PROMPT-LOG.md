@@ -88,6 +88,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S33 — 23/09/2026 — Admin al sidebar + reorden de pestañas (OpenCode)
 - Administración compacta bajo DATOS DEMO con divisor; orden: Publicar, Buscar, Encontrados, Alertas. Spec CU-06 actualizada. Pytest 17/17, smoke OK (4 tabs).
 
+## S34 — 23/09/2026 — NameError con alertas (OpenCode)
+- `logp` quedó indentado en el `else`: crash justo cuando HAY notificaciones (reproducido en Cloud tras buscar). Fix + test con fila real + limpieza. Pytest 17/17, smoke OK.
+
 ## S17 — 23/09/2026 — Subrayado único en pestañas (OpenCode)
 - El rojo activo se solapaba con el filete negro: fuera el filete base; la pestaña activa lleva un único subrayado negro 3px + semibold. Smoke OK.
 
