@@ -308,3 +308,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Barra a todo ancho: `section[data-testid="stSidebar"] div.block-container` con `padding` lateral `0.5rem`.
 - Specs v1.6: REQ-UI-02/04 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 40/40, smoke 9 páginas OK, demo_check E2E OK.
+
+## S68 — 24/09/2026 — Sidebar a toda altura: botones principales estirados (Muse Spark)
+- Aclaración del usuario con captura: no era solo ancho, sino alto — la columna lateral debe llegar hasta abajo a la altura de la página principal. Fix con flex CSS: el `stVerticalBlock` del sidebar es columna `flex` con `min-height:calc(100vh - 110px)`; los contenedores de los 6 botones principales pasan a `display:contents` (vía `:has(.st-key-…)`) y cada botón `flex:1 0 auto` con `min-height:3.4rem` (crecen, nunca encogen bajo su contenido). Secundarios y paneles conservan tamaño.
+- Specs v1.7: REQ-UI-04 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 40/40, smoke 9 páginas OK. Pendiente confirmación visual del usuario (sin navegador aquí).

@@ -196,7 +196,9 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
   desvanece, `2.2s ease-out infinite`).
   Sidebar: botones principales rojos grandes (`#E30613`, texto `#FFFFFF`, `padding .75rem 1rem`,
   `1.02rem` negrita) y secundarios negros tabulados (`#23201B`, `margin-left 1.25rem`),
-  con iconos Material, sin emojis. Bocadillos `help=` + CSS sobre
+  con iconos Material, sin emojis. Los 6 principales reparten el alto de la ventana
+  (`flex:1`, `min-height:calc(100vh - 110px)`, `min-height:3.4rem` por botón) para que
+  la columna llegue hasta abajo a la altura de la página (v1.7). Bocadillos `help=` + CSS sobre
   `[data-testid="stTooltipContent"]`: sin captura de puntero y auto-ocultado a los
   4s aunque Streamlit los deje pillados (v1.6).
 - REQ-UI-05 — Hero Inicio: titular `ESTOS PELUDOS QUIEREN VOLVER A CASA` en 2 líneas con
