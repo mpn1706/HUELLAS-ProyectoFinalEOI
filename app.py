@@ -567,9 +567,9 @@ with m1:
               use_container_width=True, on_click=nav_to, args=("perdidos",),
               help="Ir a perdidos activos")
 with m2:
-    st.button(f"ENCONTRADOS ({n_found})", key="nav_encontrados",
+    st.button(f"AVISTAMIENTOS ({n_found})", key="nav_encontrados",
               use_container_width=True, on_click=nav_to, args=("encontrados",),
-              help="Ir a encontrados")
+              help="Ir a avistamientos")
 with m3:
     st.button(f"ALERTAS ({n_notif})", key="nav_alertas",
               use_container_width=True, on_click=nav_to, args=("alertas",),
@@ -582,9 +582,6 @@ with b1:
 with b2:
     st.button("Buscar a mi mascota", key="top_buscar", type="primary",
               use_container_width=True, on_click=nav_to, args=("buscar",))
-st.caption(f"Seed v{dbmod.SEED_VERSION} · {n_total} avisos totales "
-           f"({n_lost} perdidos activos + {n_lost_res} resuelto demo + {n_found} encontrados). "
-           f"Los contadores muestran activos, que son los que entran en matching.")
 
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
@@ -885,13 +882,13 @@ if page == "perdidos":
 
 # ── Página: Encontrados ───────────────────────────────────────────────
 if page == "encontrados":
-    st.subheader("Animales encontrados")
+    st.subheader("Avistamientos")
     found = dbmod.get_active_opuestos(con, "lost")
     if not found:
-        st.info("Aún no hay avisos de encontrados.")
+        st.info("Aún no hay avisos de avistamientos.")
     else:
         lista = aplicar_filtros(found, "found")
-        stat_box(len(lista), "Encontrados")
+        stat_box(len(lista), "Avistamientos")
         for a in lista:
             with st.container(border=True):
                 c1, c2 = st.columns([1, 1])
@@ -906,7 +903,7 @@ if page == "encontrados":
 
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
-    st.subheader("Publica un aviso de perdido o encontrado")
+    st.subheader("Publica un aviso de perdido o avistamiento")
     with st.container(border=True):
         r1, r2 = st.columns([1, 1])
         with r1:

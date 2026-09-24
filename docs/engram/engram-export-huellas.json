@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-23 23:56:02",
+  "exported_at": "2026-09-24 00:09:14",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1309,6 +1309,21 @@
       "last_seen_at": "2026-09-23 23:56:01",
       "created_at": "2026-09-23 23:56:01",
       "updated_at": "2026-09-23 23:56:01"
+    },
+    {
+      "id": 70,
+      "sync_id": "obs-ec10f6e770f9815c",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S47 textos avistamientos",
+      "content": "S47 24/09/2026 (Muse Spark): fuera caption seed bajo botonera, ENCONTRADOS-\u003eAVISTAMIENTOS en boton y pagina, Publicar perdido o avistamiento. Solo textos. Pytest 27/27, smoke OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 00:09:14",
+      "created_at": "2026-09-24 00:09:14",
+      "updated_at": "2026-09-24 00:09:14"
     }
   ],
   "prompts": [
@@ -2895,6 +2910,14 @@
       "content": "Cambié la imagen por otra de mayor calidad, no tienes que hacer nada más que cambiar la imagen que había por esta. Deja la misma descripción, coincidencia, etc. [Image 1]",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-23 23:53:57"
+    },
+    {
+      "id": 199,
+      "sync_id": "prompt-dfafd43c42ec66ec",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "- Lo de \"Seed v2 · 16 avisos totales (5 perdidos activos + 1 resuelto demo + 10 encontrados). Los contadores muestran activos, que son los que entran en matching \" bórralo de ahí completamente. \n\n- Cambiar ENCONTRADOS (11) por AVISTAMIENTOS (11), ya que así evitaremos confusiones\n\n- Dentro de PUBLICAR AVISO cambia Publica un aviso de perdido o encontrado por PUBLICA UN AVISO DE PERDIDO O AVISTAMIENTO",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 00:07:50"
     }
   ]
 }

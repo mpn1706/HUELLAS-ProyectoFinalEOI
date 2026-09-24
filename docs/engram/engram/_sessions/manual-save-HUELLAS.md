@@ -15,3 +15,4 @@ tags:
 - [[huellas-s44-filtros-clusters-foto-seed-67]]
 - [[huellas-s45-alerta-real-found-011-68]]
 - [[huellas-s46-foto-found-011-calidad-69]]
+- [[huellas-s47-textos-avistamientos-70]]
