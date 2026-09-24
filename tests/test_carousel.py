@@ -1,5 +1,13 @@
 """Tests carrusel Inicio — REQ-UI-06 (privacidad: nunca contacto)."""
-from ui_home import build_carousel_html, select_carousel_items
+import base64
+import io
+
+from ui_home import (
+    build_carousel_html,
+    build_counts_html,
+    make_carousel_thumb,
+    select_carousel_items,
+)
 
 
 def _aviso(i, tipo="lost", contact="610 204 518 · a@x.es"):
@@ -47,4 +55,29 @@ def test_html_no_incluye_contacto_ni_telefono():
 def test_html_vacio_invita_a_publicar():
     out = build_carousel_html([])
     assert "Publica el primero" in out
+    assert "contact" not in out.lower()
+
+
+def test_thumb_letterbox_300x208_y_centrada(tmp_path):
+    from PIL import Image
+
+    ancha = tmp_path / "ancha.jpg"
+    Image.new("RGB", (800, 200), (200, 30, 30)).save(ancha)
+    alta = tmp_path / "alta.jpg"
+    Image.new("RGB", (100, 800), (30, 30, 200)).save(alta)
+    for fp in (ancha, alta):
+        uri = make_carousel_thumb(str(fp))
+        assert uri.startswith("data:image/jpeg;base64,")
+        img = Image.open(io.BytesIO(base64.b64decode(uri.split(",", 1)[1])))
+        assert img.size == (300, 208)  # lienzo fijo: sin recortes, animal entero
+    assert make_carousel_thumb(str(tmp_path / "noexiste.jpg")) == ""
+
+
+def test_counts_con_links_y_sin_contacto():
+    out = build_counts_html(5, 11, 0)
+    assert "?page=perdidos" in out
+    assert "?page=encontrados" in out
+    assert "?page=reencuentro" in out
+    assert ">5<" in out and ">11<" in out and ">0<" in out
+    assert "perdidos activos" in out and "avistamientos" in out and "reencuentros" in out
     assert "contact" not in out.lower()

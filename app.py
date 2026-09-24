@@ -16,7 +16,7 @@ from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
-from ui_home import build_carousel_html, select_carousel_items
+from ui_home import build_carousel_html, build_counts_html, make_carousel_thumb, select_carousel_items
 
 DB = "data/huellas.db"
 LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
@@ -754,6 +754,17 @@ def nav_to(dest: str):
     # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
+    for _k in ("page", "aviso"):
+        try:
+            if _k in st.query_params:
+                del st.query_params[_k]
+        except Exception:
+            pass
+
+
+def _toggle(key: str):
+    """Alterna una sección plegable del sidebar (colapsadas por defecto)."""
+    st.session_state[key] = not st.session_state.get(key, False)
 
 
 def ir_a_caso(aviso_id: str, tipo: str):
@@ -788,14 +799,8 @@ def tarjeta_destacada(aid: str) -> bool:
 # Solo UI: no toca matching, agentes, RAG ni BD.
 _NAV_ACTIVE_MAP = {
     "inicio": "nav_inicio",
-    "perdidos": "nav_perdidos",
-    "encontrados": "nav_encontrados",
-    "reencuentro": "nav_reencuentro",
     "protectoras": "nav_protectoras",
     "tiempo": "nav_tiempo",
-    "legal": "nav_legal",
-    "buscar": "nav_buscar_side",
-    "publicar": "nav_publicar_side",
 }
 
 
@@ -803,29 +808,31 @@ def inject_ui_css(active_page: str) -> None:
     """Estilos nav/hero/carrusel/contadores (solo CSS, paleta existente)."""
     base = """<style>
 [data-testid="stSidebar"] .st-key-nav_inicio button,
-[data-testid="stSidebar"] .st-key-nav_perdidos button,
-[data-testid="stSidebar"] .st-key-nav_encontrados button,
-[data-testid="stSidebar"] .st-key-nav_reencuentro button,
+[data-testid="stSidebar"] .st-key-tgl_punt button,
+[data-testid="stSidebar"] .st-key-tgl_demo button,
+[data-testid="stSidebar"] .st-key-tgl_mas button,
+[data-testid="stSidebar"] .st-key-tgl_admin button,
 [data-testid="stSidebar"] .st-key-nav_protectoras button,
-[data-testid="stSidebar"] .st-key-nav_tiempo button,
-[data-testid="stSidebar"] .st-key-nav_legal button {
+[data-testid="stSidebar"] .st-key-nav_tiempo button {
   border-radius:6px !important;
   border-left:3px solid transparent !important;
   transition:transform .2s, background .2s !important;
   text-align:left;
+  background:#23201B !important;
+  color:#F5F1EA !important;
 }
 [data-testid="stSidebar"] .st-key-nav_inicio button:hover,
-[data-testid="stSidebar"] .st-key-nav_perdidos button:hover,
-[data-testid="stSidebar"] .st-key-nav_encontrados button:hover,
-[data-testid="stSidebar"] .st-key-nav_reencuentro button:hover,
+[data-testid="stSidebar"] .st-key-tgl_punt button:hover,
+[data-testid="stSidebar"] .st-key-tgl_demo button:hover,
+[data-testid="stSidebar"] .st-key-tgl_mas button:hover,
+[data-testid="stSidebar"] .st-key-tgl_admin button:hover,
 [data-testid="stSidebar"] .st-key-nav_protectoras button:hover,
-[data-testid="stSidebar"] .st-key-nav_tiempo button:hover,
-[data-testid="stSidebar"] .st-key-nav_legal button:hover {
+[data-testid="stSidebar"] .st-key-nav_tiempo button:hover {
   transform:translateX(3px) !important;
-  background:rgba(35,32,27,0.08) !important;
+  background:#353026 !important;
 }
-[data-testid="stSidebar"] .st-key-nav_publicar_side button,
-[data-testid="stAppViewContainer"] .st-key-hero_publicar button {
+[data-testid="stAppViewContainer"] .st-key-hero_publicar button,
+[data-testid="stAppViewContainer"] .st-key-hero_buscar button {
   position:relative !important;
   border-radius:6px !important;
   background:#E30613 !important;
@@ -833,8 +840,8 @@ def inject_ui_css(active_page: str) -> None:
   border:none !important;
   transition:transform .2s, background .2s !important;
 }
-[data-testid="stSidebar"] .st-key-nav_publicar_side button::after,
-[data-testid="stAppViewContainer"] .st-key-hero_publicar button::after {
+[data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
+[data-testid="stAppViewContainer"] .st-key-hero_buscar button::after {
   content:"" !important;
   position:absolute !important;
   inset:-2px !important;
@@ -844,18 +851,10 @@ def inject_ui_css(active_page: str) -> None:
   pointer-events:none !important;
 }
 @keyframes huellas-ring { 0% { transform:scale(1); opacity:.8; } 100% { transform:scale(1.12,1.4); opacity:0; } }
-[data-testid="stSidebar"] .st-key-nav_buscar_side button,
-[data-testid="stAppViewContainer"] .st-key-hero_buscar button {
-  border-radius:6px !important;
-  background:transparent !important;
-  border:1px solid #E30613 !important;
-  color:#E30613 !important;
-  transition:transform .2s, background .2s !important;
-}
-[data-testid="stSidebar"] .st-key-nav_buscar_side button:hover,
+[data-testid="stAppViewContainer"] .st-key-hero_publicar button:hover,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button:hover {
   transform:translateX(3px) !important;
-  background:rgba(227,6,19,0.08) !important;
+  background:rgba(227,6,19,0.85) !important;
 }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button {
@@ -881,7 +880,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-cd { width:150px; flex:none; margin-right:12px; background:#FFFFFF; border:1px solid #57503F; border-radius:10px; overflow:hidden; transition:transform .2s; }
 .huellas-cd:hover { transform:translateY(-4px); }
 .huellas-cd-img { height:104px; display:flex; align-items:center; justify-content:center; background:#F5F1EA; overflow:hidden; }
-.huellas-cd-img img { width:100%; height:100%; object-fit:cover; display:block; }
+.huellas-cd-img img { width:100%; height:100%; object-fit:contain; object-position:center; display:block; background:#F5F1EA; }
 .huellas-cd-ph { font-family:'Montserrat','Inter',sans-serif; font-weight:800; font-size:2rem; color:#23201B; }
 .huellas-cd-b { padding:9px 10px 10px; }
 .huellas-cd-t { font-size:0.82rem; font-weight:700; color:#23201B; }
@@ -893,13 +892,16 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-vacio-t { font-weight:800; color:#23201B; margin:0 0 0.3rem; }
 .huellas-vacio-s { color:#57503F; margin:0; font-size:0.85rem; }
 .huellas-counts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:14px 0 0; }
+.huellas-count-link { text-decoration:none; color:inherit; display:block; border-radius:8px; transition:transform .2s; }
+.huellas-count-link:hover { transform:translateY(-3px); }
+.huellas-count-link:hover .huellas-count { border-color:#E30613 !important; }
 .huellas-count { background:#FFFFFF; border:1px solid #57503F; border-radius:8px; padding:10px 12px; }
 .huellas-count-v { font-family:'Montserrat','Inter',sans-serif; font-size:1.4rem; font-weight:800; color:#23201B; }
 .huellas-count-l { font-size:0.75rem; color:#57503F; }
 @media (prefers-reduced-motion:reduce) {
   .huellas-trk, .huellas-up,
-  [data-testid="stSidebar"] .st-key-nav_publicar_side button::after,
   [data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
+  [data-testid="stAppViewContainer"] .st-key-hero_buscar button::after,
   em.u::after, .huellas-heart { animation:none !important; }
   em.u::after { width:100% !important; }
 }
@@ -909,25 +911,17 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
     if key:
         extra = ('<style>[data-testid="stSidebar"] .st-key-' + key
                  + ' button { border-left-color:#E30613 !important;'
-                 + ' background:rgba(35,32,27,0.10) !important; }</style>')
+                 + ' background:#353026 !important; color:#F5F1EA !important; }</style>')
     st.markdown(base + extra, unsafe_allow_html=True)
 
 
 @st.cache_data(ttl=120, show_spinner=False)
 def carousel_thumb(path: str) -> str:
-    """Miniatura JPEG ≤300px en data URI para el carrusel (TTL corto)."""
-    try:
-        from PIL import Image
-        import base64
-        import io
+    """Miniatura letterbox crema 300×208 en data URI (animal entero, centrado).
 
-        img = Image.open(path).convert("RGB")
-        img.thumbnail((300, 300))
-        buf = io.BytesIO()
-        img.save(buf, format="JPEG", quality=65)
-        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
-    except Exception:
-        return ""
+    Delegada en `ui_home.make_carousel_thumb` (pura y testeada en pytest).
+    """
+    return make_carousel_thumb(path or "")
 
 
 def get_carousel_cards(con, limit: int = 12) -> list:
@@ -979,6 +973,33 @@ def handle_carousel_click(con) -> None:
         st.rerun()
 
 
+_PAGE_ALIAS = {
+    "perdidos": "perdidos",
+    "encontrados": "encontrados",
+    "reencuentro": "reencuentro",
+}
+
+
+def handle_counts_click() -> None:
+    """Clic en contador (?page=perdidos|encontrados|reencuentro) → su pestaña."""
+    try:
+        qp = st.query_params
+        if "page" not in qp:
+            return
+        dest = _PAGE_ALIAS.get(str(qp["page"]))
+    except Exception:
+        return
+    if not dest:
+        return
+    try:
+        del st.query_params["page"]
+    except Exception:
+        pass
+    st.session_state.page = dest
+    st.session_state.pop("destacar_id", None)
+    st.rerun()
+
+
 def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     """Hero + botones grandes + carrusel + contadores [REQ-UI-01/03/05/06]."""
     st.markdown(
@@ -1003,25 +1024,17 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
                   use_container_width=True, on_click=nav_to, args=("publicar",),
                   help="Publica un aviso de perdido o avistamiento.")
     with h2:
-        st.button("Búsqueda preliminar de coincidencias", key="hero_buscar",
-                  type="secondary", use_container_width=True,
+        st.button("Búsqueda de coincidencias", key="hero_buscar",
+                  type="primary", use_container_width=True,
                   on_click=nav_to, args=("buscar",),
-                  help="Búsqueda preliminar entre perdidos y avistamientos, sin registrar el aviso.")
+                  help="Búsqueda entre perdidos y avistamientos, sin registrar el aviso.")
     cards = get_carousel_cards(con)
     st.markdown(build_carousel_html(cards), unsafe_allow_html=True)
     if not cards:
         st.button("Publicar el primer aviso", key="hero_empty_pub", type="primary",
                   use_container_width=True, on_click=nav_to, args=("publicar",))
-    st.markdown(
-        '<div class="huellas-counts">'
-        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_lost)}</div>'
-        '<div class="huellas-count-l">perdidos activos</div></div>'
-        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_found)}</div>'
-        '<div class="huellas-count-l">avistamientos</div></div>'
-        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_reenc)}</div>'
-        '<div class="huellas-count-l">reencuentros</div></div>'
-        '</div>',
-        unsafe_allow_html=True)
+    st.markdown(build_counts_html(int(n_lost), int(n_found), int(n_reenc)),
+                unsafe_allow_html=True)
 
 
 def render_protectoras() -> None:
@@ -1075,76 +1088,50 @@ def render_legal() -> None:
              "Una imagen no permite confirmar la identidad, verifique en persona.")
 
 
-# ── UI Inicio: CSS + clics del carrusel (?aviso=) ─────────────────────
+# ── UI Inicio: CSS + clics del carrusel (?aviso=) y contadores (?page=) ──
 inject_ui_css(st.session_state.get("page", "inicio"))
 handle_carousel_click(con)
+handle_counts_click()
 
-# ── Barra lateral ─────────────────────────────────────────────────────
+# ── Barra lateral (REQ-UI-02 v1.3): 5 elementos en orden ─────────────
 with st.sidebar:
     st.button("Inicio", key="nav_inicio", icon=":material/home:",
               use_container_width=True, type="tertiary",
               on_click=nav_to, args=("inicio",),
               help="Pantalla de inicio: hero, carrusel y contadores.")
-    st.button(f"Perdidos ({n_lost})", key="nav_perdidos", icon=":material/search:",
+    st.button("Puntualizaciones web", key="tgl_punt", icon=":material/warning:",
               use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("perdidos",),
-              help="Muestra los avisos de mascotas perdidas activos, con filtros por animal, color y tamaño.")
-    st.button(f"Avistamientos ({n_found})", key="nav_encontrados",
-              icon=":material/visibility:", use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("encontrados",),
-              help="Muestra los avistamientos: animales encontrados pendientes de reunir con su dueño.")
-    st.button(f"Volvió a casa ({n_reenc})", key="nav_reencuentro",
-              icon=":material/favorite:", use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("reencuentro",),
-              help="Notifica que un animal volvió con su dueño y registra el cierre del caso.")
-    st.caption("Más")
-    st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
+              on_click=_toggle, args=("side_punt",),
+              help="Cómo puntúa y aviso legal.")
+    if st.session_state.get("side_punt", False):
+        with st.expander("Cómo puntúa (fórmula cerrada)", expanded=True):
+            st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
+            u1, u2 = st.columns(2)
+            with u1:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                            '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
+            with u2:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                            '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
+            u3, u4 = st.columns(2)
+            with u3:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;">'
+                            'RADIO<br>15 KM</div>', unsafe_allow_html=True)
+            with u4:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;">'
+                            'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
+        with st.expander("Aviso legal", expanded=True):
+            st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
+                     "Una imagen no permite confirmar la identidad, verifique en persona.")
+    st.button("Datos demo", key="tgl_demo", icon=":material/bar_chart:",
               use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("protectoras",),
-              help="Protectoras de Jerez: direcciones y contacto.")
-    st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
-              use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("tiempo",),
-              help="Tiempo en Jerez con el perro según el tiempo.")
-    st.button("Aviso legal", key="nav_legal", icon=":material/description:",
-              use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("legal",),
-              help="Este análisis no promete una coincidencia inequívoca.")
-    st.divider()
-    st.button("Publicar aviso", key="nav_publicar_side", type="primary",
-              use_container_width=True, on_click=nav_to, args=("publicar",),
-              help="Publica un aviso de perdido o avistamiento. Al publicar se cruza solo y avisa si supera el 80 por ciento.")
-    st.button("Búsqueda preliminar de coincidencias", key="nav_buscar_side",
-              type="secondary", use_container_width=True,
-              on_click=nav_to, args=("buscar",),
-              help="Búsqueda preliminar entre perdidos y avistamientos, sin registrar el aviso.")
-    st.divider()
-    st.subheader("Puntualizaciones sobre la web")
-    with st.expander("Cómo puntúa (fórmula cerrada)"):
-        st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
-        u1, u2 = st.columns(2)
-        with u1:
-            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                        'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                        '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
-        with u2:
-            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                        'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                        '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
-        u3, u4 = st.columns(2)
-        with u3:
-            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                        'text-align:center;color:#FFFFFF;font-weight:800;">'
-                        'RADIO<br>15 KM</div>', unsafe_allow_html=True)
-        with u4:
-            st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                        'text-align:center;color:#FFFFFF;font-weight:800;">'
-                        'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
-    with st.expander("Aviso legal"):
-        st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
-                 "Una imagen no permite confirmar la identidad, verifique en persona.")
-    st.divider()
-    with st.expander("Datos demo", expanded=False):
+              on_click=_toggle, args=("side_demo",),
+              help="Cargar seed demo o expirar avisos antiguos.")
+    if st.session_state.get("side_demo", False):
         if st.button("Cargar seed Jerez (16 avisos activos)"):
             import json as _json
 
@@ -1167,8 +1154,24 @@ with st.sidebar:
         if st.button("Expirar avisos >30 días"):
             n = dbmod.expire_old(get_con(), 30)
             st.info(f"Avisos expirados: {n}")
-    st.divider()
-    with st.expander("Administración", expanded=False):
+    st.button("Más", key="tgl_mas", icon=":material/add:",
+              use_container_width=True, type="tertiary",
+              on_click=_toggle, args=("side_mas",),
+              help="Protectoras y tiempo en Jerez.")
+    if st.session_state.get("side_mas", False):
+        st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
+                  use_container_width=True, type="tertiary",
+                  on_click=nav_to, args=("protectoras",),
+                  help="Protectoras de Jerez: direcciones y contacto.")
+        st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
+                  use_container_width=True, type="tertiary",
+                  on_click=nav_to, args=("tiempo",),
+                  help="Tiempo en Jerez con el perro según el tiempo.")
+    st.button("Administración", key="tgl_admin", icon=":material/key:",
+              use_container_width=True, type="tertiary",
+              on_click=_toggle, args=("side_admin",),
+              help="Moderación con contraseña.")
+    if st.session_state.get("side_admin", False):
         TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
         ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
 

@@ -11,6 +11,8 @@ import html as _html
 
 ANIMAL_ES = {"dog": "Perro", "cat": "Gato", "other": "Otro"}
 MAX_ITEMS = 12
+THUMB_W, THUMB_H = 300, 208  # ratio 150×104 de la tarjeta: el cover no recorta
+THUMB_BG = (245, 241, 234)  # crema #F5F1EA: misma que imagen_cuadrada en app.py
 
 
 def _titulo(a: dict) -> str:
@@ -52,6 +54,45 @@ def select_carousel_items(avisos: list, limit: int = MAX_ITEMS) -> list:
             "etiqueta": "Perdido" if tipo == "lost" else "Avistado",
         })
     return out
+
+
+def make_carousel_thumb(path: str) -> str:
+    """Miniatura letterbox crema 300×208 en data URI (animal entero, centrado).
+
+    Pura (solo PIL): la app la envuelve con `st.cache_data(ttl=120)`.
+    Si la foto falta o falla, cadena vacía (la tarjeta muestra inicial).
+    """
+    try:
+        from PIL import Image
+        import base64
+        import io
+
+        img = Image.open(path).convert("RGB")
+        img.thumbnail((THUMB_W, THUMB_H))
+        lienzo = Image.new("RGB", (THUMB_W, THUMB_H), THUMB_BG)
+        lienzo.paste(img, ((THUMB_W - img.width) // 2, (THUMB_H - img.height) // 2))
+        buf = io.BytesIO()
+        lienzo.save(buf, format="JPEG", quality=65)
+        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        return ""
+
+
+def build_counts_html(n_lost: int, n_found: int, n_reenc: int) -> str:
+    """3 contadores blancos clicables (?page= → su pestaña). Sin contacto."""
+    return (
+        '<div class="huellas-counts">'
+        f'<a class="huellas-count-link" href="?page=perdidos">'
+        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_lost)}</div>'
+        '<div class="huellas-count-l">perdidos activos</div></div></a>'
+        f'<a class="huellas-count-link" href="?page=encontrados">'
+        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_found)}</div>'
+        '<div class="huellas-count-l">avistamientos</div></div></a>'
+        f'<a class="huellas-count-link" href="?page=reencuentro">'
+        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_reenc)}</div>'
+        '<div class="huellas-count-l">reencuentros</div></div></a>'
+        '</div>'
+    )
 
 
 def build_carousel_html(cards: list) -> str:

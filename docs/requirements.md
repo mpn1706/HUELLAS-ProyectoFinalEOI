@@ -166,34 +166,39 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
 
 - REQ-UI-01 — Pantalla Inicio por defecto: al abrir la app `session_state.page="inicio"`.
   Muestra hero + carrusel en movimiento + 3 contadores. El logo y el header quedan intactos.
-- REQ-UI-02 — Navegación en barra lateral: `Inicio, Perdidos, Avistamientos, Volvió a casa`
-  con icono (Material built-in, sin emojis) y contador por sección
-  (`activos lost / activos found / reencuentros validados`); el activo lleva barra roja
-  `#E30613` a la izquierda. Debajo, sección "Más": `Protectoras, Tiempo en Jerez, Aviso legal`.
-  `Datos demo` y `Administración` van al final, plegados (`expanded=False`).
+- REQ-UI-02 — Barra lateral, solo 5 elementos en este orden (v1.3 24/09/2026):
+  `INICIO` (botón negro, icono casa Material, barra roja `#E30613` si activo),
+  `PUNTUALIZACIONES WEB` (plegable negro, icono aviso: despliega Cómo puntúa + Aviso legal),
+  `DATOS DEMO` (plegable negro, icono stats: seed + expirar),
+  `MÁS` (plegable negro con `+`: despliega Protectoras y Tiempo en Jerez con sus iconos),
+  `ADMINISTRACIÓN` (plegable negro, icono llave: login + moderación + reencuentros).
+  Sin Perdidos/Avistamientos/Volvió a casa ni CTAs en el sidebar (se llega vía Inicio).
+  Plegables = botón negro que alterna `session_state` (colapsados por defecto).
   Cambiar de sección es un rerun Streamlit: conserva `session_state` (no pierde filtros).
-- REQ-UI-03 — CTAs duplicados: `Publicar aviso` (rojo sólido `#E30613`) y
-  `Búsqueda preliminar de coincidencias` (transparente con borde rojo) al final del sidebar
-  y repetidos como botones grandes en el hero de Inicio (visibles en móvil).
-  `Publicar` → `page="publicar"`; `Búsqueda preliminar` → `page="buscar"`.
-- REQ-UI-04 — Estilo botones nav (solo CSS, sin librerías): esquinas 6px,
+- REQ-UI-03 — CTAs solo en el hero de Inicio (v1.3 24/09/2026, fuera del sidebar):
+  `Publicar aviso` y `Búsqueda de coincidencias` (renombrado), ambos rojo sólido
+  `#E30613` idénticos y grandes (visibles en móvil).
+  `Publicar` → `page="publicar"`; `Búsqueda` → `page="buscar"`.
+- REQ-UI-04 — Estilo botones (solo CSS, sin librerías): esquinas 6px,
   `transition: transform .2s, background .2s`, hover con `translateX(3px)` + fondo translúcido,
-  sin aspecto de blog. `Publicar aviso` con pulso suave: anillo `::after` que se expande
-  (`scale 1 → 1.12,1.4`) y se desvanece (`2.2s ease-out infinite`).
+  sin aspecto de blog. Hero: los 2 CTAs en rojo sólido idéntico con pulso suave
+  (anillo `::after` que se expande `scale 1 → 1.12,1.4` y se desvanece, `2.2s ease-out infinite`).
+  Sidebar: botones negros (`#23201B`, texto `#F5F1EA`) con iconos Material, sin emojis.
 - REQ-UI-05 — Hero Inicio: titular `ESTOS PELUDOS QUIEREN VOLVER A CASA` en 2 líneas con
   `fade-up` (una vez, `both .7s`, segunda línea con `delay .25s`); palabra `CASA` en rojo
   `#E30613` con subrayado que se dibuja (`::after` animado); corazón SVG con latido suave
   (`scale 1 → 1.25`, `1.4s infinite`); subtítulo `Mira quién te está esperando…`.
-- REQ-UI-06 — Carrusel infinito + contadores:
+- REQ-UI-06 — Carrusel infinito + contadores clicables (v1.3 24/09/2026):
   fotos de avisos `active` (`lost`+`found`), máx. 12 (más recientes por `date_reported`),
   tarjeta = foto + `Especie · color` + zona (`address_text`) + etiqueta `Perdido/Avistado`.
-  NUNCA `contact_info`/teléfono (test dedicado). Movimiento continuo CSS marquee
-  (`32s linear infinite`, pista duplicada para bucle `-50%`), pausa en hover,
-  clic en tarjeta → `?aviso=<id>` → salta a su aviso y lo resalta (`destacar_id`).
-  Miniaturas redimensionadas (máx. 300px ancho, JPEG q65, data URI) con
-  `st.cache_data(ttl=120)`. `@media (prefers-reduced-motion: reduce)`: sin animaciones.
-  Vacío → estado con invitación a publicar el primero. Debajo, 3 contadores:
-  perdidos activos, avistamientos, reencuentros (validados).
+  NUNCA `contact_info`/teléfono (test dedicado). Foto en letterbox crema (`300×208`,
+  animal entero centrado sin recortes, JPEG q65, data URI) con `st.cache_data(ttl=120)`.
+  Movimiento continuo CSS marquee (`32s linear infinite`, pista duplicada `-50%`),
+  pausa en hover, clic en tarjeta → `?aviso=<id>` → salta a su aviso y lo resalta.
+  `@media (prefers-reduced-motion: reduce)`: sin animaciones.
+  Vacío → estado con invitación a publicar el primero. Debajo, 3 contadores clicables
+  (`?page=` → `perdidos`/`encontrados`/`reencuentro`): perdidos activos, avistamientos,
+  reencuentros (validados).
 
 Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#23201B/#FFFFFF/
 #F5F1EA/#57503F`, Inter+Montserrat); sin colores nuevos; animaciones solo CSS
