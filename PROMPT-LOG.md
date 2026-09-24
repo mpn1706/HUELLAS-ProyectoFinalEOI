@@ -294,3 +294,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Obligatorios con `*`: buscar (canal, foto, animal, tamaño, color, descripción) y publicar (tipo, animal, tamaño, contacto con al menos un dato: móvil/correo/RRSS, bloquea con aviso si falta). Seed: 9 avisos sin móvil reciben correo aleatorio + `SEED_VERSION` 4→5 (la app recarga sola); nuevo `tests/test_seed.py`.
 - Specs: CU-01/CU-02/CU-03, REQ-05 esquema intacto, REQ-09.5, REQ-UI-02/03/04/06 + `architecture.md` §8 en v1.4 (root + `docs/`).
 - Verificación: pytest 40/40, smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 ≥80%).
+
+## S66 — 24/09/2026 — Correcciones sidebar v1.5: bocadillos, plegados, secundarios negros (Muse Spark)
+- Bocadillos restaurados (`help=` en los 11 botones de hero/sidebar): la queja era que se quedaban pegados, no que existieran. Fix con CSS `div[data-baseweb="tooltip"]{pointer-events:none}` para que desaparezcan al retirar el puntero (el tooltip ya no captura el ratón).
+- Solo FUNCIONALIDADES abierta por defecto; puntualizaciones/demo/más/admin plegadas (`_SIDE_OPEN_DEFAULT`, `_toggle` con defecto por clave). Sin autodespliegue general: `nav_to()`/`ir_a_caso()`/`ir_a_publicar_con()` solo reabren `side_func` + `initial_sidebar_state="expanded"`.
+- Secundarios (Publicar/Búsqueda/Protectoras/Tiempo) en negro `#23201B` + `margin-left 1.25rem` (tabulados, jerarquía); principales rojos grandes. Caption de conteo bajo "Animales perdidos activos" eliminado del todo (+ limpieza de `n_lost_total`/`n_lost_res` sin uso).
+- Specs v1.5: REQ-UI-02/04 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 40/40, smoke 9 páginas OK, demo_check E2E OK.

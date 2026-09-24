@@ -28,7 +28,8 @@ SIZE_ES = {"small": "Pequeño", "medium": "Mediano", "large": "Grande"}
 TAGLINE = "Agente de Búsqueda y Comparativa Visual de Animales Perdidos"
 SUBTITLE = "Encuentra a tu mascota entre los avisos de avistamientos en Jerez de la Frontera"
 
-st.set_page_config(page_title="HUELLAS", page_icon=LOGO if LOGO else None, layout="wide")
+st.set_page_config(page_title="HUELLAS", page_icon=LOGO if LOGO else None, layout="wide",
+                   initial_sidebar_state="expanded")
 
 
 def inject_background():
@@ -739,9 +740,6 @@ con = ensure_db()
 retirar_alerta_demo(con)
 
 n_lost = con.execute("SELECT COUNT(*) FROM avisos WHERE status='active' AND type='lost'").fetchone()[0]
-n_lost_total = con.execute("SELECT COUNT(*) FROM avisos WHERE type='lost'").fetchone()[0]
-n_lost_res = con.execute(
-    "SELECT COUNT(*) FROM avisos WHERE type='lost' AND status!='active'").fetchone()[0]
 n_found = con.execute("SELECT COUNT(*) FROM avisos WHERE status='active' AND type='found'").fetchone()[0]
 n_reenc = con.execute("SELECT COUNT(*) FROM reencuentros WHERE estado='validada'").fetchone()[0]
 n_total = con.execute("SELECT COUNT(*) FROM avisos").fetchone()[0]
@@ -752,11 +750,10 @@ if "page" not in st.session_state:
 
 def nav_to(dest: str):
     # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
-    # Reabre las secciones del sidebar para tener acceso rápido tras cada cambio.
+    # Mantiene FUNCIONALIDADES abierta para tener inicio/funciones siempre a mano.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
-    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
-        st.session_state[_k] = True
+    st.session_state["side_func"] = True
     for _k in ("page", "aviso"):
         try:
             if _k in st.query_params:
@@ -765,15 +762,20 @@ def nav_to(dest: str):
             pass
 
 
+# Secciones abiertas por defecto (el resto, plegadas).
+_SIDE_OPEN_DEFAULT = {"side_func": True}
+
+
 def _toggle(key: str):
-    """Alterna una sección plegable del sidebar (abiertas por defecto)."""
-    st.session_state[key] = not st.session_state.get(key, True)
+    """Alterna una sección plegable del sidebar (solo FUNCIONALIDADES abre por defecto)."""
+    st.session_state[key] = not st.session_state.get(key, _SIDE_OPEN_DEFAULT.get(key, False))
 
 
 def ir_a_caso(aviso_id: str, tipo: str):
     """Salta al caso del otro lado y lo resalta (botón VER COINCIDENCIA)."""
     st.session_state.destacar_id = aviso_id
     st.session_state.page = "perdidos" if tipo == "lost" else "encontrados"
+    st.session_state["side_func"] = True
 
 
 def ir_a_publicar_con(q: dict, lado: str):
@@ -792,6 +794,7 @@ def ir_a_publicar_con(q: dict, lado: str):
         "addr": loc.get("address_text", ""), "qpath": q.get("image_url", "")}
     st.session_state.pub_init = False
     st.session_state.page = "publicar"
+    st.session_state["side_func"] = True
 
 
 def tarjeta_destacada(aid: str) -> bool:
@@ -810,16 +813,14 @@ _NAV_ACTIVE_MAP = {
 def inject_ui_css(active_page: str) -> None:
     """Estilos nav/hero/carrusel/contadores (solo CSS, paleta existente)."""
     base = """<style>
+/* Bocadillos: no capturan el puntero → al retirar el ratón desaparecen al instante. */
+div[data-baseweb="tooltip"] { pointer-events:none !important; }
 [data-testid="stSidebar"] .st-key-nav_inicio button,
 [data-testid="stSidebar"] .st-key-tgl_func button,
 [data-testid="stSidebar"] .st-key-tgl_punt button,
 [data-testid="stSidebar"] .st-key-tgl_demo button,
 [data-testid="stSidebar"] .st-key-tgl_mas button,
-[data-testid="stSidebar"] .st-key-tgl_admin button,
-[data-testid="stSidebar"] .st-key-nav_publicar_side button,
-[data-testid="stSidebar"] .st-key-nav_buscar_side button,
-[data-testid="stSidebar"] .st-key-nav_protectoras button,
-[data-testid="stSidebar"] .st-key-nav_tiempo button {
+[data-testid="stSidebar"] .st-key-tgl_admin button {
   border-radius:6px !important;
   border-left:3px solid transparent !important;
   transition:transform .2s, background .2s !important;
@@ -835,13 +836,37 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-tgl_punt button:hover,
 [data-testid="stSidebar"] .st-key-tgl_demo button:hover,
 [data-testid="stSidebar"] .st-key-tgl_mas button:hover,
-[data-testid="stSidebar"] .st-key-tgl_admin button:hover,
+[data-testid="stSidebar"] .st-key-tgl_admin button:hover {
+  transform:translateX(3px) !important;
+  background:rgba(227,6,19,0.85) !important;
+}
+/* Botones secundarios: negros y tabulados a la derecha (jerarquía visual). */
+[data-testid="stSidebar"] .st-key-nav_publicar_side,
+[data-testid="stSidebar"] .st-key-nav_buscar_side,
+[data-testid="stSidebar"] .st-key-nav_protectoras,
+[data-testid="stSidebar"] .st-key-nav_tiempo {
+  margin-left:1.25rem !important;
+}
+[data-testid="stSidebar"] .st-key-nav_publicar_side button,
+[data-testid="stSidebar"] .st-key-nav_buscar_side button,
+[data-testid="stSidebar"] .st-key-nav_protectoras button,
+[data-testid="stSidebar"] .st-key-nav_tiempo button {
+  border-radius:6px !important;
+  border-left:3px solid transparent !important;
+  transition:transform .2s, background .2s !important;
+  text-align:left;
+  background:#23201B !important;
+  color:#F5F1EA !important;
+  padding:0.6rem 0.9rem !important;
+  font-size:0.95rem !important;
+  font-weight:600 !important;
+}
 [data-testid="stSidebar"] .st-key-nav_publicar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_protectoras button:hover,
 [data-testid="stSidebar"] .st-key-nav_tiempo button:hover {
   transform:translateX(3px) !important;
-  background:rgba(227,6,19,0.85) !important;
+  background:#353026 !important;
 }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button {
@@ -1050,11 +1075,13 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     h1, h2 = st.columns(2)
     with h1:
         st.button("Publicar aviso", key="hero_publicar", type="primary",
-                  use_container_width=True, on_click=nav_to, args=("publicar",))
+                  use_container_width=True, on_click=nav_to, args=("publicar",),
+                  help="Publica un aviso de perdido o avistamiento.")
     with h2:
         st.button("Búsqueda de coincidencias", key="hero_buscar",
                   type="primary", use_container_width=True,
-                  on_click=nav_to, args=("buscar",))
+                  on_click=nav_to, args=("buscar",),
+                  help="Búsqueda entre perdidos y avistamientos, sin registrar el aviso.")
     cards = get_carousel_cards(con)
     st.markdown(build_carousel_html(cards), unsafe_allow_html=True)
     if not cards:
@@ -1133,20 +1160,25 @@ handle_counts_click()
 with st.sidebar:
     st.button("Inicio", key="nav_inicio", icon=":material/home:",
               use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("inicio",))
+              on_click=nav_to, args=("inicio",),
+              help="Pantalla de inicio: hero, carrusel y contadores.")
     st.button("Funcionalidades", key="tgl_func", icon=":material/apps:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_func",))
+              on_click=_toggle, args=("side_func",),
+              help="Publicar avisos y buscar coincidencias.")
     if st.session_state.get("side_func", True):
         st.button("Publicar aviso", key="nav_publicar_side", type="primary",
-                  use_container_width=True, on_click=nav_to, args=("publicar",))
+                  use_container_width=True, on_click=nav_to, args=("publicar",),
+                  help="Publica un aviso de perdido o avistamiento.")
         st.button("Búsqueda de coincidencias", key="nav_buscar_side",
                   type="primary", use_container_width=True,
-                  on_click=nav_to, args=("buscar",))
+                  on_click=nav_to, args=("buscar",),
+                  help="Búsqueda entre perdidos y avistamientos, sin registrar el aviso.")
     st.button("Puntualizaciones web", key="tgl_punt", icon=":material/warning:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_punt",))
-    if st.session_state.get("side_punt", True):
+              on_click=_toggle, args=("side_punt",),
+              help="Cómo puntúa y aviso legal.")
+    if st.session_state.get("side_punt", False):
         with st.expander("Cómo puntúa (fórmula cerrada)", expanded=True):
             st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
             u1, u2 = st.columns(2)
@@ -1172,8 +1204,9 @@ with st.sidebar:
                      "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.button("Datos demo", key="tgl_demo", icon=":material/bar_chart:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_demo",))
-    if st.session_state.get("side_demo", True):
+              on_click=_toggle, args=("side_demo",),
+              help="Cargar seed demo o expirar avisos antiguos.")
+    if st.session_state.get("side_demo", False):
         if st.button("Cargar seed Jerez (16 avisos activos)"):
             import json as _json
 
@@ -1198,18 +1231,22 @@ with st.sidebar:
             st.info(f"Avisos expirados: {n}")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_mas",))
-    if st.session_state.get("side_mas", True):
+              on_click=_toggle, args=("side_mas",),
+              help="Protectoras y tiempo en Jerez.")
+    if st.session_state.get("side_mas", False):
         st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
                   use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("protectoras",))
+                  on_click=nav_to, args=("protectoras",),
+                  help="Protectoras de Jerez: direcciones y contacto.")
         st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
                   use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("tiempo",))
+                  on_click=nav_to, args=("tiempo",),
+                  help="Tiempo en Jerez con el perro según el tiempo.")
     st.button("Administración", key="tgl_admin", icon=":material/key:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_admin",))
-    if st.session_state.get("side_admin", True):
+              on_click=_toggle, args=("side_admin",),
+              help="Moderación con contraseña.")
+    if st.session_state.get("side_admin", False):
         TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
         ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
 
@@ -1589,8 +1626,6 @@ if page == "buscar":
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":
     st.subheader("Animales perdidos activos")
-    st.caption(f"{n_lost} activos de {n_lost_total} perdidos totales "
-               f"({n_lost_res} resuelto demo: el gatito gris que volvió a casa).")
     lost_list = [dbmod.get_aviso(con, r["id"]) for r in
                  con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
     lost_list = [a for a in lost_list if a]

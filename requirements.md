@@ -167,17 +167,20 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
 - REQ-UI-01 — Pantalla Inicio por defecto: al abrir la app `session_state.page="inicio"`.
   Muestra hero + carrusel en movimiento + 3 contadores. El logo y el header quedan intactos.
   El hero no repite la ciudad (Jerez ya está en el header).
-- REQ-UI-02 — Barra lateral, 6 elementos en este orden (v1.4 24/09/2026):
+- REQ-UI-02 — Barra lateral, 6 elementos en este orden (v1.5 24/09/2026):
   `INICIO` (botón rojo grande, icono casa Material, activo con barra blanca + fondo oscuro),
-  `FUNCIONALIDADES` (plegable rojo, icono apps, desplegado por defecto: agrupa
-  Publicar aviso + Búsqueda de coincidencias),
+  `FUNCIONALIDADES` (plegable rojo, icono apps, único abierto por defecto: agrupa
+  Publicar aviso + Búsqueda de coincidencias como botones secundarios negros
+  tabulados a la derecha),
   `PUNTUALIZACIONES WEB` (plegable rojo, icono aviso: despliega Cómo puntúa + Aviso legal),
   `DATOS DEMO` (plegable rojo, icono stats: seed + expirar),
-  `MÁS` (plegable rojo con `+`: despliega Protectoras y Tiempo en Jerez con sus iconos),
+  `MÁS` (plegable rojo con `+`: despliega Protectoras y Tiempo en Jerez, también
+  secundarios negros tabulados, con sus iconos),
   `ADMINISTRACIÓN` (plegable rojo, icono llave: login + moderación + reencuentros).
   Sin Perdidos/Avistamientos/Volvió a casa en el sidebar (se llega vía Inicio).
-  Plegables = botón rojo que alterna `session_state` (abiertos por defecto y
-  `nav_to()` los reabre al cambiar de pestaña, para acceso rápido).
+  Plegables = botón rojo que alterna `session_state` (resto plegados por defecto;
+  la navegación reabre FUNCIONALIDADES para acceso rápido + `initial_sidebar_state`
+  en expanded). Sin caption de conteo bajo "Animales perdidos activos".
   Cambiar de sección es un rerun Streamlit: conserva `session_state` (no pierde filtros).
 - REQ-UI-03 — CTAs en el hero de Inicio y agrupados en FUNCIONALIDADES del sidebar
   (v1.4 24/09/2026): `Publicar aviso` y `Búsqueda de coincidencias`, ambos rojo sólido
@@ -188,9 +191,11 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
   `rgba(227,6,19,.85)`, sin aspecto de blog. Hero: los 2 CTAs en rojo sólido idéntico
   con pulso suave (anillo `::after` que se expande `scale 1 → 1.12,1.4` y se
   desvanece, `2.2s ease-out infinite`).
-  Sidebar: botones rojos grandes (`#E30613`, texto `#FFFFFF`, `padding .75rem 1rem`,
-  `1.02rem` negrita) con iconos Material, sin emojis y sin `help=` (los tooltips
-  se quedaban pegados tras el hover).
+  Sidebar: botones principales rojos grandes (`#E30613`, texto `#FFFFFF`, `padding .75rem 1rem`,
+  `1.02rem` negrita) y secundarios negros tabulados (`#23201B`, `margin-left 1.25rem`),
+  con iconos Material, sin emojis. Bocadillos `help=` restaurados + CSS
+  `div[data-baseweb="tooltip"]{pointer-events:none}` para que desaparezcan al retirar
+  el puntero (antes se quedaban pegados).
 - REQ-UI-05 — Hero Inicio: titular `ESTOS PELUDOS QUIEREN VOLVER A CASA` en 2 líneas con
   `fade-up` (una vez, `both .7s`, segunda línea con `delay .25s`); palabra `CASA` en rojo
   `#E30613` con subrayado que se dibuja (`::after` animado); corazón SVG con latido suave
