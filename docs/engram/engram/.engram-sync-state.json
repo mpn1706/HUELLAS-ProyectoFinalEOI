@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-24T00:09:14Z",
+  "last_export_at": "2026-09-24T00:28:33Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -15,7 +15,8 @@
     "67": "huellas\\manual\\huellas-s44-filtros-clusters-foto-seed-67.md",
     "68": "huellas\\manual\\huellas-s45-alerta-real-found-011-68.md",
     "69": "huellas\\manual\\huellas-s46-foto-found-011-calidad-69.md",
-    "70": "huellas\\manual\\huellas-s47-textos-avistamientos-70.md"
+    "70": "huellas\\manual\\huellas-s47-textos-avistamientos-70.md",
+    "71": "huellas\\manual\\huellas-s48-buscar-libre-alerta-publicar-71.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

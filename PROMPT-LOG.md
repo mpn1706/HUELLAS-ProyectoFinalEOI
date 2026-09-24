@@ -188,3 +188,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Botón `ENCONTRADOS (11)` → `AVISTAMIENTOS (11)` (+ subheader, info y contador de la página).
 - Publicar: "Publica un aviso de perdido o avistamiento".
 - Verificación: pytest 27/27, smoke 5 páginas OK (solo textos).
+
+## S48 — 24/09/2026 — Buscar libre + alerta al publicar (Muse Spark)
+- Decisión del alumno tras discutirlo: fuera "Elige tu aviso"; Buscar es libre (1 foto obligatoria + 2 zona con geocoder, mapa clicable con dirección autocompletada vía `reverse_geocode_nominatim`, y manual + mini-mapa de avistados + 3 descripción + 4 lanzar con autoregistro opcional que reutiliza el mismo id para alertas).
+- Alertas del cruce de datos: al publicar (ambos sentidos) y al guardar una búsqueda; la búsqueda libre transitoria no notifica ni persiste (verificado: DB intacta).
+- Spec: CU-03 reescrito en `requirements.md`. Verificación: pytest 27/27, smoke 5 páginas OK, E2E OK, flujo libre simulado (top found_011 82.6%, 0 filas nuevas).

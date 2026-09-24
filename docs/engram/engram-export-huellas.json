@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 00:09:14",
+  "exported_at": "2026-09-24 00:28:35",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1324,6 +1324,21 @@
       "last_seen_at": "2026-09-24 00:09:14",
       "created_at": "2026-09-24 00:09:14",
       "updated_at": "2026-09-24 00:09:14"
+    },
+    {
+      "id": 71,
+      "sync_id": "obs-af67115ee92c605c",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S48 buscar libre alerta publicar",
+      "content": "S48 24/09/2026 (Muse Spark): Buscar libre foto+zona+descripcion sin publicar (reverse_geocode + autoregistro opcional mismo id), alerta automatica al publicar ambos sentidos, CU-03 reescrito. Pytest 27/27, smoke y E2E OK, flujo libre simulado 82.6% sin ensuciar DB.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 00:28:32",
+      "created_at": "2026-09-24 00:28:32",
+      "updated_at": "2026-09-24 00:28:32"
     }
   ],
   "prompts": [
@@ -2918,6 +2933,22 @@
       "content": "- Lo de \"Seed v2 · 16 avisos totales (5 perdidos activos + 1 resuelto demo + 10 encontrados). Los contadores muestran activos, que son los que entran en matching \" bórralo de ahí completamente. \n\n- Cambiar ENCONTRADOS (11) por AVISTAMIENTOS (11), ya que así evitaremos confusiones\n\n- Dentro de PUBLICAR AVISO cambia Publica un aviso de perdido o encontrado por PUBLICA UN AVISO DE PERDIDO O AVISTAMIENTO",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 00:07:50"
+    },
+    {
+      "id": 200,
+      "sync_id": "prompt-e586da7329398fc5",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Asegurate de que está todo guardado y actualizado",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 00:19:52"
+    },
+    {
+      "id": 201,
+      "sync_id": "prompt-1f0e24450b8afcf7",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "No entiendo muy bien porqué en BUSCAR MI MASCOTA, sale el primer apartado de 1.ELIGE TU AVISO... Creo que este apartado no sirve para nada. Debería salir: 1. Foto actual, 2. ZONA (mapa al lado que se ampliara automáticamente al escribir una dirección o, por el contrario, posibilidad de seleccionarla en el mapa y que esta se autocompletara en su cuadro), 3. DESCRIPCIÓN (permite introducir datos del animal como color, tamaño, raza, collar, etc.), 4. LANZAR BÚSQUEDA   \n\nEsto lo que permitiría sería cruzar datos y realizar una búsqueda de coincidencias con los avistamientos sin necesidad de dejar publicado el aviso de perdido, lo cual se podría preguntar también automáticamente para su autoregistro opcional. Creo que la función original de esta sección era generar alertas, pero estas no debería generarse así, sino automáticamente al ir cruzando datos entre perdidos y avistamientos. Dime qué opinas, vamos a discutirlo antes de cualquier cambio.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 00:21:26"
     }
   ]
 }

@@ -515,13 +515,26 @@ def geocode_nominatim(q: str):
     return float(data[0]["lat"]), float(data[0]["lon"]), data[0].get("display_name", q)
 
 
+def reverse_geocode_nominatim(lat: float, lng: float):
+    """Coords → dirección legible vía Nominatim OSM (para autocompletar al clicar).
+
+    Sin dependencias ni claves. Devuelve None si no hay red o no se encuentra.
+    """
+    import urllib.parse
+    import urllib.request
+    import json as _json
+
+    url = ("https://nominatim.openstreetmap.org/reverse?" + urllib.parse.urlencode(
+        {"lat": lat, "lon": lng, "format": "json"}))
+    req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
+    with urllib.request.urlopen(req, timeout=8) as r:
+        data = _json.loads(r.read().decode("utf-8"))
+    return data.get("display_name")
+
+
 def animal_tag(a: dict) -> str:
     return (f"{ANIMAL_ES.get(a.get('animal'), a.get('animal'))} · "
             f"{a.get('color_primary')} · {SIZE_ES.get(a.get('size'), a.get('size'))}")
-
-
-def etiqueta_corta(a: dict) -> str:
-    return f"[{a['id']}] {animal_tag(a)}"
 
 
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
@@ -761,69 +774,141 @@ with st.sidebar:
             with st.expander("Ver registro de administración"):
                 st.code(loga.read_text(encoding="utf-8")[-2000:])
 
-all_lost = [a for a in (dbmod.get_aviso(con, r["id"]) for r in
-                        con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()) if a]
-
 page = st.session_state.get("page", "buscar")
 
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
-    if not all_lost:
-        st.info("No hay avisos de perdidos activos. Publica uno con el botón rojo de abajo.")
+    st.caption("Busca sin publicar: cruza tu foto, zona y descripción con los avistamientos. "
+               "Si quieres, guárdala como aviso al lanzar.")
+    st.subheader("1. Foto actual")
+    foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
+                              type=["jpg", "jpeg", "png"], key="b_foto")
+    if foto_b:
+        st.image(foto_b, caption="Vista previa de tu foto", width="stretch")
     else:
-        st.subheader("1. Elige tu aviso")
-        etiquetas = {a["id"]: etiqueta_corta(a) for a in all_lost}
-        qid = st.selectbox("Tu mascota perdida", [a["id"] for a in all_lost],
-                           format_func=lambda i: etiquetas.get(i, i))
-        q = dbmod.get_aviso(con, qid)
-        with st.container(border=True):
-            c_foto, c_datos = st.columns([1, 1])
-            with c_foto:
-                show_image(q["image_url"], caption=f"Foto registrada · {q['id']}")
-            with c_datos:
-                st.markdown(f"### {animal_tag(q)}")
-                st.write(q["description_text"])
-                st.write(f"- Collar: {'sí' if q['has_collar'] else 'no'}")
-                st.write(f"- Visto: {effective_date(q).date()}")
-                st.write(f"- {q['location'].get('address_text', '')}")
+        st.caption("Sin foto no hay búsqueda: súbela para empezar.")
+
+    st.subheader("2. Zona")
+    with st.container(border=True):
+        if "q_lat" not in st.session_state:
+            st.session_state.q_lat, st.session_state.q_lon = 36.6826, -6.1376
+        q_addr = st.text_input("Calle, número y zona", value="Centro, Jerez", key="q_addr_in")
+        if st.button("Buscar dirección en el mapa", key="q_geocode"):
+            res = geocode_nominatim(q_addr)
+            if res:
+                st.session_state.q_lat, st.session_state.q_lon = round(res[0], 4), round(res[1], 4)
+                st.success(f"Localizada: {res[2][:90]}")
+            else:
+                st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
+        st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta):")
+        try:
+            import folium
+            from streamlit_folium import st_folium
+
+            fmap = folium.Map(location=[st.session_state.q_lat, st.session_state.q_lon], zoom_start=14)
+            folium.Marker([st.session_state.q_lat, st.session_state.q_lon],
+                          icon=folium.Icon(color="red")).add_to(fmap)
+            out = st_folium(fmap, key="bus_map",
+                            center=(st.session_state.q_lat, st.session_state.q_lon),
+                            zoom=14, width=900, height=380)
+            if out and out.get("last_clicked"):
+                nlat = round(out["last_clicked"]["lat"], 4)
+                nlng = round(out["last_clicked"]["lng"], 4)
+                if (nlat, nlng) != (st.session_state.q_lat, st.session_state.q_lon):
+                    st.session_state.q_lat, st.session_state.q_lon = nlat, nlng
+                    rev = reverse_geocode_nominatim(nlat, nlng)
+                    if rev:
+                        st.session_state.q_addr_in = rev[:120]
+                    st.rerun()
+        except Exception as e:
+            st.caption(f"Mapa no disponible ({e}). Usa el ajuste manual.")
+        st.write(f"- Punto seleccionado: {st.session_state.q_lat}, {st.session_state.q_lon}")
+        with st.expander("Ajuste manual de coordenadas"):
+            st.number_input("Latitud", format="%.4f", key="q_lat")
+            st.number_input("Longitud", format="%.4f", key="q_lon")
 
         st.subheader("Avistados cerca de tu zona")
-        st.caption("Chinchetas verdes: encontrados · azules: otros perdidos · roja: tu mascota.")
-        render_mapa_avistados(q, dbmod.get_active_opuestos(con, "lost"), key="cerca_map",
-                              otros_lost=all_lost)
+        st.caption("Chinchetas verdes: avistamientos · azules: perdidos · roja: tu zona.")
+        pseudo = {"id": "TU-ZONA", "type": "lost", "animal": "dog", "color_primary": "",
+                  "size": "medium",
+                  "location": {"lat": st.session_state.q_lat, "lng": st.session_state.q_lon,
+                               "address_text": st.session_state.get("q_addr_in", "")},
+                  "image_url": ""}
+        _lost_ctx = [dbmod.get_aviso(con, r["id"]) for r in
+                     con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
+        render_mapa_avistados(pseudo, dbmod.get_active_opuestos(con, "lost"), key="cerca_map",
+                              otros_lost=[a for a in _lost_ctx if a])
 
-        st.subheader("2. Foto actual (opcional)")
-        foto_q = st.file_uploader("Sube una foto reciente para afinar la búsqueda visual",
-                                  type=["jpg", "jpeg", "png"], key="q_foto")
-        embed_fn = visual_fn_factory()
-        if foto_q:
-            st.image(foto_q, caption="Vista previa de tu foto", width="stretch")
+    st.subheader("3. Descripción")
+    d1, d2 = st.columns(2)
+    with d1:
+        b_animal = st.selectbox("Animal", ["dog", "cat", "other"], key="b_animal",
+                                format_func=lambda a: {"dog": "Perro", "cat": "Gato",
+                                                       "other": "Otro"}.get(a, a))
+        b_color = st.text_input("Color principal", "marrón", key="b_color")
+        b_size = st.selectbox("Tamaño", ["small", "medium", "large"], key="b_size",
+                              format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
+                                                     "large": "Grande"}.get(s, s))
+    with d2:
+        b_marks = st.text_input("Marcas (separadas por comas)", "", key="b_marks")
+        b_collar = st.checkbox("¿Lleva collar?", False, key="b_collar")
+        b_breed = st.text_input("Raza aprox. (opcional)", "", key="b_breed")
+    b_desc = st.text_area("Descripción libre", "Gato naranja atigrado con rayas marcadas.", key="b_desc")
+
+    st.subheader("4. Lanza la búsqueda")
+    f1, f2 = st.columns(2)
+    with f1:
+        umbral_vista = st.slider("Mostrar desde (%)", 50, 100, 65,
+                                 help="Solo filtra lo que se muestra, no cambia el score.")
+    with f2:
+        topn = st.slider("Máx. resultados", 3, 15, 8)
+    b_guardar = st.checkbox("Guardar esta búsqueda como aviso de perdido",
+                            key="b_guardar",
+                            help="Aparecerá en PERDIDOS ACTIVOS y entrará en cruces futuros.")
+    if st.session_state.get("b_saved_id"):
+        st.info(f"Búsqueda ya guardada como `{st.session_state.b_saved_id}`.")
+    if st.button("Buscar coincidencias", type="primary"):
+        if not foto_b:
+            st.warning("Sube una foto para buscar: sin imagen no hay comparativa visual.")
+        elif not (b_color or "").strip() or not (b_desc or "").strip():
+            st.warning("Indica al menos color principal y descripción para buscar.")
+        else:
+            from datetime import datetime as _dt
+
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
-            qpath = "data/uploads/_query_preview.jpg"
-            Path(qpath).write_bytes(foto_q.getbuffer())
+            qpath = "data/uploads/_busqueda.jpg"
+            Path(qpath).write_bytes(foto_b.getbuffer())
             q_emb = get_image_embedding(qpath)
-            base_fn = embed_fn
-            embed_fn = lambda a, _b=base_fn, _q=q_emb, _qid=q["id"]: _q if a["id"] == _qid else _b(a)
-            st.caption("Búsqueda visual con tu foto subida.")
-
-        st.subheader("3. Lanza la búsqueda")
-        f1, f2 = st.columns(2)
-        with f1:
-            umbral_vista = st.slider("Mostrar desde (%)", 50, 100, 65,
-                                     help="Solo filtra lo que se muestra, no cambia el score.")
-        with f2:
-            topn = st.slider("Máx. resultados", 3, 15, 8)
-        if st.button("Buscar coincidencias", type="primary"):
+            q = normalize_aviso({
+                "type": "lost", "animal": b_animal,
+                "breed_guess": (b_breed.strip() or None) if b_animal != "other" else None,
+                "color_primary": b_color.strip().lower(), "size": b_size,
+                "has_collar": bool(b_collar), "markings": b_marks,
+                "description_text": b_desc.strip(),
+                "location": {"lat": float(st.session_state.q_lat),
+                             "lng": float(st.session_state.q_lon),
+                             "address_text": st.session_state.get("q_addr_in", "")},
+                "date_reported": _dt.now().astimezone().isoformat(),
+                "image_url": qpath, "contact_info": "", "status": "active"})
+            q["image_embedding"] = q_emb
             cands = dbmod.get_active_opuestos(con, "lost")
-            matches = retrieve(q, cands, embed_fn, semantic_similarity)
-            notificados = notificar(con, q["id"], matches)
+            matches = retrieve(q, cands, visual_fn_factory(), semantic_similarity)
             k1, k2 = st.columns(2)
             with k1:
                 stat_box(sum(1 for m in matches if m["notifica"]), "Destacadas ≥85%", mini=True)
             with k2:
                 stat_box(len(matches), "En lista ≥65%", mini=True)
-            if notificados:
-                st.success("Nueva alerta generada: hay coincidencias destacadas (ver página de alertas).")
+            if b_guardar and not st.session_state.get("b_saved_id"):
+                persist = dict(q)
+                img_path = f"data/uploads/busqueda_{q['id'][:8]}.jpg"
+                Path(img_path).write_bytes(foto_b.getbuffer())
+                persist["image_url"] = img_path
+                dbmod.upsert_aviso(con, persist)
+                st.session_state.b_saved_id = q["id"]
+                nuevos = notificar(con, q["id"], matches)
+                celebrate_search()
+                st.success(f"Búsqueda guardada como aviso `{q['id']}`."
+                           + (f" {len(nuevos)} alerta(s) generada(s)." if nuevos else ""))
             visibles = [m for m in matches if m["score"] * 100 >= umbral_vista][:topn]
             if not visibles:
                 st.info("Sin candidatos con ese filtro. Baja el umbral de vista o espera nuevos avisos.")
@@ -835,9 +920,9 @@ if page == "buscar":
                     st.progress(min(max(m["score"], 0.0), 1.0))
                     r1, r2 = st.columns(2)
                     with r1:
-                        show_image(q["image_url"], caption=f"Perdido · {q['id']}")
+                        show_image(q["image_url"], caption="Tu foto")
                     with r2:
-                        show_image(c["image_url"], caption=f"Encontrado · {c['id']}")
+                        show_image(c["image_url"], caption=f"Avistamiento · {c['id']}")
                         st.write(c["description_text"])
                     with st.expander("Por qué este resultado"):
                         s1, s2, s3, s4 = st.columns(4)
@@ -974,7 +1059,18 @@ if page == "publicar":
             av["image_embedding"] = get_image_embedding(img_path)
             dbmod.upsert_aviso(con, av)
             celebrate_search()
-            st.success(f"Aviso `{av['id']}` publicado. Búscalo con el botón rojo BUSCAR A MI MASCOTA.")
+            st.success(f"Aviso `{av['id']}` publicado.")
+            try:
+                cands_auto = dbmod.get_active_opuestos(con, tipo)
+                ms_auto = retrieve(av, cands_auto, visual_fn_factory(), semantic_similarity)
+                auto = notificar(con, av["id"], ms_auto)
+                if auto:
+                    st.success(f"Cruce automático: {len(auto)} alerta(s) ≥85% (ver ALERTAS).")
+                else:
+                    st.info("Cruce automático: sin coincidencias ≥85% por ahora. "
+                            "Si aparece el par contrario, se avisará solo.")
+            except Exception as e:
+                st.caption(f"Cruce automático no disponible ({e}).")
         except Exception as e:
             st.error(f"Error: {e}")
 
