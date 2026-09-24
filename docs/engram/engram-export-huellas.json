@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 04:10:55",
+  "exported_at": "2026-09-24 04:18:21",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1610,6 +1610,21 @@
       "last_seen_at": "2026-09-24 04:10:55",
       "created_at": "2026-09-24 04:10:55",
       "updated_at": "2026-09-24 04:10:55"
+    },
+    {
+      "id": 90,
+      "sync_id": "obs-0dcbf7003ee8d2ec",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S62 mapas blancos seleccionar",
+      "content": "S62 24/09/2026 (Muse Spark): mapas use_container_width, textos en blanco con placeholder, selects SELECCIONAR con validacion, form fresco. Pytest 32/32, smoke OK, blancos por AppTest.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 04:18:21",
+      "created_at": "2026-09-24 04:18:21",
+      "updated_at": "2026-09-24 04:18:21"
     }
   ],
   "prompts": [
@@ -3372,6 +3387,14 @@
       "content": "Va todo genial, pero me gustaría que se  guardara la información para cuando se te redirige apublicar el aviso (la foro, la zona y todos los datos descriptivos del apartado 3 se pueden mantener para no tener que ingresarlos de nuevo). Además, en función de si se escogió el canal de avistamientos o  el otro, se intuye si es perdida o avistamiento, así que esa info también se puede mantener.",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 04:06:20"
+    },
+    {
+      "id": 221,
+      "sync_id": "prompt-157ce9ece5b0631e",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "- Otra vez tenemos el problema de ese recuadro blanco justo a la derecha del mapa... Antes lograste quitarlo, hazlo de nuevo[Image 1] - Otra cosa, no sé porque en los campos que son de texto libre aparecen por defecto definiciones como Perro marrón mediano con mancha blanca en el pecho, collar rojo o Gato naranja atigrado con rayas marcadas. Lo ideal es que aparezcan estos campos en blancos, y que, en la opción de selección tampoco aparezca nada seleccionado por defecto sino que aparezca \"SELECCIONAR\" o algo por el estilo.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 04:12:45"
     }
   ]
 }

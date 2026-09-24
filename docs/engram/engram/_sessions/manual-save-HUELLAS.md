@@ -30,3 +30,4 @@ tags:
 - [[huellas-s59-volvio-a-casa-sin-alertas-85]]
 - [[huellas-s60-preliminar-ambos-lados-88]]
 - [[huellas-s61-prefill-publicar-89]]
+- [[huellas-s62-mapas-blancos-seleccionar-90]]

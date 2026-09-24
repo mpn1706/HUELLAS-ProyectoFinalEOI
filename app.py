@@ -520,7 +520,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                     popup_html(c, marca=marca, dist=it.get("dist_km")), max_width=260),
                 icon=folium.Icon(color=pin_color(c)),
             ).add_to(cl_found)
-        st_folium(fmap, key=key, width=900, height=450)
+        st_folium(fmap, key=key, height=450, use_container_width=True)
         leyenda_mapa()
     except Exception as e:
         st.caption(f"Mapa no disponible ({e}).")
@@ -752,6 +752,10 @@ if "page" not in st.session_state:
 def nav_to(dest: str):
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
+    if dest == "buscar":
+        # Formulario siempre fresco al entrar: nada preseleccionado.
+        for _k in ("b_lado", "b_animal", "b_size", "b_search"):
+            st.session_state.pop(_k, None)
 
 
 def ir_a_caso(aviso_id: str, tipo: str):
@@ -1067,13 +1071,19 @@ page = st.session_state.get("page", "buscar")
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
     st.subheader("¿Dónde buscas?")
-    lado = st.selectbox("Canal", ["found", "lost"], key="b_lado",
+    lado = st.selectbox("Canal", ["found", "lost"], key="b_lado", index=None,
+                        placeholder="SELECCIONAR",
                         format_func=lambda t: ("Entre avistamientos (perdí mi mascota)"
                                                if t == "found" else
-                                               "Entre perdidos (encontré un animal)"),
+                                               "Entre perdidos (encontré un animal)"
+                                               if t == "lost" else "SELECCIONAR"),
                         on_change=lambda: st.session_state.pop("b_search", None))
     # Quien busca es el caso inverso al canal elegido.
-    qtype = "lost" if lado == "found" else "found"
+    if lado is None:
+        st.info("Elige primero dónde buscas para empezar.")
+        qtype = "found"
+    else:
+        qtype = "lost" if lado == "found" else "found"
     st.subheader("1. Foto actual")
     foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
                               type=["jpg", "jpeg", "png"], key="b_foto")
@@ -1118,7 +1128,7 @@ if page == "buscar":
                     icon=folium.Icon(color=pin_color(c))).add_to(cl_lado)
             out = st_folium(fmap, key="cerca_map",
                             center=(st.session_state.q_lat, st.session_state.q_lon),
-                            zoom=14, width=900, height=380)
+                            zoom=14, height=380, use_container_width=True)
             leyenda_mapa()
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
@@ -1140,17 +1150,23 @@ if page == "buscar":
     d1, d2 = st.columns(2)
     with d1:
         b_animal = st.selectbox("Animal", ["dog", "cat", "other"], key="b_animal",
+                                index=None, placeholder="SELECCIONAR",
                                 format_func=lambda a: {"dog": "Perro", "cat": "Gato",
-                                                       "other": "Otro"}.get(a, a))
-        b_color = st.text_input("Color principal", "marrón", key="b_color")
+                                                       "other": "Otro"}.get(a, "SELECCIONAR"))
+        b_color = st.text_input("Color principal", "", key="b_color",
+                                placeholder="Ej. marrón")
         b_size = st.selectbox("Tamaño", ["small", "medium", "large"], key="b_size",
+                              index=None, placeholder="SELECCIONAR",
                               format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
-                                                     "large": "Grande"}.get(s, s))
+                                                     "large": "Grande"}.get(s, "SELECCIONAR"))
     with d2:
-        b_marks = st.text_input("Marcas (separadas por comas)", "", key="b_marks")
+        b_marks = st.text_input("Marcas (separadas por comas)", "", key="b_marks",
+                                placeholder="Ej. mancha blanca, cola anillada")
         b_collar = st.checkbox("¿Lleva collar?", False, key="b_collar")
-        b_breed = st.text_input("Raza aprox. (opcional)", "", key="b_breed")
-    b_desc = st.text_area("Descripción libre", "Gato naranja atigrado con rayas marcadas.", key="b_desc")
+        b_breed = st.text_input("Raza aprox. (opcional)", "", key="b_breed",
+                                placeholder="Ej. bodeguero")
+    b_desc = st.text_area("Descripción libre", "", key="b_desc",
+                          placeholder="Describe al animal: color, marcas, collar…")
 
     st.subheader("4. Lanza la búsqueda")
     f1, f2 = st.columns(2)
@@ -1163,6 +1179,8 @@ if page == "buscar":
     if st.button("Buscar coincidencias", type="primary"):
         if not foto_b:
             st.warning("Sube una foto para buscar: sin imagen no hay comparativa visual.")
+        elif lado is None or not b_animal or not b_size:
+            st.warning("Elige canal, animal y tamaño para buscar.")
         elif not (b_color or "").strip() or not (b_desc or "").strip():
             st.warning("Indica al menos color principal y descripción para buscar.")
         else:
@@ -1335,20 +1353,20 @@ if page == "publicar":
                        "addr_in"):
                 st.session_state.pop(_k, None)
             st.rerun()
-    if "pub_desc" not in st.session_state:
-        st.session_state.pub_desc = "Perro marrón mediano con mancha blanca en el pecho, collar rojo."
-    if "pub_color" not in st.session_state:
-        st.session_state.pub_color = "marrón"
     if "pub_collar" not in st.session_state:
-        st.session_state.pub_collar = True
+        st.session_state.pub_collar = False
     with st.container(border=True):
         r1, r2 = st.columns([1, 1])
         with r1:
             tipo = st.selectbox("Tipo de aviso", ["lost", "found"], key="pub_tipo",
-                                format_func=lambda t: "Mascota perdida" if t == "lost" else "Animal encontrado")
+                                index=None, placeholder="SELECCIONAR",
+                                format_func=lambda t: ("Mascota perdida" if t == "lost"
+                                                       else "Animal encontrado" if t == "found"
+                                                       else "SELECCIONAR"))
             animal = st.selectbox("Animal", ["dog", "cat", "other"], key="pub_animal",
+                                  index=None, placeholder="SELECCIONAR",
                                   format_func=lambda a: {"dog": "Perro", "cat": "Gato",
-                                                         "other": "Otro"}.get(a, a))
+                                                         "other": "Otro"}.get(a, "SELECCIONAR"))
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
             if foto:
                 vista_previa(foto)
@@ -1357,19 +1375,21 @@ if page == "publicar":
                          width=360)
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
-            comp = st.text_input("Comportamiento", "Sociable, se deja coger.",
-                                 key="c_comp")
-            est = st.text_input("Estado del animal", "Sano, bien alimentado.",
-                                key="c_est")
-            paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar",
-                                "Se escapó en el parque y no volvió.",
-                                key="c_paso")
+            comp = st.text_input("Comportamiento", "", key="c_comp",
+                                 placeholder="Ej. sociable, se deja coger")
+            est = st.text_input("Estado del animal", "", key="c_est",
+                                placeholder="Ej. sano, bien alimentado")
+            paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar", "", key="c_paso",
+                                placeholder="Ej. se escapó en el parque y no volvió")
         with r2:
-            desc = st.text_area("Descripción libre", key="pub_desc")
-            c1 = st.text_input("Color principal", key="pub_color")
+            desc = st.text_area("Descripción libre", "", key="pub_desc",
+                                placeholder="Describe al animal: color, marcas, collar…")
+            c1 = st.text_input("Color principal", "", key="pub_color",
+                               placeholder="Ej. marrón")
             size = st.selectbox("Tamaño", ["small", "medium", "large"], key="pub_size",
+                                index=None, placeholder="SELECCIONAR",
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
-                                                       "large": "Grande"}.get(s, s))
+                                                       "large": "Grande"}.get(s, "SELECCIONAR"))
             collar = st.checkbox("¿Lleva collar?", key="pub_collar")
             st.markdown("**Contacto (opcional)**")
             c_movil = st.text_input("Móvil", "", key="c_movil")
@@ -1397,7 +1417,7 @@ if page == "publicar":
                           icon=folium.Icon(color="red")).add_to(fmap)
             out = st_folium(fmap, key="reg_map",
                             center=(st.session_state.reg_lat, st.session_state.reg_lon),
-                            zoom=14, width=900, height=380)
+                            zoom=14, height=380, use_container_width=True)
             if out and out.get("last_clicked"):
                 st.session_state.reg_lat = round(out["last_clicked"]["lat"], 4)
                 st.session_state.reg_lon = round(out["last_clicked"]["lng"], 4)
@@ -1408,6 +1428,9 @@ if page == "publicar":
             st.number_input("Latitud", format="%.4f", key="reg_lat")
             st.number_input("Longitud", format="%.4f", key="reg_lon")
     if st.button("Confirmar y publicar", type="primary"):
+        if not tipo or not animal or not size:
+            st.warning("Elige tipo de aviso, animal y tamaño para publicar.")
+            st.stop()
         try:
             lat = float(st.session_state.get("reg_lat", 36.6826))
             lng = float(st.session_state.get("reg_lon", -6.1376))
