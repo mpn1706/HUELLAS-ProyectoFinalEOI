@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 01:18:02",
+  "exported_at": "2026-09-24 01:31:29",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1414,6 +1414,21 @@
       "last_seen_at": "2026-09-24 01:17:58",
       "created_at": "2026-09-24 01:17:58",
       "updated_at": "2026-09-24 01:17:58"
+    },
+    {
+      "id": 77,
+      "sync_id": "obs-a2fcea43d102cdf8",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S53 perro components botones abajo",
+      "content": "S53 24/09/2026 (Muse Spark): SVG por components.html (markdown lo mostraba como codigo), botonera al pie, tarjetas perreras con cabecera negra. Pytest 29/29, smoke OK, paneles sin excepciones.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 01:31:26",
+      "created_at": "2026-09-24 01:31:26",
+      "updated_at": "2026-09-24 01:31:26"
     }
   ],
   "prompts": [
@@ -3064,6 +3079,14 @@
       "content": "- arriba del header crear nuevos botones: perreras de jerez (direcciones y contacto, encárgate de recopilar la infomación);  plugin de tiempo en jerez y animación de perro contento, sesando, mojándose, triste, temblando, etc. en función de este \n\n- vista previa de la foto actual subida en buscar a mi mascota demasiado grande al igual que de otras imágenes de la web, haz que las imágenes funcionen en la web correctamente y que no se vean sobredimensionadas frente al conjunto web",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 01:14:34"
+    },
+    {
+      "id": 207,
+      "sync_id": "prompt-84594934e056d9be",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "lo del tiempo no funciona [Image 1] , además, mejor que tanto el botón del tiempo como el de las perreras aparezcan abajo del todo en la página. Tampoco me gusta mucho visualmente como se ve  la información de lasperreras al desplegarse el botón, intenta hacelomás visualmente agradable.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 01:29:08"
     }
   ]
 }

@@ -210,6 +210,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Buscar: slider "Mostrar a partir de este porcentaje…" con formato `65 %`; un solo mapa (zona clicable + clusters + leyenda); `help` descriptivo en los 5 botones; fuera el caption de buscar.
 - Verificación: pytest 29/29, smoke 5 páginas OK, E2E top found_011 84.3% ≥80%.
 
+## S53 — 24/09/2026 — Perro por components + botones abajo (Muse Spark)
+- El perro salía como código: `st.markdown` no traga `<style>`+`<svg>` → render con `components.html` (iframe, altura 190).
+- Botonera Perreras/Tiempo movida al pie de página; panel perreras en 2 tarjetas con cabecera negra.
+- Verificación: pytest 29/29, smoke 5 páginas OK + paneles perreras/tiempo sin excepciones.
+
 ## S52 — 24/09/2026 — Perreras, tiempo+perro e imágenes (Muse Spark)
 - Botonera sobre la cabecera: PERRERAS DE JEREZ (CMPA El Portal + No Me Abandones San Salvador 21B, verificados en jerez.es/nomeabandones.org + aviso Laceros) y TIEMPO EN JEREZ (Open-Meteo sin claves, caché 30 min; perro SVG animado: contento/calor(jadeo)/lluvia/triste/temblando según código+temperatura).
 - Imágenes: `show_image()` a 380px y previews a 360px (antes todo a `stretch`, sobredimensionadas).

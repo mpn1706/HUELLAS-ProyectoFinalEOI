@@ -621,55 +621,6 @@ def toggle_top(nombre: str):
     st.session_state.top_panel = None if st.session_state.get("top_panel") == nombre else nombre
 
 
-# ── Botonera superior: perreras + tiempo ──────────────────────────────
-if "top_panel" not in st.session_state:
-    st.session_state.top_panel = None
-tp1, tp2 = st.columns(2)
-with tp1:
-    st.button("Perreras de Jerez", key="top_perreras", use_container_width=True,
-              on_click=toggle_top, args=("perreras",),
-              help="Direcciones y contacto de la perrera municipal y protectoras.")
-with tp2:
-    st.button("Tiempo en Jerez", key="top_tiempo", use_container_width=True,
-              on_click=toggle_top, args=("tiempo",),
-              help="Meteo actual de Jerez con el perro según el tiempo.")
-if st.session_state.top_panel == "perreras":
-    with st.container(border=True):
-        st.markdown("### Perreras y protectoras de Jerez")
-        for p in PERRERAS:
-            st.markdown(f"**{p['nombre']}**")
-            st.write(f"- {p['direccion']}")
-            st.write(f"- {p['contacto']}")
-            st.caption(p["nota"])
-        st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
-                "el Servicio de Laceros lo traslada al CMPA.")
-elif st.session_state.top_panel == "tiempo":
-    with st.container(border=True):
-        st.markdown("### Tiempo en Jerez")
-        try:
-            d = get_tiempo()
-            cur = d.get("current") or {}
-            dia = (d.get("daily") or {})
-            etiqueta, modo = estado_perro(d)
-            w1, w2 = st.columns([1, 1])
-            with w1:
-                st.markdown(perro_html(modo), unsafe_allow_html=True)
-                stat_box(etiqueta, "El perro está", mini=True)
-            with w2:
-                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
-                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
-                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
-                mx = (dia.get("temperature_2m_max") or [None])[0]
-                mn = (dia.get("temperature_2m_min") or [None])[0]
-                pv = (dia.get("precipitation_probability_max") or [None])[0]
-                if mx is not None:
-                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
-                if pv is not None:
-                    st.write(f"- Prob. lluvia: {pv:.0f} %")
-                st.caption("Fuente: Open-Meteo (sin claves).")
-        except Exception as e:
-            st.caption(f"Tiempo no disponible ({e}).")
-
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
 if LOGO:
     hc1, hc2 = st.columns([2, 5])
@@ -1275,4 +1226,61 @@ if page == "alertas":
     if logp.exists():
         with st.expander("Ver log técnico"):
             st.code(logp.read_text(encoding="utf-8")[-2000:])
+
+# ── Pie: perreras + tiempo (abajo del todo) ─────────────────────────────
+if "top_panel" not in st.session_state:
+    st.session_state.top_panel = None
+st.divider()
+tp1, tp2 = st.columns(2)
+with tp1:
+    st.button("Perreras de Jerez", key="top_perreras", use_container_width=True,
+              on_click=toggle_top, args=("perreras",),
+              help="Direcciones y contacto de la perrera municipal y protectoras.")
+with tp2:
+    st.button("Tiempo en Jerez", key="top_tiempo", use_container_width=True,
+              on_click=toggle_top, args=("tiempo",),
+              help="Meteo actual de Jerez con el perro según el tiempo.")
+if st.session_state.top_panel == "perreras":
+    st.markdown("### Perreras y protectoras de Jerez")
+    pc1, pc2 = st.columns(2)
+    for col, p in zip((pc1, pc2), PERRERAS):
+        with col:
+            with st.container(border=True):
+                st.markdown(
+                    '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
+                    'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
+                    f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
+                st.markdown(f"**Dirección:** {p['direccion']}")
+                st.markdown(f"**Contacto:** {p['contacto']}")
+                st.caption(p["nota"])
+    st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
+            "el Servicio de Laceros lo traslada al CMPA.")
+elif st.session_state.top_panel == "tiempo":
+    with st.container(border=True):
+        st.markdown("### Tiempo en Jerez")
+        try:
+            import streamlit.components.v1 as _components
+
+            d = get_tiempo()
+            cur = d.get("current") or {}
+            dia = (d.get("daily") or {})
+            etiqueta, modo = estado_perro(d)
+            w1, w2 = st.columns([1, 1])
+            with w1:
+                _components.html(perro_html(modo), height=190)
+                stat_box(etiqueta, "El perro está", mini=True)
+            with w2:
+                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
+                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
+                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
+                mx = (dia.get("temperature_2m_max") or [None])[0]
+                mn = (dia.get("temperature_2m_min") or [None])[0]
+                pv = (dia.get("precipitation_probability_max") or [None])[0]
+                if mx is not None:
+                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
+                if pv is not None:
+                    st.write(f"- Prob. lluvia: {pv:.0f} %")
+                st.caption("Fuente: Open-Meteo (sin claves).")
+        except Exception as e:
+            st.caption(f"Tiempo no disponible ({e}).")
 
