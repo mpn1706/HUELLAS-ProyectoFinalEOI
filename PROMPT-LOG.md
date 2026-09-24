@@ -344,3 +344,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Fotos de `data/seed/images/losts changes/` (`lost 001 -` → lost_001, etc.): copiadas a `data/seed/images/lost_00X.jpg/png` y `image_url` actualizado en los 5 JSON (resto de campos intacto; originales conservados en ambas carpetas). Centrado verificado: las 5 vistas una a una (animal entero y centrado) + thumbs 300×208 exactos generados con `make_carousel_thumb` (p. ej. retrato 1600×3352 y apaisada 520×516 → letterbox crema sin recortes; `imagen_cuadrada` también es letterbox). `SEED_VERSION` 5→6 (la app recarga sola).
 - INICIO siempre negro: regla CSS propia (`#23201B`, mismo tamaño que los rojos, hover `#353026`) + fuera del `_NAV_ACTIVE_MAP` (ya no cambia al estar activo ni en otras pestañas). Resto del panel intacto.
 - Verificación: pytest 42/42, smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 ≥80%).
+
+## S75 — 24/09/2026 — Tanda UI v1.12: mapa, títulos, barrido, huella y fuera bocadillos (Muse Spark)
+- Mapa Buscar: `leyenda_mapa(mostrar_perdidos, mostrar_avist)` contextual (AVISTAMIENTOS, nunca ENCONTRADOS); sin elegir canal ya muestra avistamientos (`qtype="lost"` por defecto); chinchetas del canal con `pin_color()` (verdes/avistamientos, azules/perdidos); `render_mapa_avistados()` infiere la leyenda de los tipos visibles.
+- Buscar: título ANÁLISIS PRELIMINAR DE SIMILITUDES RESPECTO AL REGISTRO + reenumeración 1. ¿Dónde buscas? · 2. Foto · 3. Zona · 4. Descripción · 5. Lanza.
+- Títulos Publicar/Buscar con barrido rojo continuo (`.huellas-barrido`, `huellas-sweep 3.2s`); MASCOTAS DESAPARECIDAS / RASTROS COMPARTIDOS / VOLVIÓ A CASA en caja con huella roja de perímetro (`.huellas-perimetro`, `huellas-peri 6s`); renombres aplicados a subheaders + `stat_box` + infos; admin y seed unificados a Avistamientos.
+- Fuera bocadillos: cero `help=` en app.py + CSS tooltip eliminada + `title=` fuera del carrusel (`ui_home.py`); `prefers-reduced-motion` cubre sweep/peri.
+- Specs v1.12: `requirements.md` §15 (REQ-UI-07..12) + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 42/42, smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 84.3% ≥80%).

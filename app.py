@@ -396,11 +396,36 @@ def retirar_alerta_demo(con) -> int:
 
 
 def pin_color(a: dict) -> str:
-    """Verde = encontrados · azul = perdidos activos (el query va en rojo).
+    """Verde = avistamientos · azul = perdidos activos (el query va en rojo).
 
     Las destacadas ≥80% se anuncian en el popup, sin cambiar el color.
     """
     return "green" if a.get("type") == "found" else "blue"
+
+
+PAW_ROJA_SVG = ('<svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="true">'
+                '<g fill="#E30613"><ellipse cx="50" cy="66" rx="22" ry="17"/>'
+                '<circle cx="24" cy="36" r="10"/><circle cx="41" cy="25" r="10"/>'
+                '<circle cx="59" cy="25" r="10"/><circle cx="76" cy="36" r="10"/></g></svg>')
+
+
+def titulo_barrido(texto: str):
+    """Título con barrido rojo continuo sobre letras negras (izq↔der). Solo CSS."""
+    import html as _html
+
+    st.markdown(f'<h3 class="huellas-barrido">{_html.escape(texto)}</h3>',
+                unsafe_allow_html=True)
+
+
+def titulo_perimetro(texto: str):
+    """Título en caja con huella roja recorriendo su perímetro (velocidad media)."""
+    import html as _html
+
+    st.markdown(
+        f'<div class="huellas-peri-wrap"><span class="huellas-perimetro">'
+        f'{_html.escape(texto)}'
+        f'<span class="huellas-perimetro-paw">{PAW_ROJA_SVG}</span></span></div>',
+        unsafe_allow_html=True)
 
 
 def aplicar_filtros(lista: list, pref: str) -> list:
@@ -459,20 +484,25 @@ def popup_html(c: dict, marca: str = "", dist=None) -> str:
     return "green" if a.get("type") == "found" else "blue"
 
 
-def leyenda_mapa():
-    """Franja de leyenda bajo el mapa (sin columna lateral: nada de huecos blancos)."""
+def leyenda_mapa(mostrar_perdidos: bool = True, mostrar_avist: bool = True):
+    """Franja de leyenda bajo el mapa (solo los canales visibles)."""
+    piezas = ['<span><span style="display:inline-block;width:12px;height:12px;'
+              'border-radius:50%;background:#E30613;margin-right:.35rem;"></span>TU CASO</span>']
+    if mostrar_perdidos:
+        piezas.append('<span><span style="display:inline-block;width:12px;height:12px;'
+                      'border-radius:50%;background:#3388FF;margin-right:.35rem;"></span>'
+                      'PERDIDOS</span>')
+    if mostrar_avist:
+        piezas.append('<span><span style="display:inline-block;width:12px;height:12px;'
+                      'border-radius:50%;background:#35AC46;margin-right:.35rem;"></span>'
+                      'AVISTAMIENTOS</span>')
+    piezas.append('<span style="font-weight:400;">PULSA CADA CHINCHETA PARA VER FOTO '
+                  'Y DIRECCIÓN.</span>')
     st.markdown(
         '<div style="background:#23201B;border-radius:10px;padding:.45rem .9rem;'
         'color:#FFFFFF;font-weight:700;font-size:.75rem;display:flex;gap:1.4rem;'
         'flex-wrap:wrap;align-items:center;margin-top:.4rem;">'
-        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#E30613;margin-right:.35rem;"></span>TU CASO</span>'
-        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#3388FF;margin-right:.35rem;"></span>PERDIDOS</span>'
-        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#35AC46;margin-right:.35rem;"></span>ENCONTRADOS</span>'
-        '<span style="font-weight:400;">PULSA CADA CHINCHETA PARA VER FOTO Y DIRECCIÓN.</span>'
-        '</div>',
+        + "".join(piezas) + '</div>',
         unsafe_allow_html=True)
 
 
@@ -480,7 +510,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                           zoom: int = 13):
     """Mapa Leaflet con chinchetas + leyenda en franja debajo.
 
-    Roja = tu mascota · azules = perdidos activos · verdes = encontrados.
+    Roja = tu mascota · azules = perdidos · verdes = avistamientos.
     Los avisos con la misma ubicación se agrupan (círculo con el nº);
     pulsa para desplegarlos. Cada chincheta lleva foto + datos en el popup
     y marca DESTACADA si ≥80%. Si folium no está, aviso sin romper.
@@ -507,7 +537,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                 popup=folium.Popup(popup_html(o), max_width=260),
                 icon=folium.Icon(color="blue"),
             ).add_to(cl_lost)
-        cl_found = MarkerCluster(name="Encontrados").add_to(fmap)
+        cl_found = MarkerCluster(name="Avistamientos").add_to(fmap)
         for it in items:
             c = it.get("candidato", it)
             score = it.get("score")
@@ -523,7 +553,9 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                 icon=folium.Icon(color=pin_color(c)),
             ).add_to(cl_found)
         st_folium(fmap, key=key, height=450, use_container_width=True)
-        leyenda_mapa()
+        tipos = {it.get("candidato", it).get("type") for it in items}
+        leyenda_mapa(mostrar_perdidos=("lost" in tipos or bool(otros_lost)),
+                     mostrar_avist=("found" in tipos))
     except Exception as e:
         st.caption(f"Mapa no disponible ({e}).")
 
@@ -812,13 +844,61 @@ _NAV_ACTIVE_MAP = {
 def inject_ui_css(active_page: str) -> None:
     """Estilos nav/hero/carrusel/contadores (solo CSS, paleta existente)."""
     base = """<style>
-/* Bocadillos: no capturan el puntero (no se reabren al pasar sobre ellos) y
-   se auto-ocultan a los 4s aunque Streamlit los deje pillados. */
-[data-testid="stTooltipContent"] {
-  pointer-events:none !important;
-  animation:huellas-tip-max 0s 4s forwards !important;
+/* Títulos con barrido rojo continuo (Publicar + Buscar): letras negras con
+   reflejo rojo que va de izquierda a derecha y viceversa. Solo CSS. */
+.huellas-barrido {
+  font-family:'Montserrat','Inter',sans-serif !important;
+  font-weight:800 !important;
+  letter-spacing:0.01em !important;
+  font-size:1.35rem !important;
+  line-height:1.3 !important;
+  margin:0.6rem 0 0.8rem !important;
+  background:linear-gradient(90deg, #23201B 35%, #E30613 50%, #23201B 65%) !important;
+  background-size:200% auto !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  -webkit-text-fill-color:transparent !important;
+  color:transparent !important;
+  animation:huellas-sweep 3.2s ease-in-out infinite !important;
 }
-@keyframes huellas-tip-max { to { opacity:0 !important; visibility:hidden !important; } }
+@keyframes huellas-sweep {
+  0% { background-position:0% center; }
+  50% { background-position:100% center; }
+  100% { background-position:0% center; }
+}
+/* Títulos en caja con huella roja recorriendo el perímetro (velocidad media). */
+.huellas-peri-wrap { margin:0.6rem 0 0.9rem; }
+.huellas-perimetro {
+  position:relative !important;
+  display:inline-block !important;
+  font-family:'Montserrat','Inter',sans-serif !important;
+  font-weight:800 !important;
+  letter-spacing:0.01em !important;
+  font-size:1.35rem !important;
+  line-height:1.3 !important;
+  color:#23201B !important;
+  background:#FFFFFF !important;
+  border:2px solid #23201B !important;
+  border-radius:10px !important;
+  padding:0.45rem 1.1rem !important;
+}
+.huellas-perimetro-paw {
+  position:absolute !important;
+  top:-14px !important;
+  left:-14px !important;
+  width:26px !important;
+  height:26px !important;
+  line-height:0 !important;
+  pointer-events:none !important;
+  animation:huellas-peri 6s linear infinite !important;
+}
+@keyframes huellas-peri {
+  0% { top:-14px; left:-14px; }
+  25% { top:-14px; left:calc(100% - 12px); }
+  50% { top:calc(100% - 12px); left:calc(100% - 12px); }
+  75% { top:calc(100% - 12px); left:-14px; }
+  100% { top:-14px; left:-14px; }
+}
 /* INICIO: siempre negro, en cualquier pestaña (mismo tamaño que los rojos). */
 [data-testid="stSidebar"] .st-key-nav_inicio button {
   border-radius:6px !important;
@@ -987,7 +1067,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-count-v { font-family:'Montserrat','Inter',sans-serif; font-size:1.4rem; font-weight:800; color:#23201B; }
 .huellas-count-l { font-size:0.75rem; color:#57503F; }
 @media (prefers-reduced-motion:reduce) {
-  .huellas-trk, .huellas-up,
+  .huellas-trk, .huellas-up, .huellas-barrido, .huellas-perimetro-paw,
   [data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
   [data-testid="stAppViewContainer"] .st-key-hero_buscar button::after,
   em.u::after, .huellas-heart { animation:none !important; }
@@ -1108,13 +1188,11 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     h1, h2 = st.columns(2)
     with h1:
         st.button("Publicar aviso", key="hero_publicar", type="primary",
-                  use_container_width=True, on_click=nav_to, args=("publicar",),
-                  help="Publica un aviso de perdido o avistamiento.")
+                  use_container_width=True, on_click=nav_to, args=("publicar",))
     with h2:
         st.button("Búsqueda de coincidencias", key="hero_buscar",
                   type="primary", use_container_width=True,
-                  on_click=nav_to, args=("buscar",),
-                  help="Búsqueda entre perdidos y avistamientos, sin registrar el aviso.")
+                  on_click=nav_to, args=("buscar",))
     cards = get_carousel_cards(con)
     st.markdown(build_carousel_html(cards), unsafe_allow_html=True)
     if not cards:
@@ -1193,24 +1271,19 @@ handle_counts_click()
 with st.sidebar:
     st.button("Inicio", key="nav_inicio", icon=":material/home:",
               use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("inicio",),
-              help="Pantalla de inicio: hero, carrusel y contadores.")
+              on_click=nav_to, args=("inicio",))
     st.button("Funcionalidades", key="tgl_func", icon=":material/apps:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_func",),
-              help="Publicar avisos y buscar coincidencias.")
+              on_click=_toggle, args=("side_func",))
     if st.session_state.get("side_func", True):
         st.button("Publicar aviso", key="nav_publicar_side", type="primary",
-                  use_container_width=True, on_click=nav_to, args=("publicar",),
-                  help="Publica un aviso de perdido o avistamiento.")
+                  use_container_width=True, on_click=nav_to, args=("publicar",))
         st.button("Búsqueda de coincidencias", key="nav_buscar_side",
                   type="primary", use_container_width=True,
-                  on_click=nav_to, args=("buscar",),
-                  help="Búsqueda entre perdidos y avistamientos, sin registrar el aviso.")
+                  on_click=nav_to, args=("buscar",))
     st.button("Puntualizaciones web", key="tgl_punt", icon=":material/warning:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_punt",),
-              help="Cómo puntúa y aviso legal.")
+              on_click=_toggle, args=("side_punt",))
     if st.session_state.get("side_punt", False):
         _sp, _punt = st.columns([0.12, 0.88])
         with _punt:
@@ -1239,8 +1312,7 @@ with st.sidebar:
                          "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.button("Datos demo", key="tgl_demo", icon=":material/bar_chart:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_demo",),
-              help="Cargar seed demo o expirar avisos antiguos.")
+              on_click=_toggle, args=("side_demo",))
     if st.session_state.get("side_demo", False):
         if st.button("Cargar seed Jerez (16 avisos activos)", key="demo_seed",
                      use_container_width=True):
@@ -1260,7 +1332,7 @@ with st.sidebar:
             _sy(con2)
             retirar_alerta_demo(con2)
             st.success(f"Seed cargada: 16 avisos activos "
-                       f"(5 perdidos + 11 encontrados, +1 resuelto demo).")
+                       f"(5 perdidos + 11 avistamientos, +1 resuelto demo).")
             st.rerun()
         if st.button("Expirar avisos >30 días", key="demo_expire",
                      use_container_width=True):
@@ -1268,25 +1340,21 @@ with st.sidebar:
             st.info(f"Avisos expirados: {n}")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_mas",),
-              help="Protectoras y tiempo en Jerez.")
+              on_click=_toggle, args=("side_mas",))
     if st.session_state.get("side_mas", False):
         st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
                   use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("protectoras",),
-                  help="Protectoras de Jerez: direcciones y contacto.")
+                  on_click=nav_to, args=("protectoras",))
         st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
                   use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("tiempo",),
-                  help="Tiempo en Jerez con el perro según el tiempo.")
+                  on_click=nav_to, args=("tiempo",))
     st.button("Administración", key="tgl_admin", icon=":material/key:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_admin",),
-              help="Moderación con contraseña.")
+              on_click=_toggle, args=("side_admin",))
     if st.session_state.get("side_admin", False):
         _sa, _adm = st.columns([0.12, 0.88])
         with _adm:
-            TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
+            TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Avistamientos"}
             ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
 
             def _expected_pw() -> str:
@@ -1458,7 +1526,8 @@ if page == "legal":
 
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
-    st.subheader("¿Dónde buscas?")
+    titulo_barrido("Análisis preliminar de similitudes respecto al registro")
+    st.subheader("1. ¿Dónde buscas?")
     lado = st.selectbox("Canal *", ["found", "lost"], key="b_lado", index=None,
                         placeholder="SELECCIONAR",
                         format_func=lambda t: ("Entre avistamientos (perdí mi mascota)"
@@ -1466,13 +1535,14 @@ if page == "buscar":
                                                "Entre perdidos (encontré un animal)"
                                                if t == "lost" else "SELECCIONAR"),
                         on_change=lambda: st.session_state.pop("b_search", None))
-    # Quien busca es el caso inverso al canal elegido.
+    # Quien busca es el caso inverso al canal elegido. Sin elegir, se asume
+    # perdido (el caso más común) y el mapa ya muestra avistamientos.
     if lado is None:
         st.info("Elige primero dónde buscas para empezar.")
-        qtype = "found"
+        qtype = "lost"
     else:
         qtype = "lost" if lado == "found" else "found"
-    st.subheader("1. Foto actual")
+    st.subheader("2. Foto actual")
     foto_b = st.file_uploader("Sube una foto de tu mascota *",
                               type=["jpg", "jpeg", "png"], key="b_foto")
     if foto_b:
@@ -1480,7 +1550,7 @@ if page == "buscar":
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
 
-    st.subheader("2. Zona")
+    st.subheader("3. Zona")
     with st.container(border=True):
         if "q_lat" not in st.session_state:
             st.session_state.q_lat, st.session_state.q_lon = 36.6826, -6.1376
@@ -1493,8 +1563,8 @@ if page == "buscar":
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
         st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta). " +
-                   ("Verdes: avistamientos · roja: tu zona." if lado == "found"
-                    else "Azules: perdidos · roja: tu zona."))
+                   ("Azules: perdidos · roja: tu zona." if lado == "lost"
+                    else "Verdes: avistamientos · roja: tu zona."))
         try:
             import folium
             from folium.plugins import MarkerCluster
@@ -1517,7 +1587,8 @@ if page == "buscar":
             out = st_folium(fmap, key="cerca_map",
                             center=(st.session_state.q_lat, st.session_state.q_lon),
                             zoom=14, height=380, use_container_width=True)
-            leyenda_mapa()
+            leyenda_mapa(mostrar_perdidos=(lado == "lost"),
+                         mostrar_avist=(lado != "lost"))
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
                 nlng = round(out["last_clicked"]["lng"], 4)
@@ -1534,7 +1605,7 @@ if page == "buscar":
             st.number_input("Latitud", format="%.4f", key="q_lat")
             st.number_input("Longitud", format="%.4f", key="q_lon")
 
-    st.subheader("3. Descripción")
+    st.subheader("4. Descripción")
     d1, d2 = st.columns(2)
     with d1:
         b_animal = st.selectbox("Animal *", ["dog", "cat", "other"], key="b_animal",
@@ -1556,12 +1627,11 @@ if page == "buscar":
     b_desc = st.text_area("Descripción libre *", "", key="b_desc",
                           placeholder="Describe al animal: color, marcas, collar…")
 
-    st.subheader("4. Lanza la búsqueda")
+    st.subheader("5. Lanza la búsqueda")
     f1, f2 = st.columns(2)
     with f1:
         umbral_vista = st.slider("Mostrar a partir de este porcentaje de coincidencia", 50, 100, 65,
-                                 format="%d %%",
-                                 help="Solo filtra lo que se muestra, no cambia el score.")
+                                 format="%d %%")
     with f2:
         topn = st.slider("Máx. resultados", 3, 15, 8)
     if st.button("Buscar coincidencias", type="primary"):
@@ -1664,15 +1734,15 @@ if page == "buscar":
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":
-    st.subheader("Animales perdidos activos")
+    titulo_perimetro("Mascotas desaparecidas")
     lost_list = [dbmod.get_aviso(con, r["id"]) for r in
                  con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
     lost_list = [a for a in lost_list if a]
     if not lost_list:
-        st.info("No hay perdidos activos.")
+        st.info("No hay mascotas desaparecidas.")
     else:
         lista_p = aplicar_filtros(lost_list, "lost")
-        stat_box(len(lista_p), "Perdidos activos")
+        stat_box(len(lista_p), "Mascotas desaparecidas")
         lista_p.sort(key=lambda a: 0 if tarjeta_destacada(a["id"]) else 1)
         for a in lista_p:
             with st.container(border=True):
@@ -1692,13 +1762,13 @@ if page == "perdidos":
 
 # ── Página: Encontrados ───────────────────────────────────────────────
 if page == "encontrados":
-    st.subheader("Avistamientos")
+    titulo_perimetro("Rastros compartidos")
     found = dbmod.get_active_opuestos(con, "lost")
     if not found:
-        st.info("Aún no hay avisos de avistamientos.")
+        st.info("Aún no hay rastros compartidos.")
     else:
         lista = aplicar_filtros(found, "found")
-        stat_box(len(lista), "Avistamientos")
+        stat_box(len(lista), "Rastros compartidos")
         lista.sort(key=lambda a: 0 if tarjeta_destacada(a["id"]) else 1)
         for a in lista:
             with st.container(border=True):
@@ -1718,7 +1788,7 @@ if page == "encontrados":
 
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
-    st.subheader("Publica un aviso de perdido o avistamiento")
+    titulo_barrido("Publica un aviso de perdido o avistamiento")
     pre = st.session_state.get("pub_prefill") or {}
     if pre and not st.session_state.get("pub_init"):
         st.session_state.pub_tipo = pre.get("tipo", "lost")
@@ -1891,7 +1961,7 @@ if page == "publicar":
 
 # ── Página: Volvió a casa ─────────────────────────────────────────────
 if page == "reencuentro":
-    st.subheader("Volvió a casa")
+    titulo_perimetro("Volvió a casa")
     st.caption("Notifica que un animal volvió con su dueño. El administrador "
                "revisa el caso y decide si se cierran los avisos.")
     perd_opts = [dbmod.get_aviso(con, r["id"]) for r in

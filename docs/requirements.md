@@ -225,6 +225,30 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 #F5F1EA/#57503F`, Inter+Montserrat); sin colores nuevos; animaciones solo CSS
 (`st.markdown(unsafe_allow_html)` / `components.html`); sin dependencias nuevas.
 
+## 15. Tanda UI v1.12 (24/09/2026, a petición del alumno; solo UI, sin tocar matching/agentes/RAG/BD)
+
+- REQ-UI-07 — Mapa de Buscar: la leyenda dice AVISTAMIENTOS (nunca ENCONTRADOS) y es
+  contextual (`leyenda_mapa(mostrar_perdidos, mostrar_avist)`): con canal avistamientos
+  (o sin elegir, que por defecto ya muestra avistamientos) solo TU CASO + AVISTAMIENTOS;
+  con canal perdidos solo TU CASO + PERDIDOS. Las chinchetas del canal se pintan con
+  `pin_color()` (verdes = avistamientos, azules = perdidos) vía `get_active_opuestos()`.
+- REQ-UI-08 — Buscar se titula ANÁLISIS PRELIMINAR DE SIMILITUDES RESPECTO AL REGISTRO
+  y se reenumera: 1. ¿Dónde buscas? · 2. Foto actual · 3. Zona · 4. Descripción ·
+  5. Lanza la búsqueda.
+- REQ-UI-09 — Barrido rojo continuo en los títulos de Publicar
+  (`Publica un aviso de perdido o avistamiento`) y Buscar (REQ-UI-08): letras con
+  degradado negro→rojo→negro que barre de izquierda a derecha y viceversa
+  (`.huellas-barrido`, `huellas-sweep 3.2s ease-in-out infinite`).
+- REQ-UI-10 — Renombres: `Animales perdidos activos` → MASCOTAS DESAPARECIDAS y
+  `Avistamientos` → RASTROS COMPARTIDOS (subheaders + `stat_box` + infos).
+- REQ-UI-11 — Huella roja de perímetro en MASCOTAS DESAPARECIDAS, RASTROS COMPARTIDOS y
+  VOLVIÓ A CASA (`.huellas-perimetro` + `.huellas-perimetro-paw` con SVG de huella
+  `#E30613`, `huellas-peri 6s linear infinite`, velocidad media).
+- REQ-UI-12 — Fuera bocadillos: eliminado todo `help=` (hero, sidebar, sliders) + CSS de
+  `stTooltipContent`, y fuera el `title=` del carrusel (`ui_home.build_carousel_html`)
+  que repetía el texto en negro al pasar el cursor.
+- Accesibilidad: `prefers-reduced-motion` apaga también `huellas-sweep` y `huellas-peri`.
+
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅

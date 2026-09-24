@@ -124,7 +124,7 @@ def build_carousel_html(cards: list) -> str:
             foto = f'<div class="huellas-cd-ph" aria-hidden="true">{inicial}</div>'
         cls_et = "perd" if et.lower().startswith("perd") else "avis"
         piezas.append(
-            f'<a class="huellas-cd-link" href="?aviso={cid}" title="{titulo}">'
+            f'<a class="huellas-cd-link" href="?aviso={cid}">'
             f'<div class="huellas-cd"><div class="huellas-cd-img">{foto}</div>'
             f'<div class="huellas-cd-b"><div class="huellas-cd-t">{titulo}</div>'
             f'<div class="huellas-cd-z">{zona}</div>'
