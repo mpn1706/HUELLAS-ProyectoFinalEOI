@@ -301,3 +301,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Secundarios (Publicar/Búsqueda/Protectoras/Tiempo) en negro `#23201B` + `margin-left 1.25rem` (tabulados, jerarquía); principales rojos grandes. Caption de conteo bajo "Animales perdidos activos" eliminado del todo (+ limpieza de `n_lost_total`/`n_lost_res` sin uso).
 - Specs v1.5: REQ-UI-02/04 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 40/40, smoke 9 páginas OK, demo_check E2E OK.
+
+## S67 — 24/09/2026 — Bocadillos que sí se van, todo tabulado, barra a todo ancho (Muse Spark)
+- Causa raíz del pegado: mi CSS usaba `div[data-baseweb="tooltip"]`, que NO existe en el DOM de Streamlit 1.64 (verificado en el bundle: el tooltip vive en `Tooltip.J-aaVqsl.js` con `data-testid="stTooltipContent"`, y se reabre al pasar el puntero sobre él). Fix real: ese selector + `pointer-events:none` + auto-ocultado a los 4s (`huellas-tip-max`), así ni el peor caso queda pillado.
+- Puntualizaciones: expanders Cómo puntúa/Aviso legal con `expanded=False` (ya no abren solos) y contenidos tabulados con columnas `[0.12, 0.88]`; demo con `demo_seed`/`demo_expire` (negros tabulados + `use_container_width`); admin entero tabulado igual (reindentado bajo `with _adm:`).
+- Barra a todo ancho: `section[data-testid="stSidebar"] div.block-container` con `padding` lateral `0.5rem`.
+- Specs v1.6: REQ-UI-02/04 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 40/40, smoke 9 páginas OK, demo_check E2E OK.

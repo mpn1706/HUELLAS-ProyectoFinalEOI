@@ -135,7 +135,7 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..06, v1.5 24/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..06, v1.6 24/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
@@ -171,9 +171,9 @@ Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun
   grandes (`padding .75rem 1rem`, `1.02rem`, negrita); secundarios negros `#23201B`
   con `margin-left 1.25rem`; `hover translateX(3px)`; activo con
   `border-left 3px #FFFFFF` + fondo `#23201B`. Pulso CTAs hero:
-  `::after ring 2.2s infinite`. Bocadillos `help=` + CSS
-  `div[data-baseweb="tooltip"]{pointer-events:none}` (desaparecen al retirar el
-  puntero); campos obligatorios de buscar/publicar marcados con `*`.
+  `::after ring 2.2s infinite`. Bocadillos `help=` + CSS sobre
+  `[data-testid="stTooltipContent"]` (`pointer-events:none` + auto-ocultado 4s);
+  campos obligatorios de buscar/publicar marcados con `*`.
 - Accesibilidad/móvil: todo CSS, sin JS ni libs; `prefers-reduced-motion: reduce`
   apaga `trk/up/pulse/subrayado/latido`; inicio con botones reales (no links).
 - Trazabilidad: `tests/test_carousel.py` (sin contacto, letterbox 300×208, counts con

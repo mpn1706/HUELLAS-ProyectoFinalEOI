@@ -813,8 +813,13 @@ _NAV_ACTIVE_MAP = {
 def inject_ui_css(active_page: str) -> None:
     """Estilos nav/hero/carrusel/contadores (solo CSS, paleta existente)."""
     base = """<style>
-/* Bocadillos: no capturan el puntero → al retirar el ratón desaparecen al instante. */
-div[data-baseweb="tooltip"] { pointer-events:none !important; }
+/* Bocadillos: no capturan el puntero (no se reabren al pasar sobre ellos) y
+   se auto-ocultan a los 4s aunque Streamlit los deje pillados. */
+[data-testid="stTooltipContent"] {
+  pointer-events:none !important;
+  animation:huellas-tip-max 0s 4s forwards !important;
+}
+@keyframes huellas-tip-max { to { opacity:0 !important; visibility:hidden !important; } }
 [data-testid="stSidebar"] .st-key-nav_inicio button,
 [data-testid="stSidebar"] .st-key-tgl_func button,
 [data-testid="stSidebar"] .st-key-tgl_punt button,
@@ -844,13 +849,17 @@ div[data-baseweb="tooltip"] { pointer-events:none !important; }
 [data-testid="stSidebar"] .st-key-nav_publicar_side,
 [data-testid="stSidebar"] .st-key-nav_buscar_side,
 [data-testid="stSidebar"] .st-key-nav_protectoras,
-[data-testid="stSidebar"] .st-key-nav_tiempo {
+[data-testid="stSidebar"] .st-key-nav_tiempo,
+[data-testid="stSidebar"] .st-key-demo_seed,
+[data-testid="stSidebar"] .st-key-demo_expire {
   margin-left:1.25rem !important;
 }
 [data-testid="stSidebar"] .st-key-nav_publicar_side button,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button,
 [data-testid="stSidebar"] .st-key-nav_protectoras button,
-[data-testid="stSidebar"] .st-key-nav_tiempo button {
+[data-testid="stSidebar"] .st-key-nav_tiempo button,
+[data-testid="stSidebar"] .st-key-demo_seed button,
+[data-testid="stSidebar"] .st-key-demo_expire button {
   border-radius:6px !important;
   border-left:3px solid transparent !important;
   transition:transform .2s, background .2s !important;
@@ -864,9 +873,16 @@ div[data-baseweb="tooltip"] { pointer-events:none !important; }
 [data-testid="stSidebar"] .st-key-nav_publicar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_protectoras button:hover,
-[data-testid="stSidebar"] .st-key-nav_tiempo button:hover {
+[data-testid="stSidebar"] .st-key-nav_tiempo button:hover,
+[data-testid="stSidebar"] .st-key-demo_seed button:hover,
+[data-testid="stSidebar"] .st-key-demo_expire button:hover {
   transform:translateX(3px) !important;
   background:#353026 !important;
+}
+/* La barra ocupa todo el ancho: menos relleno lateral para los botones. */
+section[data-testid="stSidebar"] div.block-container {
+  padding-left:0.5rem !important;
+  padding-right:0.5rem !important;
 }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button {
@@ -1179,35 +1195,38 @@ with st.sidebar:
               on_click=_toggle, args=("side_punt",),
               help="Cómo puntúa y aviso legal.")
     if st.session_state.get("side_punt", False):
-        with st.expander("Cómo puntúa (fórmula cerrada)", expanded=True):
-            st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
-            u1, u2 = st.columns(2)
-            with u1:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                            '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
-            with u2:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                            '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
-            u3, u4 = st.columns(2)
-            with u3:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;">'
-                            'RADIO<br>15 KM</div>', unsafe_allow_html=True)
-            with u4:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;">'
-                            'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
-        with st.expander("Aviso legal", expanded=True):
-            st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
-                     "Una imagen no permite confirmar la identidad, verifique en persona.")
+        _sp, _punt = st.columns([0.12, 0.88])
+        with _punt:
+            with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False):
+                st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
+                u1, u2 = st.columns(2)
+                with u1:
+                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                                'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                                '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
+                with u2:
+                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                                'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                                '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
+                u3, u4 = st.columns(2)
+                with u3:
+                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                                'text-align:center;color:#FFFFFF;font-weight:800;">'
+                                'RADIO<br>15 KM</div>', unsafe_allow_html=True)
+                with u4:
+                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                                'text-align:center;color:#FFFFFF;font-weight:800;">'
+                                'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
+            with st.expander("Aviso legal", expanded=False):
+                st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
+                         "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.button("Datos demo", key="tgl_demo", icon=":material/bar_chart:",
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_demo",),
               help="Cargar seed demo o expirar avisos antiguos.")
     if st.session_state.get("side_demo", False):
-        if st.button("Cargar seed Jerez (16 avisos activos)"):
+        if st.button("Cargar seed Jerez (16 avisos activos)", key="demo_seed",
+                     use_container_width=True):
             import json as _json
 
             con2 = get_con()
@@ -1226,7 +1245,8 @@ with st.sidebar:
             st.success(f"Seed cargada: 16 avisos activos "
                        f"(5 perdidos + 11 encontrados, +1 resuelto demo).")
             st.rerun()
-        if st.button("Expirar avisos >30 días"):
+        if st.button("Expirar avisos >30 días", key="demo_expire",
+                     use_container_width=True):
             n = dbmod.expire_old(get_con(), 30)
             st.info(f"Avisos expirados: {n}")
     st.button("Más", key="tgl_mas", icon=":material/add:",
@@ -1247,159 +1267,161 @@ with st.sidebar:
               on_click=_toggle, args=("side_admin",),
               help="Moderación con contraseña.")
     if st.session_state.get("side_admin", False):
-        TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
-        ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
+        _sa, _adm = st.columns([0.12, 0.88])
+        with _adm:
+            TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
+            ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
 
-        def _expected_pw() -> str:
-            try:
-                v = st.secrets.get("ADMIN_PASSWORD", "")
-                if v:
-                    return str(v)
-            except Exception:
-                pass
-            import os
-            return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
+            def _expected_pw() -> str:
+                try:
+                    v = st.secrets.get("ADMIN_PASSWORD", "")
+                    if v:
+                        return str(v)
+                except Exception:
+                    pass
+                import os
+                return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
 
-        if not st.session_state.get("admin_ok"):
-            pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
-            if st.button("Entrar"):
-                if admmod.check_password(pw, _expected_pw()):
-                    st.session_state.admin_ok = True
-                    st.success("Sesión de administrador iniciada.")
+            if not st.session_state.get("admin_ok"):
+                pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
+                if st.button("Entrar"):
+                    if admmod.check_password(pw, _expected_pw()):
+                        st.session_state.admin_ok = True
+                        st.success("Sesión de administrador iniciada.")
+                        st.rerun()
+                    else:
+                        st.error("Contraseña incorrecta.")
+            else:
+                f_tipo = st.selectbox("Tipo", ["todos", "lost", "found"], key="adm_tipo",
+                                      format_func=lambda t: TIPO_ES.get(t, t))
+                f_txt = st.text_input("Buscar texto", key="adm_txt")
+                if st.button("Salir"):
+                    st.session_state.admin_ok = False
                     st.rerun()
-                else:
-                    st.error("Contraseña incorrecta.")
-        else:
-            f_tipo = st.selectbox("Tipo", ["todos", "lost", "found"], key="adm_tipo",
-                                  format_func=lambda t: TIPO_ES.get(t, t))
-            f_txt = st.text_input("Buscar texto", key="adm_txt")
-            if st.button("Salir"):
-                st.session_state.admin_ok = False
-                st.rerun()
-            for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
-                with st.container(border=True):
-                    show_image(a["image_url"], caption=a["id"])
-                    st.markdown(f"### {animal_tag(a)}")
-                    st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
-                    st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
-                    st.write(a["description_text"])
-                    if st.session_state.get("confirm_del") == a["id"]:
-                        if st.button("Confirmar eliminación", key=f"cf_{a['id']}", type="primary"):
-                            admmod.delete_aviso(con, a["id"])
-                            st.session_state.pop("confirm_del", None)
-                            st.success(f"Aviso {a['id']} eliminado.")
+                for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
+                    with st.container(border=True):
+                        show_image(a["image_url"], caption=a["id"])
+                        st.markdown(f"### {animal_tag(a)}")
+                        st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
+                        st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
+                        st.write(a["description_text"])
+                        if st.session_state.get("confirm_del") == a["id"]:
+                            if st.button("Confirmar eliminación", key=f"cf_{a['id']}", type="primary"):
+                                admmod.delete_aviso(con, a["id"])
+                                st.session_state.pop("confirm_del", None)
+                                st.success(f"Aviso {a['id']} eliminado.")
+                                st.rerun()
+                        elif st.button("Eliminar", key=f"del_{a['id']}"):
+                            st.session_state.confirm_del = a["id"]
                             st.rerun()
-                    elif st.button("Eliminar", key=f"del_{a['id']}"):
-                        st.session_state.confirm_del = a["id"]
-                        st.rerun()
-                    if a["status"] == "active" and st.button("Marcar resuelto", key=f"ok_{a['id']}"):
-                        admmod.resolve_aviso(con, a["id"])
-                        st.success(f"Aviso {a['id']} resuelto.")
-                        st.rerun()
-                    with st.expander(f"Editar datos · {a['id']}"):
-                        e_tipo = st.selectbox("Tipo", ["lost", "found"],
-                                              index=["lost", "found"].index(a["type"]),
-                                              key=f"e_tipo_{a['id']}",
-                                              format_func=lambda t: TIPO_ES.get(t, t))
-                        e_animal = st.selectbox("Animal", ["dog", "cat", "other"],
-                                                index=["dog", "cat", "other"].index(a["animal"]),
-                                                key=f"e_an_{a['id']}",
-                                                format_func=lambda x: {"dog": "Perro", "cat": "Gato",
-                                                                       "other": "Otro"}.get(x, x))
-                        e_breed = st.text_input("Raza aprox.", value=a.get("breed_guess") or "",
-                                                key=f"e_br_{a['id']}")
-                        e_c1 = st.text_input("Color principal", value=a.get("color_primary") or "",
-                                             key=f"e_c1_{a['id']}")
-                        e_c2 = st.text_input("Color secundario", value=a.get("color_secondary") or "",
-                                             key=f"e_c2_{a['id']}")
-                        e_marks = st.text_input("Marcas (separadas por comas)",
-                                                value=", ".join(a.get("markings") or ""),
-                                                key=f"e_mk_{a['id']}")
-                        e_size = st.selectbox("Tamaño", ["small", "medium", "large"],
-                                              index=["small", "medium", "large"].index(a["size"]),
-                                              key=f"e_sz_{a['id']}",
-                                              format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
-                                                                     "large": "Grande"}.get(s, s))
-                        e_collar = st.checkbox("Lleva collar", value=bool(a.get("has_collar")),
-                                               key=f"e_co_{a['id']}")
-                        e_collar_d = st.text_input("Descripción collar",
-                                                   value=a.get("collar_description") or "",
-                                                   key=f"e_cd_{a['id']}")
-                        e_desc = st.text_area("Descripción", value=a.get("description_text") or "",
-                                              key=f"e_de_{a['id']}")
-                        e_addr = st.text_input("Dirección",
-                                               value=(a.get("location") or {}).get("address_text") or "",
-                                               key=f"e_ad_{a['id']}")
-                        e_status = st.selectbox("Estado", ["active", "resolved", "expired"],
-                                                index=["active", "resolved", "expired"].index(a["status"]),
-                                                key=f"e_st_{a['id']}",
-                                                format_func=lambda s: ESTADO_ES.get(s, s))
-                        if st.button("Guardar cambios", key=f"e_sv_{a['id']}", type="primary"):
-                            try:
-                                from agents.ingestor import validate_aviso
+                        if a["status"] == "active" and st.button("Marcar resuelto", key=f"ok_{a['id']}"):
+                            admmod.resolve_aviso(con, a["id"])
+                            st.success(f"Aviso {a['id']} resuelto.")
+                            st.rerun()
+                        with st.expander(f"Editar datos · {a['id']}"):
+                            e_tipo = st.selectbox("Tipo", ["lost", "found"],
+                                                  index=["lost", "found"].index(a["type"]),
+                                                  key=f"e_tipo_{a['id']}",
+                                                  format_func=lambda t: TIPO_ES.get(t, t))
+                            e_animal = st.selectbox("Animal", ["dog", "cat", "other"],
+                                                    index=["dog", "cat", "other"].index(a["animal"]),
+                                                    key=f"e_an_{a['id']}",
+                                                    format_func=lambda x: {"dog": "Perro", "cat": "Gato",
+                                                                           "other": "Otro"}.get(x, x))
+                            e_breed = st.text_input("Raza aprox.", value=a.get("breed_guess") or "",
+                                                    key=f"e_br_{a['id']}")
+                            e_c1 = st.text_input("Color principal", value=a.get("color_primary") or "",
+                                                 key=f"e_c1_{a['id']}")
+                            e_c2 = st.text_input("Color secundario", value=a.get("color_secondary") or "",
+                                                 key=f"e_c2_{a['id']}")
+                            e_marks = st.text_input("Marcas (separadas por comas)",
+                                                    value=", ".join(a.get("markings") or ""),
+                                                    key=f"e_mk_{a['id']}")
+                            e_size = st.selectbox("Tamaño", ["small", "medium", "large"],
+                                                  index=["small", "medium", "large"].index(a["size"]),
+                                                  key=f"e_sz_{a['id']}",
+                                                  format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
+                                                                         "large": "Grande"}.get(s, s))
+                            e_collar = st.checkbox("Lleva collar", value=bool(a.get("has_collar")),
+                                                   key=f"e_co_{a['id']}")
+                            e_collar_d = st.text_input("Descripción collar",
+                                                       value=a.get("collar_description") or "",
+                                                       key=f"e_cd_{a['id']}")
+                            e_desc = st.text_area("Descripción", value=a.get("description_text") or "",
+                                                  key=f"e_de_{a['id']}")
+                            e_addr = st.text_input("Dirección",
+                                                   value=(a.get("location") or {}).get("address_text") or "",
+                                                   key=f"e_ad_{a['id']}")
+                            e_status = st.selectbox("Estado", ["active", "resolved", "expired"],
+                                                    index=["active", "resolved", "expired"].index(a["status"]),
+                                                    key=f"e_st_{a['id']}",
+                                                    format_func=lambda s: ESTADO_ES.get(s, s))
+                            if st.button("Guardar cambios", key=f"e_sv_{a['id']}", type="primary"):
+                                try:
+                                    from agents.ingestor import validate_aviso
 
-                                nuevo = dict(a)
-                                nuevo.update({
-                                    "type": e_tipo, "animal": e_animal,
-                                    "breed_guess": (e_breed.strip() or None) if e_animal != "other" else None,
-                                    "color_primary": e_c1.strip().lower(),
-                                    "color_secondary": e_c2.strip().lower() or None,
-                                    "markings": [m.strip().lower() for m in e_marks.split(",") if m.strip()],
-                                    "size": e_size, "has_collar": bool(e_collar),
-                                    "collar_description": e_collar_d.strip() or None,
-                                    "description_text": e_desc.strip(), "status": e_status})
-                                nuevo["location"] = dict(a.get("location") or {},
-                                                         address_text=e_addr.strip() or None)
-                                errs = validate_aviso(nuevo)
-                                if errs:
-                                    st.error("Revisa: " + "; ".join(errs))
-                                else:
-                                    campos = ("type", "animal", "breed_guess", "color_primary",
-                                              "color_secondary", "markings", "size", "has_collar",
-                                              "collar_description", "description_text", "status")
-                                    cambiados = [k for k in campos if nuevo.get(k) != a.get(k)]
-                                    if (nuevo.get("location") or {}).get("address_text") != (
-                                            a.get("location") or {}).get("address_text"):
-                                        cambiados.append("address_text")
-                                    dbmod.upsert_aviso(con, nuevo)
-                                    admmod.log_action(
-                                        f"EDIT {a['id']} ({', '.join(cambiados) if cambiados else 'sin cambios'})")
-                                    st.success(f"Aviso {a['id']} actualizado.")
-                                    st.rerun()
-                            except Exception as e:
-                                st.error(f"Error: {e}")
-            loga = Path("data/admin.log")
-            pendientes = dbmod.list_reencuentros(con, "pendiente")
-            with st.expander(f"Reencuentros pendientes ({len(pendientes)})"):
-                if not pendientes:
-                    st.caption("Nada pendiente de revisión.")
-                for r in pendientes:
-                    st.markdown(f"**`{r['id']}`** · resuelve "
-                                f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
-                    if r["nota"]:
-                        st.write(r["nota"])
-                    for fp in r["fotos"][:2]:
-                        show_image(fp, caption="Prueba", width=220)
-                    c_ok, c_no = st.columns(2)
-                    with c_ok:
-                        if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}", type="primary"):
-                            for aid in r["aviso_ids"]:
-                                admmod.resolve_aviso(con, aid)
-                            dbmod.set_reencuentro(con, r["id"], "validada")
-                            admmod.log_action(f"REENCUENTRO {r['id']} validado; "
-                                              f"resueltos {', '.join(r['aviso_ids'])}")
-                            st.success("Caso cerrado.")
-                            st.rerun()
-                    with c_no:
-                        if st.button("Rechazar", key=f"rv_no_{r['id']}"):
-                            dbmod.set_reencuentro(con, r["id"], "rechazada")
-                            admmod.log_action(f"REENCUENTRO {r['id']} rechazado "
-                                              "(posible vandalismo); avisos intactos")
-                            st.info("Rechazado: los avisos siguen activos.")
-                            st.rerun()
-            if loga.exists():
-                with st.expander("Ver registro de administración"):
-                    st.code(loga.read_text(encoding="utf-8")[-2000:])
+                                    nuevo = dict(a)
+                                    nuevo.update({
+                                        "type": e_tipo, "animal": e_animal,
+                                        "breed_guess": (e_breed.strip() or None) if e_animal != "other" else None,
+                                        "color_primary": e_c1.strip().lower(),
+                                        "color_secondary": e_c2.strip().lower() or None,
+                                        "markings": [m.strip().lower() for m in e_marks.split(",") if m.strip()],
+                                        "size": e_size, "has_collar": bool(e_collar),
+                                        "collar_description": e_collar_d.strip() or None,
+                                        "description_text": e_desc.strip(), "status": e_status})
+                                    nuevo["location"] = dict(a.get("location") or {},
+                                                             address_text=e_addr.strip() or None)
+                                    errs = validate_aviso(nuevo)
+                                    if errs:
+                                        st.error("Revisa: " + "; ".join(errs))
+                                    else:
+                                        campos = ("type", "animal", "breed_guess", "color_primary",
+                                                  "color_secondary", "markings", "size", "has_collar",
+                                                  "collar_description", "description_text", "status")
+                                        cambiados = [k for k in campos if nuevo.get(k) != a.get(k)]
+                                        if (nuevo.get("location") or {}).get("address_text") != (
+                                                a.get("location") or {}).get("address_text"):
+                                            cambiados.append("address_text")
+                                        dbmod.upsert_aviso(con, nuevo)
+                                        admmod.log_action(
+                                            f"EDIT {a['id']} ({', '.join(cambiados) if cambiados else 'sin cambios'})")
+                                        st.success(f"Aviso {a['id']} actualizado.")
+                                        st.rerun()
+                                except Exception as e:
+                                    st.error(f"Error: {e}")
+                loga = Path("data/admin.log")
+                pendientes = dbmod.list_reencuentros(con, "pendiente")
+                with st.expander(f"Reencuentros pendientes ({len(pendientes)})"):
+                    if not pendientes:
+                        st.caption("Nada pendiente de revisión.")
+                    for r in pendientes:
+                        st.markdown(f"**`{r['id']}`** · resuelve "
+                                    f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+                        if r["nota"]:
+                            st.write(r["nota"])
+                        for fp in r["fotos"][:2]:
+                            show_image(fp, caption="Prueba", width=220)
+                        c_ok, c_no = st.columns(2)
+                        with c_ok:
+                            if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}", type="primary"):
+                                for aid in r["aviso_ids"]:
+                                    admmod.resolve_aviso(con, aid)
+                                dbmod.set_reencuentro(con, r["id"], "validada")
+                                admmod.log_action(f"REENCUENTRO {r['id']} validado; "
+                                                  f"resueltos {', '.join(r['aviso_ids'])}")
+                                st.success("Caso cerrado.")
+                                st.rerun()
+                        with c_no:
+                            if st.button("Rechazar", key=f"rv_no_{r['id']}"):
+                                dbmod.set_reencuentro(con, r["id"], "rechazada")
+                                admmod.log_action(f"REENCUENTRO {r['id']} rechazado "
+                                                  "(posible vandalismo); avisos intactos")
+                                st.info("Rechazado: los avisos siguen activos.")
+                                st.rerun()
+                if loga.exists():
+                    with st.expander("Ver registro de administración"):
+                        st.code(loga.read_text(encoding="utf-8")[-2000:])
 
 page = st.session_state.get("page", "inicio")
 
