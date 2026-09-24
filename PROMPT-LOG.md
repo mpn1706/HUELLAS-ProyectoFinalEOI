@@ -258,6 +258,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Alerta ≥80% intacta en publicar y buscar-guardada, pero "Ver la alerta" → "VER COINCIDENCIA" que salta al caso del otro lado y lo resalta primero.
 - Spec: CU-05 + REQ-11.5. Verificación: pytest 32/32, smoke 5 páginas OK, ciclo reencuentro OK (DB restaurada), E2E OK.
 
+## S61 — 24/09/2026 — Prefill publicar desde buscar (Muse Spark)
+- El botón PUBLICAR AVISO lleva foto, zona y descriptivos a Publicar (`ir_a_publicar_con`); el tipo se infiere del canal (avistamientos→perdido y viceversa). Foto reutilizada por copia; "Empezar de cero" limpia; CU-03.
+- Verificación: pytest 32/32, smoke 5 páginas OK, prefill simulado ambos lados con DB limpia.
+
 ## S60 — 24/09/2026 — Preliminar ambos lados + orden (Muse Spark)
 - Buscar = BÚSQUEDA PRELIMINAR DE COINCIDENCIAS con selector de canal (quien busca es el caso inverso), transitoria sin guardar ni filas; al final botón PUBLICAR AVISO (allí se discierne el tipo). Caja de coincidencia + VER COINCIDENCIA en pantalla.
 - Rojos invertidos: primero preliminar, luego publicar.

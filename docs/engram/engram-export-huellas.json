@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 03:55:51",
+  "exported_at": "2026-09-24 04:10:55",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1595,6 +1595,21 @@
       "last_seen_at": "2026-09-24 03:55:47",
       "created_at": "2026-09-24 03:55:47",
       "updated_at": "2026-09-24 03:55:47"
+    },
+    {
+      "id": 89,
+      "sync_id": "obs-438894a7d1bf80c2",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S61 prefill publicar",
+      "content": "S61 24/09/2026 (Muse Spark): PUBLICAR AVISO precarga foto+zona+descriptivos y tipo inferido del canal, foto por copia, Empezar de cero, CU-03. Pytest 32/32, smoke OK, prefill simulado.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 04:10:55",
+      "created_at": "2026-09-24 04:10:55",
+      "updated_at": "2026-09-24 04:10:55"
     }
   ],
   "prompts": [
@@ -3349,6 +3364,14 @@
       "content": "- Lo que sí vamos a hacer es lo siguiente: buscar mi mascota vamos a cambiarlo por el nombre \"BÚSQUEDA PRELIMINAR DE COINCIDENCIAS\" para realizar justo eso, una búsqueda preliminar entre los canales de perdidos y avistados (tienes que crear una opción que te permita seleccionar buscar entre uno u otro y, en función de lo que se elija, la persona que está realizando la búsqueda es el caso inverso) sin necesidad de registrar el aviso, sin más. En caso de resultado insatisfactorio se te ofrece y se te permite la redirección hacia la sección de publicar aviso, no sirve la casilla de Guardar esta búsqueda como aviso de perdido porque debe decidirse al obtener un resultado una vez buscadas las coincidencias y porque hay que discernir entre aviso de avistamiento o de perdida. \n\n- También quiero que inviertas el orden en el que aparecen los botones, primero que aparezca \"BÚSQUEDA PRELIMINAR DE COINCIDENCIAS\" y luego \"PUBLICAR AVISO\"",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 03:50:02"
+    },
+    {
+      "id": 220,
+      "sync_id": "prompt-aa9ed4cd396238b3",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Va todo genial, pero me gustaría que se  guardara la información para cuando se te redirige apublicar el aviso (la foro, la zona y todos los datos descriptivos del apartado 3 se pueden mantener para no tener que ingresarlos de nuevo). Además, en función de si se escogió el canal de avistamientos o  el otro, se intuye si es perdida o avistamiento, así que esa info también se puede mantener.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 04:06:20"
     }
   ]
 }

@@ -760,6 +760,24 @@ def ir_a_caso(aviso_id: str, tipo: str):
     st.session_state.page = "perdidos" if tipo == "lost" else "encontrados"
 
 
+def ir_a_publicar_con(q: dict, lado: str):
+    """Lleva a PUBLICAR con foto, zona y descriptivos precargados.
+
+    El tipo se infiere del canal: buscar entre avistamientos = perdido,
+    buscar entre perdidos = avistamiento.
+    """
+    loc = q.get("location") or {}
+    st.session_state.pub_prefill = {
+        "tipo": "lost" if lado == "found" else "found",
+        "animal": q.get("animal", "dog"), "color": q.get("color_primary", ""),
+        "size": q.get("size", "medium"), "collar": bool(q.get("has_collar")),
+        "desc": q.get("description_text") or "",
+        "lat": loc.get("lat", 36.6826), "lng": loc.get("lng", -6.1376),
+        "addr": loc.get("address_text", ""), "qpath": q.get("image_url", "")}
+    st.session_state.pub_init = False
+    st.session_state.page = "publicar"
+
+
 def tarjeta_destacada(aid: str) -> bool:
     return st.session_state.get("destacar_id") == aid
 
@@ -1236,7 +1254,7 @@ if page == "buscar":
         st.caption("Hayas encontrado o no coincidencia, desde aquí publicas el aviso "
                    "(de perdido o de avistamiento, lo decides allí).")
         st.button("Publicar aviso", key="ir_publicar", type="primary",
-                  use_container_width=True, on_click=nav_to, args=("publicar",))
+                  use_container_width=True, on_click=ir_a_publicar_con, args=(q, lado))
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":
@@ -1297,17 +1315,46 @@ if page == "encontrados":
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
     st.subheader("Publica un aviso de perdido o avistamiento")
+    pre = st.session_state.get("pub_prefill") or {}
+    if pre and not st.session_state.get("pub_init"):
+        st.session_state.pub_tipo = pre.get("tipo", "lost")
+        st.session_state.pub_animal = pre.get("animal", "dog")
+        st.session_state.pub_desc = pre.get("desc", "")
+        st.session_state.pub_color = pre.get("color", "")
+        st.session_state.pub_size = pre.get("size", "medium")
+        st.session_state.pub_collar = bool(pre.get("collar", False))
+        st.session_state.reg_lat = float(pre.get("lat", 36.6826))
+        st.session_state.reg_lon = float(pre.get("lng", -6.1376))
+        st.session_state.addr_in = pre.get("addr", "Centro, Jerez")
+        st.session_state.pub_init = True
+        st.info("Datos traídos de tu búsqueda: revísalos y confirma.")
+    if pre:
+        if st.button("Empezar de cero", key="pub_limpiar"):
+            for _k in ("pub_prefill", "pub_init", "pub_tipo", "pub_animal", "pub_desc",
+                       "pub_color", "pub_size", "pub_collar", "reg_lat", "reg_lon",
+                       "addr_in"):
+                st.session_state.pop(_k, None)
+            st.rerun()
+    if "pub_desc" not in st.session_state:
+        st.session_state.pub_desc = "Perro marrón mediano con mancha blanca en el pecho, collar rojo."
+    if "pub_color" not in st.session_state:
+        st.session_state.pub_color = "marrón"
+    if "pub_collar" not in st.session_state:
+        st.session_state.pub_collar = True
     with st.container(border=True):
         r1, r2 = st.columns([1, 1])
         with r1:
-            tipo = st.selectbox("Tipo de aviso", ["lost", "found"],
+            tipo = st.selectbox("Tipo de aviso", ["lost", "found"], key="pub_tipo",
                                 format_func=lambda t: "Mascota perdida" if t == "lost" else "Animal encontrado")
-            animal = st.selectbox("Animal", ["dog", "cat", "other"],
+            animal = st.selectbox("Animal", ["dog", "cat", "other"], key="pub_animal",
                                   format_func=lambda a: {"dog": "Perro", "cat": "Gato",
                                                          "other": "Otro"}.get(a, a))
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
             if foto:
                 vista_previa(foto)
+            elif pre.get("qpath") and Path(pre["qpath"]).exists():
+                st.image(imagen_cuadrada(pre["qpath"]), caption="Foto de tu búsqueda",
+                         width=360)
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
             comp = st.text_input("Comportamiento", "Sociable, se deja coger.",
@@ -1318,13 +1365,12 @@ if page == "publicar":
                                 "Se escapó en el parque y no volvió.",
                                 key="c_paso")
         with r2:
-            desc = st.text_area("Descripción libre",
-                                "Perro marrón mediano con mancha blanca en el pecho, collar rojo.")
-            c1 = st.text_input("Color principal", "marrón")
-            size = st.selectbox("Tamaño", ["small", "medium", "large"],
+            desc = st.text_area("Descripción libre", key="pub_desc")
+            c1 = st.text_input("Color principal", key="pub_color")
+            size = st.selectbox("Tamaño", ["small", "medium", "large"], key="pub_size",
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                        "large": "Grande"}.get(s, s))
-            collar = st.checkbox("¿Lleva collar?", True)
+            collar = st.checkbox("¿Lleva collar?", key="pub_collar")
             st.markdown("**Contacto (opcional)**")
             c_movil = st.text_input("Móvil", "", key="c_movil")
             c_mail = st.text_input("Correo", "", key="c_mail")
@@ -1367,9 +1413,18 @@ if page == "publicar":
             lng = float(st.session_state.get("reg_lon", -6.1376))
             addr = st.session_state.get("addr_in", "Centro, Jerez")
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
-            img_path = f"data/uploads/{foto.name}" if foto else "data/seed/images/perrete 3.jpg"
+            pre_q = (st.session_state.get("pub_prefill") or {}).get("qpath", "")
             if foto:
+                img_path = f"data/uploads/{foto.name}"
                 Path(img_path).write_bytes(foto.getbuffer())
+            elif pre_q and Path(pre_q).exists():
+                from datetime import datetime as _dtp
+                import shutil as _sh
+
+                img_path = f"data/uploads/pub_{_dtp.now().strftime('%Y%m%d%H%M%S')}.jpg"
+                _sh.copy(pre_q, img_path)
+            else:
+                img_path = "data/seed/images/perrete 3.jpg"
             desc_full = desc.strip()
             if comp.strip():
                 desc_full += f" Comportamiento: {comp.strip()}."
@@ -1386,6 +1441,8 @@ if page == "publicar":
                                   "status": "active"})
             av["image_embedding"] = get_image_embedding(img_path)
             dbmod.upsert_aviso(con, av)
+            st.session_state.pop("pub_prefill", None)
+            st.session_state.pop("pub_init", None)
             celebrate_search()
             st.success(f"Aviso `{av['id']}` publicado.")
             try:

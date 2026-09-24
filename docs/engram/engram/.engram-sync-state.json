@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-24T03:55:49Z",
+  "last_export_at": "2026-09-24T04:10:55Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -28,7 +28,8 @@
     "82": "huellas\\manual\\huellas-s57-publicar-fullscreen-iconos-82.md",
     "83": "huellas\\manual\\huellas-s58-sidebar-leyenda-cuadros-83.md",
     "85": "huellas\\manual\\huellas-s59-volvio-a-casa-sin-alertas-85.md",
-    "88": "huellas\\manual\\huellas-s60-preliminar-ambos-lados-88.md"
+    "88": "huellas\\manual\\huellas-s60-preliminar-ambos-lados-88.md",
+    "89": "huellas\\manual\\huellas-s61-prefill-publicar-89.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

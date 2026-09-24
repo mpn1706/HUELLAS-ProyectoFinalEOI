@@ -45,7 +45,7 @@ Actor: dueño. Flujo: sube foto + descripción + ubicación + fechas + contacto 
 Actor: persona que encuentra / protectora. Flujo simétrico a CU-01, comparando contra corpus `lost` activos.
 
 ### CU-03 — Búsqueda preliminar de coincidencias (sin registrar)
-Actor: dueño o quien avista. Flujo: elige canal (avistamientos si perdió, perdidos si encontró: quien busca es el caso inverso) + foto + zona + descripción → Matcher cruza SOLO contra ese canal → ranking ≥65% con desglose. Transitoria: no persiste ni escribe alertas. Haya coincidencia o no, el botón PUBLICAR AVISO lleva a CU-01/CU-02 (allí se discierne el tipo). Las alertas persistentes nacen del cruce al publicar.
+Actor: dueño o quien avista. Flujo: elige canal (avistamientos si perdió, perdidos si encontró: quien busca es el caso inverso) + foto + zona + descripción → Matcher cruza SOLO contra ese canal → ranking ≥65% con desglose. Transitoria: no persiste ni escribe alertas. Haya coincidencia o no, el botón PUBLICAR AVISO lleva a CU-01/CU-02 con foto, zona, descriptivos y tipo ya precargados (el tipo se infiere del canal). Las alertas persistentes nacen del cruce al publicar.
 
 ### CU-04 — Revisar detalle de posible coincidencia
 Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos coincidentes/divergentes, y aviso legal de no-identidad. Decide contactar fuera del sistema.
