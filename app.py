@@ -457,28 +457,26 @@ def popup_html(c: dict, marca: str = "", dist=None) -> str:
     return "green" if a.get("type") == "found" else "blue"
 
 
-def leyenda_mapa(altura: int = 380):
-    """Leyenda al lado del mapa: rojo = tu mascota, azul = perdidos, verde = encontrados.
-
-    Ocupa todo el alto del mapa para que no quede ningún hueco blanco.
-    """
+def leyenda_mapa():
+    """Franja de leyenda bajo el mapa (sin columna lateral: nada de huecos blancos)."""
     st.markdown(
-        '<div style="background:#23201B;border-radius:10px;padding:.6rem .5rem;font-size:.72rem;'
-        f'font-weight:700;color:#FFFFFF;line-height:2.1;min-height:{altura}px;">'
-        '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#E30613;margin-right:.4rem;"></span>TU MASCOTA</div>'
-        '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#3388FF;margin-right:.4rem;"></span>PERDIDOS</div>'
-        '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#35AC46;margin-right:.4rem;"></span>ENCONTRADOS</div>'
-        '<div style="font-weight:400;font-size:.68rem;line-height:1.5;margin-top:.3rem;">'
-        'PULSA CADA CHINCHETA PARA VER DIRECCIÓN Y DISTANCIA.</div></div>',
+        '<div style="background:#23201B;border-radius:10px;padding:.45rem .9rem;'
+        'color:#FFFFFF;font-weight:700;font-size:.75rem;display:flex;gap:1.4rem;'
+        'flex-wrap:wrap;align-items:center;margin-top:.4rem;">'
+        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
+        'background:#E30613;margin-right:.35rem;"></span>TU MASCOTA</span>'
+        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
+        'background:#3388FF;margin-right:.35rem;"></span>PERDIDOS</span>'
+        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
+        'background:#35AC46;margin-right:.35rem;"></span>ENCONTRADOS</span>'
+        '<span style="font-weight:400;">PULSA CADA CHINCHETA PARA VER FOTO Y DIRECCIÓN.</span>'
+        '</div>',
         unsafe_allow_html=True)
 
 
 def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | None = None,
                           zoom: int = 13):
-    """Mapa Leaflet con chinchetas + leyenda al lado.
+    """Mapa Leaflet con chinchetas + leyenda en franja debajo.
 
     Roja = tu mascota · azules = perdidos activos · verdes = encontrados.
     Los avisos con la misma ubicación se agrupan (círculo con el nº);
@@ -490,43 +488,40 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
         from folium.plugins import MarkerCluster
         from streamlit_folium import st_folium
 
-        c_map, c_leg = st.columns([5, 1])
-        with c_map:
-            fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=zoom)
+        fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=zoom)
+        folium.Marker(
+            [q["location"]["lat"], q["location"]["lng"]],
+            tooltip=f"PERDIDO {q['id']}",
+            popup=folium.Popup(popup_html(q, marca=" · TU MASCOTA"), max_width=260),
+            icon=folium.Icon(color="red"),
+        ).add_to(fmap)
+        cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
+        for o in otros_lost or []:
+            if o["id"] == q["id"]:
+                continue
             folium.Marker(
-                [q["location"]["lat"], q["location"]["lng"]],
-                tooltip=f"PERDIDO {q['id']}",
-                popup=folium.Popup(popup_html(q, marca=" · TU MASCOTA"), max_width=260),
-                icon=folium.Icon(color="red"),
-            ).add_to(fmap)
-            cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
-            for o in otros_lost or []:
-                if o["id"] == q["id"]:
-                    continue
-                folium.Marker(
-                    [o["location"]["lat"], o["location"]["lng"]],
-                    tooltip=f"PERDIDO {o['id']}",
-                    popup=folium.Popup(popup_html(o), max_width=260),
-                    icon=folium.Icon(color="blue"),
-                ).add_to(cl_lost)
-            cl_found = MarkerCluster(name="Encontrados").add_to(fmap)
-            for it in items:
-                c = it.get("candidato", it)
-                score = it.get("score")
-                marca = " · DESTACADA" if (score is not None and score >= UMBRAL_NOTIF) else ""
-                if score is not None:
-                    marca += f" · {score*100:.0f}%"
-                etiqueta = f"{c['id']}" + (f" {score*100:.0f}%" if score is not None else "")
-                folium.Marker(
-                    [c["location"]["lat"], c["location"]["lng"]],
-                    tooltip=etiqueta,
-                    popup=folium.Popup(
-                        popup_html(c, marca=marca, dist=it.get("dist_km")), max_width=260),
-                    icon=folium.Icon(color=pin_color(c)),
-                ).add_to(cl_found)
-            st_folium(fmap, key=key, width=700, height=450)
-        with c_leg:
-            leyenda_mapa(450)
+                [o["location"]["lat"], o["location"]["lng"]],
+                tooltip=f"PERDIDO {o['id']}",
+                popup=folium.Popup(popup_html(o), max_width=260),
+                icon=folium.Icon(color="blue"),
+            ).add_to(cl_lost)
+        cl_found = MarkerCluster(name="Encontrados").add_to(fmap)
+        for it in items:
+            c = it.get("candidato", it)
+            score = it.get("score")
+            marca = " · DESTACADA" if (score is not None and score >= UMBRAL_NOTIF) else ""
+            if score is not None:
+                marca += f" · {score*100:.0f}%"
+            etiqueta = f"{c['id']}" + (f" {score*100:.0f}%" if score is not None else "")
+            folium.Marker(
+                [c["location"]["lat"], c["location"]["lng"]],
+                tooltip=etiqueta,
+                popup=folium.Popup(
+                    popup_html(c, marca=marca, dist=it.get("dist_km")), max_width=260),
+                icon=folium.Icon(color=pin_color(c)),
+            ).add_to(cl_found)
+        st_folium(fmap, key=key, width=900, height=450)
+        leyenda_mapa()
     except Exception as e:
         st.caption(f"Mapa no disponible ({e}).")
 
@@ -722,60 +717,6 @@ def toggle_top(nombre: str):
     st.session_state.top_panel = None if st.session_state.get("top_panel") == nombre else nombre
 
 
-# ── Iconos casa/sol (arriba-izquierda): abren sus paneles como la barra lateral ──
-if "top_panel" not in st.session_state:
-    st.session_state.top_panel = None
-ic1, ic2, _ = st.columns([1, 1, 12], gap="small")
-with ic1:
-    st.button("⌂", key="top_casa", on_click=toggle_top, args=("perreras",),
-              help="Perreras de Jerez: direcciones y contacto.")
-with ic2:
-    st.button("☀︎", key="top_sol", on_click=toggle_top, args=("tiempo",),
-              help="Tiempo en Jerez con el perro según el tiempo.")
-if st.session_state.top_panel == "perreras":
-    st.markdown("### Perreras y protectoras de Jerez")
-    pc1, pc2 = st.columns(2)
-    for col, p in zip((pc1, pc2), PERRERAS):
-        with col:
-            with st.container(border=True):
-                st.markdown(
-                    '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
-                    'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
-                    f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
-                st.markdown(f"**Dirección:** {p['direccion']}")
-                st.markdown(f"**Contacto:** {p['contacto']}")
-                st.caption(p["nota"])
-    st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
-            "el Servicio de Laceros lo traslada al CMPA.")
-elif st.session_state.top_panel == "tiempo":
-    with st.container(border=True):
-        st.markdown("### Tiempo en Jerez")
-        try:
-            import streamlit.components.v1 as _components
-
-            d = get_tiempo()
-            cur = d.get("current") or {}
-            dia = (d.get("daily") or {})
-            _, modo = estado_perro(d)
-            noche = es_de_noche(d)
-            w1, w2 = st.columns([1, 1])
-            with w1:
-                _components.html(perro_html(modo, noche=noche), height=190)
-            with w2:
-                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
-                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
-                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
-                mx = (dia.get("temperature_2m_max") or [None])[0]
-                mn = (dia.get("temperature_2m_min") or [None])[0]
-                pv = (dia.get("precipitation_probability_max") or [None])[0]
-                if mx is not None:
-                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
-                if pv is not None:
-                    st.write(f"- Prob. lluvia: {pv:.0f} %")
-                st.caption("Fuente: Open-Meteo (sin claves).")
-        except Exception as e:
-            st.caption(f"Tiempo no disponible ({e}).")
-
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
 if LOGO:
     hc1, hc2 = st.columns([2, 5], vertical_alignment="center")
@@ -839,7 +780,56 @@ with b2:
 
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
-    st.subheader("Funcionamiento web")
+    if "top_panel" not in st.session_state:
+        st.session_state.top_panel = None
+    sb1, sb2 = st.columns(2)
+    with sb1:
+        st.button("⌂", key="sb_casa", use_container_width=True,
+                  on_click=toggle_top, args=("perreras",),
+                  help="Perreras de Jerez: direcciones y contacto.")
+    with sb2:
+        st.button("☀︎", key="sb_sol", use_container_width=True,
+                  on_click=toggle_top, args=("tiempo",),
+                  help="Tiempo en Jerez con el perro según el tiempo.")
+    if st.session_state.top_panel == "perreras":
+        for p in PERRERAS:
+            with st.container(border=True):
+                st.markdown(
+                    '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
+                    'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
+                    f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
+                st.markdown(f"**Dirección:** {p['direccion']}")
+                st.markdown(f"**Contacto:** {p['contacto']}")
+                st.caption(p["nota"])
+        st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
+                "el Servicio de Laceros lo traslada al CMPA.")
+    elif st.session_state.top_panel == "tiempo":
+        with st.container(border=True):
+            st.markdown("### Tiempo en Jerez")
+            try:
+                import streamlit.components.v1 as _components
+
+                d = get_tiempo()
+                cur = d.get("current") or {}
+                dia = (d.get("daily") or {})
+                _, modo = estado_perro(d)
+                noche = es_de_noche(d)
+                _components.html(perro_html(modo, noche=noche), height=190)
+                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
+                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
+                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
+                mx = (dia.get("temperature_2m_max") or [None])[0]
+                mn = (dia.get("temperature_2m_min") or [None])[0]
+                pv = (dia.get("precipitation_probability_max") or [None])[0]
+                if mx is not None:
+                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
+                if pv is not None:
+                    st.write(f"- Prob. lluvia: {pv:.0f} %")
+                st.caption("Fuente: Open-Meteo (sin claves).")
+            except Exception as e:
+                st.caption(f"Tiempo no disponible ({e}).")
+    st.divider()
+    st.subheader("Puntualizaciones sobre la web")
     with st.expander("Cómo puntúa (fórmula cerrada)"):
         st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
         u1, u2 = st.columns(2)
@@ -1046,38 +1036,35 @@ if page == "buscar":
             from folium.plugins import MarkerCluster
             from streamlit_folium import st_folium
 
-            c_map, c_leg = st.columns([5, 1])
-            with c_map:
-                fmap = folium.Map(location=[st.session_state.q_lat, st.session_state.q_lon],
-                                  zoom_start=14)
-                folium.Marker([st.session_state.q_lat, st.session_state.q_lon],
-                              tooltip="TU ZONA",
-                              popup=("TU ZONA · "
-                                     f"{st.session_state.get('q_addr_in', '')}"),
-                              icon=folium.Icon(color="red")).add_to(fmap)
-                cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
-                for o in (dbmod.get_aviso(con, r["id"]) for r in
-                          con.execute("SELECT id FROM avisos WHERE status='active'"
-                                      " AND type='lost'").fetchall()):
-                    if not o:
-                        continue
-                    folium.Marker(
-                        [o["location"]["lat"], o["location"]["lng"]],
-                        tooltip=f"PERDIDO {o['id']}",
-                        popup=folium.Popup(popup_html(o), max_width=260),
-                        icon=folium.Icon(color="blue")).add_to(cl_lost)
-                cl_found = MarkerCluster(name="Avistamientos").add_to(fmap)
-                for c in dbmod.get_active_opuestos(con, "lost"):
-                    folium.Marker(
-                        [c["location"]["lat"], c["location"]["lng"]],
-                        tooltip=c["id"],
-                        popup=folium.Popup(popup_html(c), max_width=260),
-                        icon=folium.Icon(color="green")).add_to(cl_found)
-                out = st_folium(fmap, key="cerca_map",
-                                center=(st.session_state.q_lat, st.session_state.q_lon),
-                                zoom=14, width=700, height=380)
-            with c_leg:
-                leyenda_mapa(380)
+            fmap = folium.Map(location=[st.session_state.q_lat, st.session_state.q_lon],
+                              zoom_start=14)
+            folium.Marker([st.session_state.q_lat, st.session_state.q_lon],
+                          tooltip="TU ZONA",
+                          popup=("TU ZONA · "
+                                 f"{st.session_state.get('q_addr_in', '')}"),
+                          icon=folium.Icon(color="red")).add_to(fmap)
+            cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
+            for o in (dbmod.get_aviso(con, r["id"]) for r in
+                      con.execute("SELECT id FROM avisos WHERE status='active'"
+                                  " AND type='lost'").fetchall()):
+                if not o:
+                    continue
+                folium.Marker(
+                    [o["location"]["lat"], o["location"]["lng"]],
+                    tooltip=f"PERDIDO {o['id']}",
+                    popup=folium.Popup(popup_html(o), max_width=260),
+                    icon=folium.Icon(color="blue")).add_to(cl_lost)
+            cl_found = MarkerCluster(name="Avistamientos").add_to(fmap)
+            for c in dbmod.get_active_opuestos(con, "lost"):
+                folium.Marker(
+                    [c["location"]["lat"], c["location"]["lng"]],
+                    tooltip=c["id"],
+                    popup=folium.Popup(popup_html(c), max_width=260),
+                    icon=folium.Icon(color="green")).add_to(cl_found)
+            out = st_folium(fmap, key="cerca_map",
+                            center=(st.session_state.q_lat, st.session_state.q_lon),
+                            zoom=14, width=900, height=380)
+            leyenda_mapa()
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
                 nlng = round(out["last_clicked"]["lng"], 4)
@@ -1276,8 +1263,10 @@ if page == "publicar":
                 vista_previa(foto)
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
-            comp = st.text_input("Comportamiento / estado", "Sociable, se deja coger.",
+            comp = st.text_input("Comportamiento", "Sociable, se deja coger.",
                                  key="c_comp")
+            est = st.text_input("Estado del animal", "Sano, bien alimentado.",
+                                key="c_est")
             paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar",
                                 "Se escapó en el parque y no volvió.",
                                 key="c_paso")
@@ -1336,7 +1325,9 @@ if page == "publicar":
                 Path(img_path).write_bytes(foto.getbuffer())
             desc_full = desc.strip()
             if comp.strip():
-                desc_full += f" Comportamiento y estado: {comp.strip()}."
+                desc_full += f" Comportamiento: {comp.strip()}."
+            if est.strip():
+                desc_full += f" Estado: {est.strip()}."
             if paso.strip():
                 desc_full += f" Lo ocurrido: {paso.strip()}."
             av = normalize_aviso({"type": tipo, "animal": animal, "color_primary": c1, "size": size,

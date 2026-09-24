@@ -235,13 +235,19 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Perro: luna 20:00–08:00 (`es_de_noche`), lluvia, termómetro calor/frío y ráfagas de viento.
 - Verificación: pytest 29/29, smoke 5 páginas + paneles OK, E2E OK.
 
+## S56 — 24/09/2026 — Iconos bajo >>, letterbox, >> negro (Muse Spark)
+- Iconos pegados arriba (contenido a 1.2rem del `>>`) + CSS para el `>>` en negro (varias variantes de testid, best-effort).
+- Fotos: letterbox crema 480px (animal entero, nada de recortes que decapiten).
+- Verificación: pytest 29/29, smoke 5 páginas OK.
+
 ## S57 — 24/09/2026 — Publicar completo, sin fullscreen, iconos al >> (Muse Spark)
 - Publicar: columna izquierda con Comportamiento/estado + Cómo lo perdiste/qué hiciste (se anexan a la descripción y mejoran el texto).
 - Fullscreen de imágenes desactivado por CSS (daba error y no se usa).
 - Iconos pegados al `>>` (contenido a 0.2rem, fila compacta).
 - Verificación: pytest 29/29, smoke 5 páginas OK.
 
-## S56 — 24/09/2026 — Iconos bajo >>, letterbox, >> negro (Muse Spark)
-- Iconos pegados arriba (contenido a 1.2rem del `>>`) + CSS para el `>>` en negro (varias variantes de testid, best-effort).
-- Fotos: letterbox crema 480px (animal entero, nada de recortes que decapiten).
-- Verificación: pytest 29/29, smoke 5 páginas OK.
+## S58 — 24/09/2026 — Sidebar, cuadros, leyenda (Muse Spark)
+- Iconos ⌂/☀︎ dentro del sidebar (uno al lado del otro, con divisor negro) + paneles apilados; "FUNCIONAMIENTO WEB" → "PUNTUALIZACIONES SOBRE LA WEB".
+- Publicar: Comportamiento y Estado en cuadros separados (ambos anexan a la descripción).
+- Mapa: leyenda en franja bajo el mapa, sin columna lateral blanca.
+- Verificación: pytest 29/29, smoke 5 páginas + paneles OK.

@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-24T02:35:05Z",
+  "last_export_at": "2026-09-24T02:51:02Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -25,7 +25,8 @@
     "78": "huellas\\manual\\huellas-s54-perro-header-alerta-contacto-78.md",
     "79": "huellas\\manual\\huellas-s55-imagenes-iconos-luna-contactos-79.md",
     "81": "huellas\\manual\\huellas-s56-iconos-letterbox-81.md",
-    "82": "huellas\\manual\\huellas-s57-publicar-fullscreen-iconos-82.md"
+    "82": "huellas\\manual\\huellas-s57-publicar-fullscreen-iconos-82.md",
+    "83": "huellas\\manual\\huellas-s58-sidebar-leyenda-cuadros-83.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

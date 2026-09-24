@@ -26,3 +26,4 @@ tags:
 - [[huellas-s55-imagenes-iconos-luna-contactos-79]]
 - [[huellas-s56-iconos-letterbox-81]]
 - [[huellas-s57-publicar-fullscreen-iconos-82]]
+- [[huellas-s58-sidebar-leyenda-cuadros-83]]
