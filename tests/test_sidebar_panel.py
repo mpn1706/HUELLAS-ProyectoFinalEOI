@@ -1,21 +1,20 @@
-"""Panel lateral: auto-apertura al cambiar de pestaña (REQ-UI-02 v1.10).
+"""Sidebar: comportamiento al navegar (REQ-UI-02 v1.11).
 
-A nivel de fuente (sin importar Streamlit): el snippet expansor debe pulsar el
-control de apertura y dispararse solo cuando cambia `page`; la navegación solo
-reabre FUNCIONALIDADES (revert de S70).
+El intento de auto-apertura del PANEL (v1.10) se abandonó: sin API en
+Streamlit para desplegar el sidebar y los trucos (iframe custom component,
+st.html con JS) quedan bloqueados. La navegación reabre solo FUNCIONALIDADES.
 """
 from pathlib import Path
 
 SRC = Path("app.py").read_text(encoding="utf-8")
 
 
-def test_expand_snippet_pulsa_control_colapsado():
-    assert "stExpandSidebarButton" in SRC  # selector real en Streamlit 1.64
-    assert ".click()" in SRC
-    assert "_side_prev_page" in SRC  # solo actúa al cambiar de pestaña
-
-
 def test_solo_funcionalidades_reabre_al_navegar():
     assert 'st.session_state["side_func"] = True' in SRC
     # Sin reapertura general de secciones (S70 revertido):
     assert '("side_func", "side_punt", "side_demo", "side_mas", "side_admin")' not in SRC
+
+
+def test_sin_experimentos_de_panel():
+    assert "stExpandSidebarButton" not in SRC  # expansor JS abandonado (v1.11)
+    assert "_side_prev_page" not in SRC

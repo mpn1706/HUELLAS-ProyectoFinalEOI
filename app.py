@@ -1429,32 +1429,6 @@ with st.sidebar:
 
 page = st.session_state.get("page", "inicio")
 
-# ── Auto-apertura del PANEL lateral al cambiar de pestaña ─────────────
-# Streamlit no expone API para desplegar el sidebar: se pulsa el control de
-# apertura (`stSidebarCollapsedControl`) desde un iframe invisible, SOLO en el
-# run donde cambia `page` (otros reruns —escribir, sliders— no lo tocan).
-# Si el sandbox bloquea el acceso al padre, falla en silencio (sin romper nada).
-_SIDEBAR_EXPAND_HTML = (
-    "<script>(function(){try{var d=window.parent.document;"
-    "var sels=['[data-testid=\"stExpandSidebarButton\"]',"
-    "'[data-testid=\"stSidebarCollapsedControl\"]',"
-    "'[data-testid=\"collapsedControl\"]'];"
-    "for(var k=0;k<sels.length;k++){var c=d.querySelector(sels[k]);"
-    "if(c){var b=c.tagName==='BUTTON'?c:c.querySelector('button');"
-    "if(b){b.click();break;}}}"
-    "}catch(e){}})();</script>"
-)
-if st.session_state.get("_side_prev_page") != page:
-    st.session_state["_side_prev_page"] = page
-    st.session_state["_side_nav_n"] = int(st.session_state.get("_side_nav_n", 0)) + 1
-    try:
-        import streamlit.components.v1 as _components
-
-        _components.html(_SIDEBAR_EXPAND_HTML, height=0,
-                         key=f"side_expander_{st.session_state['_side_nav_n']}")
-    except Exception:
-        pass
-
 # ── Página: Inicio ────────────────────────────────────────────────────
 if page == "inicio":
     render_inicio(con, n_lost, n_found, n_reenc)

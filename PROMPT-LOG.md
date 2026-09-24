@@ -333,3 +333,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S72 — 24/09/2026 — Fix expansor: selector real `stExpandSidebarButton` (Muse Spark)
 - El usuario reportó que no funcionaba: causa verificada en el bundle de Streamlit 1.64 — `stSidebarCollapsedControl`/`collapsedControl` NO existen en el DOM; el botón de apertura vive en el header con `data-testid="stExpandSidebarButton"` (icono `keyboard_double_arrow_right`). Snippet actualizado con ese selector primero + 2 fallbacks. Test ajustado.
 - Verificación: pytest 42/42, smoke 9 páginas OK. Pendiente confirmación visual del usuario.
+
+## S73 — 24/09/2026 — Abandonada auto-apertura del panel; limpieza final (Muse Spark)
+- El usuario pidió parar. Se verifica con Playwright (msedge) y se documenta la causa real: en 1.64 `components.html` genera un iframe `stCustomComponentV1` con contenido vacío (el script nunca corre) y `st.html(unsafe_allow_javascript=True)` es despojado por DOMPurify cuando el script contiene `querySelector` con testids complejos (variantes simples sí ejecutan). Sin API de Streamlit para desplegar el sidebar → sin solución fiable sin hackear el DOM del framework.
+- Limpieza: fuera el bloque expansor (JS + `_side_prev_page`) y marcadores de debug; `nav_to()`/`ir_a_caso()`/`ir_a_publicar_con()` solo reabren `side_func` (estado S66); `initial_sidebar_state="expanded"` se mantiene. `tests/test_sidebar_panel.py` actualizado (sin experimentos). Entorno local: servidores de prueba parados, playwright desinstalado.
+- Specs v1.11: REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 40/40, smoke 9 páginas OK.
