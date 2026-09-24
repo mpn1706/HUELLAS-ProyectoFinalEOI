@@ -234,3 +234,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Contactos: 8 avisos con móvil variado, 9 vacíos (`make_seed.CONTACTOS`); SEED v4 (recarga Cloud; alerta se regenera con una búsqueda).
 - Perro: luna 20:00–08:00 (`es_de_noche`), lluvia, termómetro calor/frío y ráfagas de viento.
 - Verificación: pytest 29/29, smoke 5 páginas + paneles OK, E2E OK.
+
+## S56 — 24/09/2026 — Iconos bajo >>, letterbox, >> negro (Muse Spark)
+- Iconos pegados arriba (contenido a 1.2rem del `>>`) + CSS para el `>>` en negro (varias variantes de testid, best-effort).
+- Fotos: letterbox crema 480px (animal entero, nada de recortes que decapiten).
+- Verificación: pytest 29/29, smoke 5 páginas OK.

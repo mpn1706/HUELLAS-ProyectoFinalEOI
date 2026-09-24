@@ -231,6 +231,19 @@ def inject_background():
             color: #FFFFFF !important;
             min-height: 3.2rem;
         }}
+        /* Contenido pegado arriba, justo bajo el >> */
+        [data-testid="stAppViewContainer"] .block-container {{
+            padding-top: 1.2rem !important;
+        }}
+        /* El >> de la barra lateral, también negro */
+        button[data-testid="stSidebarCollapsedControl"],
+        div[data-testid="stSidebarCollapsedControl"] button,
+        button[data-testid="stSidebarCollapseButton"],
+        div[data-testid="collapsedControl"] button {{
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+            border-radius: 8px !important;
+        }}
         </style>""",
         unsafe_allow_html=True,
     )
@@ -256,18 +269,20 @@ def get_logo_img():
     return _LOGO_IMG
 
 
-def imagen_cuadrada(path: str, lado: int = 480):
-    """Recorte central cuadrado: todas las tarjetas con la misma dimensión.
+def imagen_cuadrada(path: str, lado: int = 480, fondo=(245, 241, 234)):
+    """Foto completa en lienzo cuadrado: misma dimensión sin recortar al animal.
 
-    Sin caché a propósito: si se sustituye la foto, se ve al instante.
+    Letterbox crema (paleta de la web): el animal siempre se ve entero,
+    nada de recortes centrales que lo decapiten. Sin caché a propósito:
+    si se sustituye la foto, se ve al instante.
     """
     from PIL import Image
 
     img = Image.open(path).convert("RGB")
-    w, h = img.size
-    l0 = min(w, h)
-    img = img.crop(((w - l0) // 2, (h - l0) // 2, (w + l0) // 2, (h + l0) // 2))
-    return img.resize((lado, lado))
+    img.thumbnail((lado, lado))
+    lienzo = Image.new("RGB", (lado, lado), fondo)
+    lienzo.paste(img, ((lado - img.width) // 2, (lado - img.height) // 2))
+    return lienzo
 
 
 def vista_previa(foto, caption: str = "Vista previa", ancho: int = 360):

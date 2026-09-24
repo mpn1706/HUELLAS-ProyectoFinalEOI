@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 02:09:33",
+  "exported_at": "2026-09-24 02:20:41",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1459,6 +1459,36 @@
       "last_seen_at": "2026-09-24 02:09:31",
       "created_at": "2026-09-24 02:09:31",
       "updated_at": "2026-09-24 02:09:31"
+    },
+    {
+      "id": 80,
+      "sync_id": "obs-95299fe1b1376942",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "type": "session_summary",
+      "title": "Session summary: huellas-proyectofinaleoi",
+      "content": "## Goal\nCerrar el día dejando HUELLAS guardado y actualizado (S51–S55): pesos v1.2, iconos, fotos, seed v4.\n\n## Instructions\n- Español; push solo con Sí explícito; verificar pytest+smoke+E2E antes de push.\n- Proyecto canónico Engram `huellas`; PROMPT-LOG + export en cada hito.\n\n## Discoveries\n- st.markdown no renderiza `\u003cstyle\u003e`+`\u003csvg\u003e` (sale como código) → usar components.html.\n- Mezclar espacios visuales vacía el ranking (S49, ya fijado).\n- make_seed regenera los 17 JSON (revisar diff tras correrlo); SEED v4 borra notificaciones en Cloud (la alerta se regenera con una búsqueda).\n- El `\u003c\u003c` gris es chrome de Streamlit, no modificable.\n\n## Accomplished\n- ✅ S51: pesos 40/30/20/10 + umbral 80 + mapa único + helps\n- ✅ S52–S55: perreras/tiempo, perro animado (luna 20–8, viento, termómetro), iconos ⌂/☀︎, fotos cuadradas, contactos por aviso, seed v4\n- ✅ 29 tests, smoke 5 páginas+paneles, E2E top found_011 ≥80%\n- ✅ main=origin/main en 1e3f281; Engram #56–#79; PROMPT-LOG S01–S55 ordenado\n\n## Next Steps\n- Más cositas pendientes del alumno (nueva tanda)\n- Regenerar alerta en Cloud con una búsqueda a lost_001 tras el seed v4\n- Slides defensa 13 oct\n\n## Relevant Files\n- app.py — UI, mapas, perro, iconos, cruce automático\n- agents/vision.py, matcher.py — mismo espacio visual, pesos v1.2\n- scripts/make_seed.py — CONTACTOS + SEED v4\n- PROMPT-LOG.md, docs/engram/ — evidencia",
+      "project": "huellas-proyectofinaleoi",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 02:12:12",
+      "created_at": "2026-09-24 02:12:12",
+      "updated_at": "2026-09-24 02:12:12"
+    },
+    {
+      "id": 81,
+      "sync_id": "obs-9003938d7905d957",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S56 iconos letterbox",
+      "content": "S56 24/09/2026 (Muse Spark): iconos pegados al \u003e\u003e + CSS \u003e\u003e negro, fotos letterbox crema 480 sin recortes. Pytest 29/29, smoke OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 02:20:37",
+      "created_at": "2026-09-24 02:20:37",
+      "updated_at": "2026-09-24 02:20:37"
     }
   ],
   "prompts": [
@@ -3133,6 +3163,22 @@
       "content": "- Como ves [Image 1]  en muchos sitios las imágenes se ven excesivamente alargadas. Tiene que fijar una dimesión por defecto y redimensionar todas las imágenes a dichos parámetros para que la visualización de la web sea agradable... - en lugar de los botones de perrera y tiempo abajo del todo, coloca un siímbolo de una casa y otro de un sol abajo del símbolo de \u003c\u003c que aparece para desplegar la barra lateral.. Cuando se selecciones la casa o el sol se desplegara la información de las perreras o el plugin del tiempo, respectivamente. El comportamiento debe ser mismo que con la barra lateral. También sería buena idea que aumentaras el tamaño de los 3 símbolos una vez creados y que estén en un tono negro oscuro, no gris. - Entre el mapa y la leyenda sale un cuadrado blanco que no sé porqué está ahi, elimínalo. - Has colocado el mismo contacto para todo los casos, pon numeros de telefono aleatorios para cada uno de ellos, omitelo y no pongas nada en otros casos.- en el tiempo, junto a la animación del perro, por la noche no puede haber un sol, pon una luna de 8pm a 8am y sol en lo restante. Más allá de eso mantenemos las animaciones del perro y variamos también animaciones visuales en función del tiempo (lluvia, termómetro extremo, termómetro mínimo, viento, etc.)",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 02:02:18"
+    },
+    {
+      "id": 210,
+      "sync_id": "prompt-a0e9566bac7840c0",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Deja todo actualizado y guardado por ahora, luego corregimos más cositas",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 02:11:58"
+    },
+    {
+      "id": 211,
+      "sync_id": "prompt-30df1d6e9d900cbf",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Varias cosas: - te dije que el botón de perrera y tiempo (los iconos de la casa y el sol) debían estar justo abajo del simbolo de despliege de la barra lateral (\u003e\u003e). Tú lo pusiste donde te dio la gana. Ademas, el simbolo de \u003e\u003e de la barra lateral tambien debe llevar un boto negro al igual que la perrera y el tiempo.  -FIjaste una dimesión determinada para todas las imágenes y luego redimensionaste, sin embargo no te encargaste de redimensionar asegurandote de que el animal queba centrado y que se visualizaba correctamente. Además, pusiste una opción de fullscreen que al pincharla ni se ve el tamaño original de la imagen (sigue estando descentrada) ni ya luego te permite volver a la web (se queda colgado en esa nueva pestaña que se abre).",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 02:18:29"
     }
   ]
 }
