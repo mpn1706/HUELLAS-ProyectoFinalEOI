@@ -1235,8 +1235,8 @@ div[class*="st-key-confirm_pub"] button { position:relative; }
 .huellas-pctsign { margin-left:.15em; }
 .huellas-match-id { margin-top:.5rem; color:#57503F; }
 /* Boli escribiendo trazos (relleno del hueco al subir foto, en bucle). */
-.huellas-penwrap { background:rgba(255,255,255,0.45); border:1.5px dashed #57503F;
-  border-radius:12px; padding:.6rem .8rem; margin-top:.6rem; min-height:240px;
+.huellas-penwrap { background:rgba(255,255,255,0.45);
+  border:none; border-radius:12px; padding:.6rem .8rem; margin-top:.6rem; min-height:240px;
   display:flex; align-items:center; }
 .huellas-penwrap .huellas-pen { width:100%; }
 .huellas-pen { width:100%; height:auto; display:block; }

@@ -313,7 +313,8 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   a la derecha: lo rellena un boli escribiendo trazos en bucle (`build_pen_html()` en
   `ui_home.py`, al final de la columna derecha, SOLO si hay foto o precarga). Formato
   alto (`min-height:240px`, SVG 300×150) hasta la altura de "Cómo lo perdiste", con fondo
-  translúcido (`rgba(255,255,255,0.45)`) que deja ver el patrón de la web.
+  translúcido (`rgba(255,255,255,0.45)`) que deja ver el patrón de la web y sin marco
+  (`border:none`, S83).
 - REQ-UI-25 — La foto del visor del administrador no desborda el sidebar: `show_image()`
   con `width=220` (letterbox centrado, animal entero) + guarda CSS
   (`max-width:100%` a las imágenes del sidebar).

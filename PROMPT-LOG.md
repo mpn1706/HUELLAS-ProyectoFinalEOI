@@ -420,3 +420,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Boli en formato alto (`min-height:240px`, SVG 300×150 con trazos repartidos) y fondo
   translúcido (`rgba(255,255,255,0.45)`, se ve el patrón de la web).
 - Verificación: pytest 9/9 (UI) + smoke 9 páginas OK.
+
+## S83 — 25/09/2026 — Boli sin marco (Muse Spark)
+- Fuera el borde punteado de `.huellas-penwrap` (`border:none`): sin marco.
+- Verificación: smoke 9 páginas OK.
