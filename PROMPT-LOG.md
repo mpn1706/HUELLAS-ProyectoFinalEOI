@@ -215,6 +215,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Botonera Perreras/Tiempo movida al pie de página; panel perreras en 2 tarjetas con cabecera negra.
 - Verificación: pytest 29/29, smoke 5 páginas OK + paneles perreras/tiempo sin excepciones.
 
+## S54 — 24/09/2026 — Perro sin texto, header, alerta visible, contacto (Muse Spark)
+- Perro: fuera el texto (solo animación); mapa contento/despejado, jadeo≥30º, lluvia, triste=viento≥35, tirita≤8º (nieve también).
+- Header: logo centrado en vertical con el tagline (`vertical_alignment="center"`).
+- Publicar: si hay cruce ≥80%, caja destacada con celebración + botón "Ver la alerta" (redirige a ALERTAS).
+- Contacto opcional al publicar (móvil/correo/RRSS → `contact_info`) y visible en tarjetas de Perdidos/Avistamientos.
+- Verificación: pytest 29/29, smoke 5 páginas OK.
+
 ## S52 — 24/09/2026 — Perreras, tiempo+perro e imágenes (Muse Spark)
 - Botonera sobre la cabecera: PERRERAS DE JEREZ (CMPA El Portal + No Me Abandones San Salvador 21B, verificados en jerez.es/nomeabandones.org + aviso Laceros) y TIEMPO EN JEREZ (Open-Meteo sin claves, caché 30 min; perro SVG animado: contento/calor(jadeo)/lluvia/triste/temblando según código+temperatura).
 - Imágenes: `show_image()` a 380px y previews a 360px (antes todo a `stretch`, sobredimensionadas).

@@ -552,21 +552,26 @@ def get_tiempo():
 
 
 def estado_perro(d: dict):
-    """(etiqueta, modo) del perro según meteo: contento, calor, lluvia, frio o triste."""
+    """Modo de animación del perro según la meteo (sin texto asociado).
+
+    Contento = despejado y suave · calor = 30º o más (jadeo) ·
+    lluvia = lloviendo · triste = viento fuerte (35 km/h o más) ·
+    frío = 8º o menos (tirita). La nieve también tirita.
+    """
     cur = d.get("current") or {}
     t = cur.get("temperature_2m")
     code = cur.get("weather_code", 0)
-    if code in (95, 96, 99):
-        return ("TORMENTA", "triste")
-    if code in (51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77,
-                80, 81, 82, 85, 86):
+    viento = cur.get("wind_speed_10m") or 0
+    if code in (51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99):
         return ("LLUVIA", "lluvia")
+    if code in (71, 73, 75, 77, 85, 86):
+        return ("NIEVE", "frio")
+    if viento >= 35:
+        return ("VIENTO", "triste")
     if t is not None and t >= 30:
-        return (f"{t:.0f}º · CON CALOR", "calor")
+        return ("CALOR", "calor")
     if t is not None and t <= 8:
-        return (f"{t:.0f}º · TEMBLANDO", "frio")
-    if code in (2, 3, 45, 48):
-        return ("NUBLADO", "triste")
+        return ("FRÍO", "frio")
     return ("SOLEADO", "contento")
 
 
@@ -623,7 +628,7 @@ def toggle_top(nombre: str):
 
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
 if LOGO:
-    hc1, hc2 = st.columns([2, 5])
+    hc1, hc2 = st.columns([2, 5], vertical_alignment="center")
     with hc1:
         st.image(get_logo_img(), width="stretch")
     with hc2:
@@ -1079,6 +1084,8 @@ if page == "perdidos":
                     st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
                     st.write(f"- Visto: {effective_date(a).date()}")
                     st.write(f"- {a['location'].get('address_text', '')}")
+                    if a.get("contact_info"):
+                        st.write(f"- Contacto: {a['contact_info']}")
 
 # ── Página: Encontrados ───────────────────────────────────────────────
 if page == "encontrados":
@@ -1100,6 +1107,8 @@ if page == "encontrados":
                     st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
                     st.write(f"- Visto: {effective_date(a).date()}")
                     st.write(f"- {a['location'].get('address_text', '')}")
+                    if a.get("contact_info"):
+                        st.write(f"- Contacto: {a['contact_info']}")
 
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
@@ -1125,6 +1134,10 @@ if page == "publicar":
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                        "large": "Grande"}.get(s, s))
             collar = st.checkbox("¿Lleva collar?", True)
+            st.markdown("**Contacto (opcional)**")
+            c_movil = st.text_input("Móvil", "", key="c_movil")
+            c_mail = st.text_input("Correo", "", key="c_mail")
+            c_rrss = st.text_input("Red social", "", key="c_rrss")
     st.subheader("Ubicación exacta")
     with st.container(border=True):
         if "reg_lat" not in st.session_state:
@@ -1170,7 +1183,9 @@ if page == "publicar":
                                   "has_collar": collar, "markings": [], "description_text": desc,
                                   "location": {"lat": lat, "lng": lng, "address_text": addr},
                                   "date_reported": "2026-09-23T12:00:00+02:00", "image_url": img_path,
-                                  "contact_info": "", "status": "active"})
+                                  "contact_info": " · ".join(x.strip() for x in
+                                                             [c_movil, c_mail, c_rrss] if x.strip()),
+                                  "status": "active"})
             av["image_embedding"] = get_image_embedding(img_path)
             dbmod.upsert_aviso(con, av)
             celebrate_search()
@@ -1185,7 +1200,15 @@ if page == "publicar":
                                    semantic_similarity)
                 auto = notificar(con, av["id"], ms_auto)
                 if auto:
-                    st.success(f"Cruce automático: {len(auto)} alerta(s) ≥80% (ver ALERTAS).")
+                    top = auto[0]
+                    st.success(f"Cruce automático: {len(auto)} alerta(s) ≥80%.")
+                    with st.container(border=True):
+                        st.markdown(f"### ¡Posible coincidencia! `{top['candidato_id']}` · "
+                                    f"**{top['score']*100:.1f}%**")
+                        celebrate_search()
+                        st.button("Ver la alerta", key=f"ver_al_{av['id']}", type="primary",
+                                  use_container_width=True,
+                                  on_click=nav_to, args=("alertas",))
                 else:
                     st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
                             "Si aparece el par contrario, se avisará solo.")
@@ -1264,11 +1287,10 @@ elif st.session_state.top_panel == "tiempo":
             d = get_tiempo()
             cur = d.get("current") or {}
             dia = (d.get("daily") or {})
-            etiqueta, modo = estado_perro(d)
+            _, modo = estado_perro(d)
             w1, w2 = st.columns([1, 1])
             with w1:
                 _components.html(perro_html(modo), height=190)
-                stat_box(etiqueta, "El perro está", mini=True)
             with w2:
                 st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
                             f"{(cur.get('temperature_2m') or 0):.0f}º**")
