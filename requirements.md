@@ -39,13 +39,13 @@ Cuando una mascota se pierde, los avisos quedan dispersos en redes sociales y pr
 ## 5. Casos de uso principales
 
 ### CU-01 — Registrar aviso `lost`
-Actor: dueño. Flujo: sube foto + descripción + ubicación + fechas + contacto opcional → Ingestor normaliza → Vision Analyst extrae atributos y embedding → se persiste → Matcher lo compara contra corpus `found` activos → se muestran coincidencias >=65% y se notifica si >=80%.
+Actor: dueño. Flujo: sube foto + descripción + ubicación + fechas + contacto obligatorio (al menos un dato: móvil, correo o red social; sin contacto no se publica) → Ingestor normaliza → Vision Analyst extrae atributos y embedding → se persiste → Matcher lo compara contra corpus `found` activos → se muestran coincidencias >=65% y se notifica si >=80%. Campos obligatorios marcados con `*` en el formulario.
 
 ### CU-02 — Registrar aviso `found`
-Actor: persona que encuentra / protectora. Flujo simétrico a CU-01, comparando contra corpus `lost` activos.
+Actor: persona que encuentra / protectora. Flujo simétrico a CU-01 (contacto también obligatorio, marcado con `*`), comparando contra corpus `lost` activos.
 
-### CU-03 — Búsqueda preliminar de coincidencias (sin registrar)
-Actor: dueño o quien avista. Flujo: elige canal (avistamientos si perdió, perdidos si encontró: quien busca es el caso inverso) + foto + zona + descripción → Matcher cruza SOLO contra ese canal → ranking ≥65% con desglose. Transitoria: no persiste ni escribe alertas. Haya coincidencia o no, el botón PUBLICAR AVISO lleva a CU-01/CU-02 con foto, zona, descriptivos y tipo ya precargados (el tipo se infiere del canal). Las alertas persistentes nacen del cruce al publicar.
+### CU-03 — Búsqueda de coincidencias (sin registrar)
+Actor: dueño o quien avista. Flujo: elige canal (avistamientos si perdió, perdidos si encontró: quien busca es el caso inverso) + foto + zona + descripción → Matcher cruza SOLO contra ese canal → ranking ≥65% con desglose. Campos obligatorios marcados con `*` (canal, foto, animal, tamaño, color principal, descripción). Transitoria: no persiste ni escribe alertas. Haya coincidencia o no, el botón PUBLICAR AVISO lleva a CU-01/CU-02 con foto, zona, descriptivos y tipo ya precargados (el tipo se infiere del canal). Las alertas persistentes nacen del cruce al publicar.
 
 ### CU-04 — Revisar detalle de posible coincidencia
 Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos coincidentes/divergentes, y aviso legal de no-identidad. Decide contactar fuera del sistema.
@@ -140,7 +140,7 @@ v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
 - REQ-09.2: Despliegue simple opcional (Streamlit Cloud / similar) con enlace en README.
 - REQ-09.3: SQLite / ficheros locales para seed; sin servicios externos obligatorios.
 - REQ-09.4: Explicabilidad: todo match muestra sus 4 sub-scores.
-- REQ-09.5: Privacidad mínima: `contact_info` opcional, visible solo en detalle.
+- REQ-09.5: Privacidad mínima: `contact_info` obligatorio al publicar (al menos un dato, v1.4 24/09/2026), visible solo en detalle.
 - REQ-09.6: Trazabilidad SDD: commit → sección de spec.
 
 ## 11. Criterios de éxito del MVP (REQ-10)
@@ -166,29 +166,36 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
 
 - REQ-UI-01 — Pantalla Inicio por defecto: al abrir la app `session_state.page="inicio"`.
   Muestra hero + carrusel en movimiento + 3 contadores. El logo y el header quedan intactos.
-- REQ-UI-02 — Barra lateral, solo 5 elementos en este orden (v1.3 24/09/2026):
-  `INICIO` (botón negro, icono casa Material, barra roja `#E30613` si activo),
-  `PUNTUALIZACIONES WEB` (plegable negro, icono aviso: despliega Cómo puntúa + Aviso legal),
-  `DATOS DEMO` (plegable negro, icono stats: seed + expirar),
-  `MÁS` (plegable negro con `+`: despliega Protectoras y Tiempo en Jerez con sus iconos),
-  `ADMINISTRACIÓN` (plegable negro, icono llave: login + moderación + reencuentros).
-  Sin Perdidos/Avistamientos/Volvió a casa ni CTAs en el sidebar (se llega vía Inicio).
-  Plegables = botón negro que alterna `session_state` (colapsados por defecto).
+  El hero no repite la ciudad (Jerez ya está en el header).
+- REQ-UI-02 — Barra lateral, 6 elementos en este orden (v1.4 24/09/2026):
+  `INICIO` (botón rojo grande, icono casa Material, activo con barra blanca + fondo oscuro),
+  `FUNCIONALIDADES` (plegable rojo, icono apps, desplegado por defecto: agrupa
+  Publicar aviso + Búsqueda de coincidencias),
+  `PUNTUALIZACIONES WEB` (plegable rojo, icono aviso: despliega Cómo puntúa + Aviso legal),
+  `DATOS DEMO` (plegable rojo, icono stats: seed + expirar),
+  `MÁS` (plegable rojo con `+`: despliega Protectoras y Tiempo en Jerez con sus iconos),
+  `ADMINISTRACIÓN` (plegable rojo, icono llave: login + moderación + reencuentros).
+  Sin Perdidos/Avistamientos/Volvió a casa en el sidebar (se llega vía Inicio).
+  Plegables = botón rojo que alterna `session_state` (abiertos por defecto y
+  `nav_to()` los reabre al cambiar de pestaña, para acceso rápido).
   Cambiar de sección es un rerun Streamlit: conserva `session_state` (no pierde filtros).
-- REQ-UI-03 — CTAs solo en el hero de Inicio (v1.3 24/09/2026, fuera del sidebar):
-  `Publicar aviso` y `Búsqueda de coincidencias` (renombrado), ambos rojo sólido
+- REQ-UI-03 — CTAs en el hero de Inicio y agrupados en FUNCIONALIDADES del sidebar
+  (v1.4 24/09/2026): `Publicar aviso` y `Búsqueda de coincidencias`, ambos rojo sólido
   `#E30613` idénticos y grandes (visibles en móvil).
   `Publicar` → `page="publicar"`; `Búsqueda` → `page="buscar"`.
 - REQ-UI-04 — Estilo botones (solo CSS, sin librerías): esquinas 6px,
-  `transition: transform .2s, background .2s`, hover con `translateX(3px)` + fondo translúcido,
-  sin aspecto de blog. Hero: los 2 CTAs en rojo sólido idéntico con pulso suave
-  (anillo `::after` que se expande `scale 1 → 1.12,1.4` y se desvanece, `2.2s ease-out infinite`).
-  Sidebar: botones negros (`#23201B`, texto `#F5F1EA`) con iconos Material, sin emojis.
+  `transition: transform .2s, background .2s`, hover con `translateX(3px)` + fondo
+  `rgba(227,6,19,.85)`, sin aspecto de blog. Hero: los 2 CTAs en rojo sólido idéntico
+  con pulso suave (anillo `::after` que se expande `scale 1 → 1.12,1.4` y se
+  desvanece, `2.2s ease-out infinite`).
+  Sidebar: botones rojos grandes (`#E30613`, texto `#FFFFFF`, `padding .75rem 1rem`,
+  `1.02rem` negrita) con iconos Material, sin emojis y sin `help=` (los tooltips
+  se quedaban pegados tras el hover).
 - REQ-UI-05 — Hero Inicio: titular `ESTOS PELUDOS QUIEREN VOLVER A CASA` en 2 líneas con
   `fade-up` (una vez, `both .7s`, segunda línea con `delay .25s`); palabra `CASA` en rojo
   `#E30613` con subrayado que se dibuja (`::after` animado); corazón SVG con latido suave
   (`scale 1 → 1.25`, `1.4s infinite`); subtítulo `Mira quién te está esperando…`.
-- REQ-UI-06 — Carrusel infinito + contadores clicables (v1.3 24/09/2026):
+- REQ-UI-06 — Carrusel infinito + contadores con navegación interna (v1.4 24/09/2026):
   fotos de avisos `active` (`lost`+`found`), máx. 12 (más recientes por `date_reported`),
   tarjeta = foto + `Especie · color` + zona (`address_text`) + etiqueta `Perdido/Avistado`.
   NUNCA `contact_info`/teléfono (test dedicado). Foto en letterbox crema (`300×208`,
@@ -196,9 +203,10 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
   Movimiento continuo CSS marquee (`32s linear infinite`, pista duplicada `-50%`),
   pausa en hover, clic en tarjeta → `?aviso=<id>` → salta a su aviso y lo resalta.
   `@media (prefers-reduced-motion: reduce)`: sin animaciones.
-  Vacío → estado con invitación a publicar el primero. Debajo, 3 contadores clicables
-  (`?page=` → `perdidos`/`encontrados`/`reencuentro`): perdidos activos, avistamientos,
-  reencuentros (validados).
+  Vacío → estado con invitación a publicar el primero. Debajo, 3 contadores como
+  `st.button` (navegación interna en la misma pestaña, sin pestañas externas):
+  perdidos → `perdidos`, avistamientos → `encontrados`, reencuentros → `reencuentro`
+  (`?page=` sigue soportado como deep-link de compatibilidad).
 
 Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#23201B/#FFFFFF/
 #F5F1EA/#57503F`, Inter+Montserrat); sin colores nuevos; animaciones solo CSS

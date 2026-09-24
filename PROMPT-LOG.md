@@ -286,3 +286,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Contadores clicables (REQ-UI-06): `render_inicio()` usa `build_counts_html()` (`?page=` → perdidos/encontrados/reencuentro) + nuevo `handle_counts_click()`; CSS `.huellas-count-link` con hover que levanta la tarjeta y marca borde rojo; `prefers-reduced-motion` cubre ambos anillos hero.
 - Specs REQ-UI-02/03/04/06 + `architecture.md` §8 ya estaban en v1.3 (root + `docs/`), sin cambios nuevos.
 - Verificación: pytest 38/38 (letterbox 300×208 + counts con links/sin contacto), smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 84.3% ≥80%).
+
+## S65 — 24/09/2026 — Sidebar rojo + FUNCIONALIDADES, contadores internos, contacto obligatorio (Muse Spark)
+- Hero sin la línea JEREZ DE LA FRONTERA (redundante con el header); buscar sin el "(pesa el 40%)" en el uploader. El caption de perdidos ya era dinámico y muestra "5 activos de 6 perdidos totales (1 resuelto demo: el gatito gris que volvió a casa)": sin cambios.
+- Sidebar v1.4 (REQ-UI-02/04): 6 elementos — INICIO + FUNCIONALIDADES (apps, desplegado por defecto, agrupa Publicar aviso + Búsqueda de coincidencias también en el lateral) + PUNTUALIZACIONES + DATOS DEMO + MÁS + ADMIN. Botones rojos grandes (`#E30613`, `1.02rem` negrita, `padding .75rem 1rem`); activo con barra blanca + fondo oscuro. Secciones abiertas por defecto y `nav_to()` las reabre al cambiar de pestaña (acceso rápido). Sin `help=` en botones (los tooltips se quedaban pegados).
+- Contadores de inicio (REQ-UI-06): ahora 3 `st.button` blancos (navegación interna, misma pestaña; antes los links `?page=` abrían pestaña externa). `?page=` sigue soportado como deep-link.
+- Obligatorios con `*`: buscar (canal, foto, animal, tamaño, color, descripción) y publicar (tipo, animal, tamaño, contacto con al menos un dato: móvil/correo/RRSS, bloquea con aviso si falta). Seed: 9 avisos sin móvil reciben correo aleatorio + `SEED_VERSION` 4→5 (la app recarga sola); nuevo `tests/test_seed.py`.
+- Specs: CU-01/CU-02/CU-03, REQ-05 esquema intacto, REQ-09.5, REQ-UI-02/03/04/06 + `architecture.md` §8 en v1.4 (root + `docs/`).
+- Verificación: pytest 40/40, smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 ≥80%).

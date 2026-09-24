@@ -135,42 +135,48 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..06, v1.3 24/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..06, v1.4 24/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
 
 ```
-[ Sidebar: INICIO negro + 4 plegables negros (toggle session_state) ] [REQ-UI-02]
-  INICIO (home, barra roja si page=="inicio")
+[ Sidebar rojo: INICIO + 5 plegables (toggle session_state, abiertos) ] [REQ-UI-02]
+  INICIO (home, barra blanca + fondo oscuro si page=="inicio")
+  FUNCIONALIDADES (apps, desplegado: Publicar aviso + Búsqueda de coincidencias)
   PUNTUALIZACIONES WEB (warning → Cómo puntúa + Aviso legal)
   DATOS DEMO (bar_chart → seed + expirar)
   MÁS (+ add → Protectoras + Tiempo en Jerez, con sus iconos)
   ADMINISTRACIÓN (key → login + moderación + reencuentros)
-        | session_state.page (rerun, conserva filtros)
+        | session_state.page (rerun, conserva filtros; nav_to reabre secciones)
         v
 [ Inicio (page="inicio", defecto) ]                               [REQ-UI-01]
   Hero HTML (fade-up una vez, CASA roja subrayada, corazón SVG latido) [REQ-UI-05]
+    (sin línea JEREZ DE LA FRONTERA: ya está en el header)
   + 2 st.button primary rojos idénticos (Publicar · Búsqueda) con pulse [REQ-UI-03/04]
   Carrusel HTML marquee (pista x2, 32s linear infinite, pausa hover)   [REQ-UI-06]
     select_carousel_items(avisos, 12) → sin contact_info por construcción
     make_carousel_thumb(path) letterbox crema 300×208, animal entero centrado
     carousel_thumb() = wrapper st.cache_data(ttl=120) → data-URI JPEG
     <a href="?aviso=id"> → destacar_id + page perdidos/encontrados
-  build_counts_html() → 3 contadores blancos clicables (?page=)       [REQ-UI-06]
+  3 st.button contadores blancos (navegación interna, misma pestaña) [REQ-UI-06]
     perdidos → perdidos · avistamientos → encontrados · reencuentros → reencuentro
+    (`?page=` sigue soportado como deep-link de compatibilidad)
 ```
 Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun`).
 
 - Estilos: un único `inject_ui_css()` con clases `huellas-*` + reutilización de
   `inject_background()` (paleta `#E30613/#23201B/#FFFFFF/#F5F1EA/#57503F`,
-  Inter+Montserrat, logo y fondo intactos). Botones negros sidebar: `radius 6px`,
-  `transition .2s`, `hover translateX(3px)` + `#353026`; INICIO activo con
-  `border-left 3px #E30613`. Pulso CTAs hero: `::after ring 2.2s infinite`.
+  Inter+Montserrat, logo y fondo intactos). Botones sidebar rojos `#E30613`
+  grandes (`padding .75rem 1rem`, `1.02rem`, negrita): `radius 6px`,
+  `transition .2s`, `hover translateX(3px)` + `rgba(227,6,19,.85)`; activo con
+  `border-left 3px #FFFFFF` + fondo `#23201B`. Pulso CTAs hero:
+  `::after ring 2.2s infinite`. Sin `help=` en botones (los tooltips se quedaban
+  pegados); campos obligatorios de buscar/publicar marcados con `*`.
 - Accesibilidad/móvil: todo CSS, sin JS ni libs; `prefers-reduced-motion: reduce`
-  apaga `trk/up/pulse/subrayado/latido`; hero con botones reales (no solo links).
+  apaga `trk/up/pulse/subrayado/latido`; inicio con botones reales (no links).
 - Trazabilidad: `tests/test_carousel.py` (sin contacto, letterbox 300×208, counts con
-  links) + `smoke_app.py` (8 páginas).
+  links) + `tests/test_seed.py` (todo seed con contacto) + `smoke_app.py` (9 páginas).
 
 ## 7. Decisiones aplicadas 23/09/2026 (huecos H-01 a H-10 cerrados)
 

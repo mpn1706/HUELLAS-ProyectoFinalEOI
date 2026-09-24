@@ -16,7 +16,7 @@ from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
-from ui_home import build_carousel_html, build_counts_html, make_carousel_thumb, select_carousel_items
+from ui_home import build_carousel_html, make_carousel_thumb, select_carousel_items
 
 DB = "data/huellas.db"
 LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
@@ -752,8 +752,11 @@ if "page" not in st.session_state:
 
 def nav_to(dest: str):
     # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
+    # Reabre las secciones del sidebar para tener acceso rápido tras cada cambio.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
+    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
+        st.session_state[_k] = True
     for _k in ("page", "aviso"):
         try:
             if _k in st.query_params:
@@ -763,8 +766,8 @@ def nav_to(dest: str):
 
 
 def _toggle(key: str):
-    """Alterna una sección plegable del sidebar (colapsadas por defecto)."""
-    st.session_state[key] = not st.session_state.get(key, False)
+    """Alterna una sección plegable del sidebar (abiertas por defecto)."""
+    st.session_state[key] = not st.session_state.get(key, True)
 
 
 def ir_a_caso(aviso_id: str, tipo: str):
@@ -808,28 +811,37 @@ def inject_ui_css(active_page: str) -> None:
     """Estilos nav/hero/carrusel/contadores (solo CSS, paleta existente)."""
     base = """<style>
 [data-testid="stSidebar"] .st-key-nav_inicio button,
+[data-testid="stSidebar"] .st-key-tgl_func button,
 [data-testid="stSidebar"] .st-key-tgl_punt button,
 [data-testid="stSidebar"] .st-key-tgl_demo button,
 [data-testid="stSidebar"] .st-key-tgl_mas button,
 [data-testid="stSidebar"] .st-key-tgl_admin button,
+[data-testid="stSidebar"] .st-key-nav_publicar_side button,
+[data-testid="stSidebar"] .st-key-nav_buscar_side button,
 [data-testid="stSidebar"] .st-key-nav_protectoras button,
 [data-testid="stSidebar"] .st-key-nav_tiempo button {
   border-radius:6px !important;
   border-left:3px solid transparent !important;
   transition:transform .2s, background .2s !important;
   text-align:left;
-  background:#23201B !important;
-  color:#F5F1EA !important;
+  background:#E30613 !important;
+  color:#FFFFFF !important;
+  padding:0.75rem 1rem !important;
+  font-size:1.02rem !important;
+  font-weight:700 !important;
 }
 [data-testid="stSidebar"] .st-key-nav_inicio button:hover,
+[data-testid="stSidebar"] .st-key-tgl_func button:hover,
 [data-testid="stSidebar"] .st-key-tgl_punt button:hover,
 [data-testid="stSidebar"] .st-key-tgl_demo button:hover,
 [data-testid="stSidebar"] .st-key-tgl_mas button:hover,
 [data-testid="stSidebar"] .st-key-tgl_admin button:hover,
+[data-testid="stSidebar"] .st-key-nav_publicar_side button:hover,
+[data-testid="stSidebar"] .st-key-nav_buscar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_protectoras button:hover,
 [data-testid="stSidebar"] .st-key-nav_tiempo button:hover {
   transform:translateX(3px) !important;
-  background:#353026 !important;
+  background:rgba(227,6,19,0.85) !important;
 }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button {
@@ -862,7 +874,6 @@ def inject_ui_css(active_page: str) -> None:
   font-size:1rem !important;
 }
 .huellas-hero { padding:0.2rem 0 0.6rem; }
-.huellas-loc { font-size:0.8rem; color:#57503F; font-weight:600; letter-spacing:0.04em; }
 .huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.2; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.5rem 0 0.4rem; }
 .huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 1rem; }
 .huellas-up { animation:huellas-up .7s ease-out both; }
@@ -895,6 +906,25 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-count-link { text-decoration:none; color:inherit; display:block; border-radius:8px; transition:transform .2s; }
 .huellas-count-link:hover { transform:translateY(-3px); }
 .huellas-count-link:hover .huellas-count { border-color:#E30613 !important; }
+[data-testid="stAppViewContainer"] .st-key-count_perdidos button,
+[data-testid="stAppViewContainer"] .st-key-count_encontrados button,
+[data-testid="stAppViewContainer"] .st-key-count_reencuentro button {
+  background:#FFFFFF !important;
+  color:#23201B !important;
+  border:1px solid #57503F !important;
+  border-radius:8px !important;
+  padding:10px 12px !important;
+  white-space:pre-line !important;
+  text-align:left !important;
+  line-height:1.25 !important;
+  transition:transform .2s, border-color .2s !important;
+}
+[data-testid="stAppViewContainer"] .st-key-count_perdidos button:hover,
+[data-testid="stAppViewContainer"] .st-key-count_encontrados button:hover,
+[data-testid="stAppViewContainer"] .st-key-count_reencuentro button:hover {
+  transform:translateY(-3px) !important;
+  border-color:#E30613 !important;
+}
 .huellas-count { background:#FFFFFF; border:1px solid #57503F; border-radius:8px; padding:10px 12px; }
 .huellas-count-v { font-family:'Montserrat','Inter',sans-serif; font-size:1.4rem; font-weight:800; color:#23201B; }
 .huellas-count-l { font-size:0.75rem; color:#57503F; }
@@ -910,8 +940,8 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
     extra = ""
     if key:
         extra = ('<style>[data-testid="stSidebar"] .st-key-' + key
-                 + ' button { border-left-color:#E30613 !important;'
-                 + ' background:#353026 !important; color:#F5F1EA !important; }</style>')
+                 + ' button { border-left-color:#FFFFFF !important;'
+                 + ' background:#23201B !important; color:#F5F1EA !important; }</style>')
     st.markdown(base + extra, unsafe_allow_html=True)
 
 
@@ -1004,7 +1034,6 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     """Hero + botones grandes + carrusel + contadores [REQ-UI-01/03/05/06]."""
     st.markdown(
         '<div class="huellas-hero">'
-        '<div class="huellas-up huellas-loc">Jerez de la Frontera</div>'
         '<h1 class="huellas-title">'
         '<span class="huellas-up" style="display:block">ESTOS PELUDOS</span>'
         '<span class="huellas-up" style="display:block;animation-delay:.25s">QUIEREN VOLVER A '
@@ -1021,20 +1050,27 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     h1, h2 = st.columns(2)
     with h1:
         st.button("Publicar aviso", key="hero_publicar", type="primary",
-                  use_container_width=True, on_click=nav_to, args=("publicar",),
-                  help="Publica un aviso de perdido o avistamiento.")
+                  use_container_width=True, on_click=nav_to, args=("publicar",))
     with h2:
         st.button("Búsqueda de coincidencias", key="hero_buscar",
                   type="primary", use_container_width=True,
-                  on_click=nav_to, args=("buscar",),
-                  help="Búsqueda entre perdidos y avistamientos, sin registrar el aviso.")
+                  on_click=nav_to, args=("buscar",))
     cards = get_carousel_cards(con)
     st.markdown(build_carousel_html(cards), unsafe_allow_html=True)
     if not cards:
         st.button("Publicar el primer aviso", key="hero_empty_pub", type="primary",
                   use_container_width=True, on_click=nav_to, args=("publicar",))
-    st.markdown(build_counts_html(int(n_lost), int(n_found), int(n_reenc)),
-                unsafe_allow_html=True)
+    # Contadores como botones Streamlit: navegación interna (misma pestaña).
+    cc1, cc2, cc3 = st.columns(3)
+    with cc1:
+        st.button(f"{int(n_lost)}\nperdidos activos", key="count_perdidos",
+                  use_container_width=True, on_click=nav_to, args=("perdidos",))
+    with cc2:
+        st.button(f"{int(n_found)}\navistamientos", key="count_encontrados",
+                  use_container_width=True, on_click=nav_to, args=("encontrados",))
+    with cc3:
+        st.button(f"{int(n_reenc)}\nreencuentros", key="count_reencuentro",
+                  use_container_width=True, on_click=nav_to, args=("reencuentro",))
 
 
 def render_protectoras() -> None:
@@ -1093,17 +1129,24 @@ inject_ui_css(st.session_state.get("page", "inicio"))
 handle_carousel_click(con)
 handle_counts_click()
 
-# ── Barra lateral (REQ-UI-02 v1.3): 5 elementos en orden ─────────────
+# ── Barra lateral (REQ-UI-02 v1.4): 6 elementos en orden ─────────────
 with st.sidebar:
     st.button("Inicio", key="nav_inicio", icon=":material/home:",
               use_container_width=True, type="tertiary",
-              on_click=nav_to, args=("inicio",),
-              help="Pantalla de inicio: hero, carrusel y contadores.")
+              on_click=nav_to, args=("inicio",))
+    st.button("Funcionalidades", key="tgl_func", icon=":material/apps:",
+              use_container_width=True, type="tertiary",
+              on_click=_toggle, args=("side_func",))
+    if st.session_state.get("side_func", True):
+        st.button("Publicar aviso", key="nav_publicar_side", type="primary",
+                  use_container_width=True, on_click=nav_to, args=("publicar",))
+        st.button("Búsqueda de coincidencias", key="nav_buscar_side",
+                  type="primary", use_container_width=True,
+                  on_click=nav_to, args=("buscar",))
     st.button("Puntualizaciones web", key="tgl_punt", icon=":material/warning:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_punt",),
-              help="Cómo puntúa y aviso legal.")
-    if st.session_state.get("side_punt", False):
+              on_click=_toggle, args=("side_punt",))
+    if st.session_state.get("side_punt", True):
         with st.expander("Cómo puntúa (fórmula cerrada)", expanded=True):
             st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
             u1, u2 = st.columns(2)
@@ -1129,9 +1172,8 @@ with st.sidebar:
                      "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.button("Datos demo", key="tgl_demo", icon=":material/bar_chart:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_demo",),
-              help="Cargar seed demo o expirar avisos antiguos.")
-    if st.session_state.get("side_demo", False):
+              on_click=_toggle, args=("side_demo",))
+    if st.session_state.get("side_demo", True):
         if st.button("Cargar seed Jerez (16 avisos activos)"):
             import json as _json
 
@@ -1156,22 +1198,18 @@ with st.sidebar:
             st.info(f"Avisos expirados: {n}")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_mas",),
-              help="Protectoras y tiempo en Jerez.")
-    if st.session_state.get("side_mas", False):
+              on_click=_toggle, args=("side_mas",))
+    if st.session_state.get("side_mas", True):
         st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
                   use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("protectoras",),
-                  help="Protectoras de Jerez: direcciones y contacto.")
+                  on_click=nav_to, args=("protectoras",))
         st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
                   use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("tiempo",),
-                  help="Tiempo en Jerez con el perro según el tiempo.")
+                  on_click=nav_to, args=("tiempo",))
     st.button("Administración", key="tgl_admin", icon=":material/key:",
               use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_admin",),
-              help="Moderación con contraseña.")
-    if st.session_state.get("side_admin", False):
+              on_click=_toggle, args=("side_admin",))
+    if st.session_state.get("side_admin", True):
         TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
         ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
 
@@ -1345,7 +1383,7 @@ if page == "legal":
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
     st.subheader("¿Dónde buscas?")
-    lado = st.selectbox("Canal", ["found", "lost"], key="b_lado", index=None,
+    lado = st.selectbox("Canal *", ["found", "lost"], key="b_lado", index=None,
                         placeholder="SELECCIONAR",
                         format_func=lambda t: ("Entre avistamientos (perdí mi mascota)"
                                                if t == "found" else
@@ -1359,7 +1397,7 @@ if page == "buscar":
     else:
         qtype = "lost" if lado == "found" else "found"
     st.subheader("1. Foto actual")
-    foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
+    foto_b = st.file_uploader("Sube una foto de tu mascota *",
                               type=["jpg", "jpeg", "png"], key="b_foto")
     if foto_b:
         vista_previa(foto_b, caption="Vista previa de tu foto")
@@ -1423,13 +1461,13 @@ if page == "buscar":
     st.subheader("3. Descripción")
     d1, d2 = st.columns(2)
     with d1:
-        b_animal = st.selectbox("Animal", ["dog", "cat", "other"], key="b_animal",
+        b_animal = st.selectbox("Animal *", ["dog", "cat", "other"], key="b_animal",
                                 index=None, placeholder="SELECCIONAR",
                                 format_func=lambda a: {"dog": "Perro", "cat": "Gato",
                                                        "other": "Otro"}.get(a, "SELECCIONAR"))
-        b_color = st.text_input("Color principal", "", key="b_color",
+        b_color = st.text_input("Color principal *", "", key="b_color",
                                 placeholder="Ej. marrón")
-        b_size = st.selectbox("Tamaño", ["small", "medium", "large"], key="b_size",
+        b_size = st.selectbox("Tamaño *", ["small", "medium", "large"], key="b_size",
                               index=None, placeholder="SELECCIONAR",
                               format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                      "large": "Grande"}.get(s, "SELECCIONAR"))
@@ -1439,7 +1477,7 @@ if page == "buscar":
         b_collar = st.checkbox("¿Lleva collar?", False, key="b_collar")
         b_breed = st.text_input("Raza aprox. (opcional)", "", key="b_breed",
                                 placeholder="Ej. bodeguero")
-    b_desc = st.text_area("Descripción libre", "", key="b_desc",
+    b_desc = st.text_area("Descripción libre *", "", key="b_desc",
                           placeholder="Describe al animal: color, marcas, collar…")
 
     st.subheader("4. Lanza la búsqueda")
@@ -1632,12 +1670,12 @@ if page == "publicar":
     with st.container(border=True):
         r1, r2 = st.columns([1, 1])
         with r1:
-            tipo = st.selectbox("Tipo de aviso", ["lost", "found"], key="pub_tipo",
+            tipo = st.selectbox("Tipo de aviso *", ["lost", "found"], key="pub_tipo",
                                 index=None, placeholder="SELECCIONAR",
                                 format_func=lambda t: ("Mascota perdida" if t == "lost"
                                                        else "Animal encontrado" if t == "found"
                                                        else "SELECCIONAR"))
-            animal = st.selectbox("Animal", ["dog", "cat", "other"], key="pub_animal",
+            animal = st.selectbox("Animal *", ["dog", "cat", "other"], key="pub_animal",
                                   index=None, placeholder="SELECCIONAR",
                                   format_func=lambda a: {"dog": "Perro", "cat": "Gato",
                                                          "other": "Otro"}.get(a, "SELECCIONAR"))
@@ -1660,12 +1698,13 @@ if page == "publicar":
                                 placeholder="Describe al animal: color, marcas, collar…")
             c1 = st.text_input("Color principal", "", key="pub_color",
                                placeholder="Ej. marrón")
-            size = st.selectbox("Tamaño", ["small", "medium", "large"], key="pub_size",
+            size = st.selectbox("Tamaño *", ["small", "medium", "large"], key="pub_size",
                                 index=None, placeholder="SELECCIONAR",
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                        "large": "Grande"}.get(s, "SELECCIONAR"))
             collar = st.checkbox("¿Lleva collar?", key="pub_collar")
-            st.markdown("**Contacto (opcional)**")
+            st.markdown("**Contacto ***")
+            st.caption("Obligatorio al menos uno: móvil, correo o red social.")
             c_movil = st.text_input("Móvil", "", key="c_movil")
             c_mail = st.text_input("Correo", "", key="c_mail")
             c_rrss = st.text_input("Red social", "", key="c_rrss")
@@ -1704,6 +1743,10 @@ if page == "publicar":
     if st.button("Confirmar y publicar", type="primary"):
         if not tipo or not animal or not size:
             st.warning("Elige tipo de aviso, animal y tamaño para publicar.")
+            st.stop()
+        if not ((c_movil or "").strip() or (c_mail or "").strip()
+                or (c_rrss or "").strip()):
+            st.warning("Indica al menos un dato de contacto (móvil, correo o red social).")
             st.stop()
         try:
             lat = float(st.session_state.get("reg_lat", 36.6826))
