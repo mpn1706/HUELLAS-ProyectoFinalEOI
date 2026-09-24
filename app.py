@@ -804,7 +804,6 @@ def tarjeta_destacada(aid: str) -> bool:
 # ── Inicio / navegación lateral [REQ-UI-01..06] ──────────────────────
 # Solo UI: no toca matching, agentes, RAG ni BD.
 _NAV_ACTIVE_MAP = {
-    "inicio": "nav_inicio",
     "protectoras": "nav_protectoras",
     "tiempo": "nav_tiempo",
 }
@@ -820,7 +819,22 @@ def inject_ui_css(active_page: str) -> None:
   animation:huellas-tip-max 0s 4s forwards !important;
 }
 @keyframes huellas-tip-max { to { opacity:0 !important; visibility:hidden !important; } }
-[data-testid="stSidebar"] .st-key-nav_inicio button,
+/* INICIO: siempre negro, en cualquier pestaña (mismo tamaño que los rojos). */
+[data-testid="stSidebar"] .st-key-nav_inicio button {
+  border-radius:6px !important;
+  border-left:3px solid transparent !important;
+  transition:transform .2s, background .2s !important;
+  text-align:left;
+  background:#23201B !important;
+  color:#F5F1EA !important;
+  padding:0.95rem 1rem !important;
+  font-size:1.08rem !important;
+  font-weight:700 !important;
+}
+[data-testid="stSidebar"] .st-key-nav_inicio button:hover {
+  transform:translateX(3px) !important;
+  background:#353026 !important;
+}
 [data-testid="stSidebar"] .st-key-tgl_func button,
 [data-testid="stSidebar"] .st-key-tgl_punt button,
 [data-testid="stSidebar"] .st-key-tgl_demo button,
@@ -836,7 +850,6 @@ def inject_ui_css(active_page: str) -> None:
   font-size:1.08rem !important;
   font-weight:700 !important;
 }
-[data-testid="stSidebar"] .st-key-nav_inicio button:hover,
 [data-testid="stSidebar"] .st-key-tgl_func button:hover,
 [data-testid="stSidebar"] .st-key-tgl_punt button:hover,
 [data-testid="stSidebar"] .st-key-tgl_demo button:hover,

@@ -339,3 +339,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Limpieza: fuera el bloque expansor (JS + `_side_prev_page`) y marcadores de debug; `nav_to()`/`ir_a_caso()`/`ir_a_publicar_con()` solo reabren `side_func` (estado S66); `initial_sidebar_state="expanded"` se mantiene. `tests/test_sidebar_panel.py` actualizado (sin experimentos). Entorno local: servidores de prueba parados, playwright desinstalado.
 - Specs v1.11: REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 40/40, smoke 9 páginas OK.
+
+## S74 — 24/09/2026 — Fotos lost_001..005 nuevas + INICIO siempre negro (Muse Spark)
+- Fotos de `data/seed/images/losts changes/` (`lost 001 -` → lost_001, etc.): copiadas a `data/seed/images/lost_00X.jpg/png` y `image_url` actualizado en los 5 JSON (resto de campos intacto; originales conservados en ambas carpetas). Centrado verificado: las 5 vistas una a una (animal entero y centrado) + thumbs 300×208 exactos generados con `make_carousel_thumb` (p. ej. retrato 1600×3352 y apaisada 520×516 → letterbox crema sin recortes; `imagen_cuadrada` también es letterbox). `SEED_VERSION` 5→6 (la app recarga sola).
+- INICIO siempre negro: regla CSS propia (`#23201B`, mismo tamaño que los rojos, hover `#353026`) + fuera del `_NAV_ACTIVE_MAP` (ya no cambia al estar activo ni en otras pestañas). Resto del panel intacto.
+- Verificación: pytest 42/42, smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 ≥80%).
