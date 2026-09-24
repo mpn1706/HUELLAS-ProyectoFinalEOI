@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-24T01:09:49Z",
+  "last_export_at": "2026-09-24T01:18:00Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -19,7 +19,8 @@
     "71": "huellas\\manual\\huellas-s48-buscar-libre-alerta-publicar-71.md",
     "72": "huellas\\manual\\huellas-s49-bug-cloud-mismo-espacio-visual-72.md",
     "73": "huellas\\manual\\huellas-s50-resultados-persistentes-sesion-73.md",
-    "75": "huellas\\manual\\huellas-s51-pesos-v1-2-umbral-80-ui-buscar-75.md"
+    "75": "huellas\\manual\\huellas-s51-pesos-v1-2-umbral-80-ui-buscar-75.md",
+    "76": "huellas\\manual\\huellas-s52-perreras-tiempo-perro-imagenes-76.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

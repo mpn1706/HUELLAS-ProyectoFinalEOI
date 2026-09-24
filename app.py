@@ -247,10 +247,10 @@ def get_logo_img():
     return _LOGO_IMG
 
 
-def show_image(path: str, caption: str = ""):
+def show_image(path: str, caption: str = "", width: int = 380):
     """Muestra imagen si existe; si no, placeholder textual (rutas locales ausentes en Cloud)."""
     if path and Path(path).exists():
-        st.image(path, caption=caption, width="stretch")
+        st.image(path, caption=caption, width=width)
     else:
         st.info("[ IMAGEN NO DISPONIBLE EN ESTE DESPLIEGUE ]" + (f" {caption}" if caption else ""))
 
@@ -516,6 +516,160 @@ def animal_tag(a: dict) -> str:
             f"{a.get('color_primary')} · {SIZE_ES.get(a.get('size'), a.get('size'))}")
 
 
+PERRERAS = [
+    {"nombre": "CMPA · Centro Municipal de Protección Animal",
+     "direccion": "Polígono El Portal, Calle Marruecos s/n (junto a MercaJerez)",
+     "contacto": "956 149 533 · info.mascotas@aytojerez.es",
+     "nota": "Perrera municipal: recoge vagabundos y gestiona adopciones."},
+    {"nombre": "No Me Abandones (protectora)",
+     "direccion": "Calle San Salvador 21B, Jerez de la Frontera",
+     "contacto": "656 42 13 42 (solo WhatsApp) · info@nomeabandones.org",
+     "nota": "Protectora con 20 años de trayectoria: rescates, acogidas y adopciones."},
+]
+
+WMO_ES = {0: "Despejado", 1: "Casi despejado", 2: "Intervalos nubosos", 3: "Cubierto",
+          45: "Niebla", 48: "Niebla", 51: "Llovizna", 53: "Llovizna", 55: "Llovizna",
+          61: "Lluvia", 63: "Lluvia", 65: "Lluvia fuerte", 71: "Nieve", 73: "Nieve",
+          77: "Granizo", 80: "Chubascos", 81: "Chubascos", 82: "Chubascos fuertes",
+          95: "Tormenta", 96: "Tormenta", 99: "Tormenta"}
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def get_tiempo():
+    """Meteo actual de Jerez vía Open-Meteo (sin claves). Cache 30 min."""
+    import urllib.parse
+    import urllib.request
+    import json as _json
+
+    url = ("https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode({
+        "latitude": 36.6826, "longitude": -6.1376,
+        "current": "temperature_2m,weather_code,wind_speed_10m",
+        "daily": "temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+        "timezone": "Europe/Madrid", "forecast_days": 1}))
+    req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        return _json.loads(r.read().decode("utf-8"))
+
+
+def estado_perro(d: dict):
+    """(etiqueta, modo) del perro según meteo: contento, calor, lluvia, frio o triste."""
+    cur = d.get("current") or {}
+    t = cur.get("temperature_2m")
+    code = cur.get("weather_code", 0)
+    if code in (95, 96, 99):
+        return ("TORMENTA", "triste")
+    if code in (51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77,
+                80, 81, 82, 85, 86):
+        return ("LLUVIA", "lluvia")
+    if t is not None and t >= 30:
+        return (f"{t:.0f}º · CON CALOR", "calor")
+    if t is not None and t <= 8:
+        return (f"{t:.0f}º · TEMBLANDO", "frio")
+    if code in (2, 3, 45, 48):
+        return ("NUBLADO", "triste")
+    return ("SOLEADO", "contento")
+
+
+def perro_html(modo: str) -> str:
+    """Perro SVG con animación según el tiempo. Solo CSS, sin dependencias."""
+    extra = ""
+    if modo == "lluvia":
+        extra = ('<g fill="#3388FF">'
+                 '<rect x="30" y="4" width="5" height="16" rx="2" class="lluvia l1"/>'
+                 '<rect x="80" y="4" width="5" height="16" rx="2" class="lluvia l2"/>'
+                 '<rect x="130" y="4" width="5" height="16" rx="2" class="lluvia l3"/></g>'
+                 '<ellipse cx="85" cy="26" rx="46" ry="16" fill="#9AA3AD"/>')
+    elif modo == "contento":
+        extra = ('<circle cx="150" cy="28" r="16" fill="#F5B301"/>'
+                 '<g stroke="#F5B301" stroke-width="4" stroke-linecap="round">'
+                 '<line x1="150" y1="4" x2="150" y2="10"/><line x1="150" y1="46" x2="150" y2="52"/>'
+                 '<line x1="126" y1="28" x2="132" y2="28"/><line x1="168" y1="28" x2="174" y2="28"/></g>')
+    lengua = ('<ellipse cx="104" cy="98" rx="7" ry="12" fill="#E30613" class="lengua"/>'
+              if modo == "calor" else "")
+    lagrima = ('<ellipse cx="76" cy="72" rx="4" ry="7" fill="#3388FF" class="lagrima"/>'
+               if modo == "triste" else "")
+    orejas = 'rotate(-14 62 40)' if modo == "triste" else 'none'
+    return f"""<style>
+    .perro-wrap {{ text-align: center; }}
+    .perro-svg {{ animation: perro-salto 1.6s ease-in-out infinite; }}
+    .perro-svg.frio {{ animation: perro-tiritona 0.25s linear infinite; }}
+    .perro-cola {{ transform-origin: 30px 78px; animation: perro-cola 0.5s ease-in-out infinite alternate; }}
+    .perro-svg.triste .perro-cola {{ animation: none; }}
+    @keyframes perro-cola {{ from {{ transform: rotate(-18deg); }} to {{ transform: rotate(24deg); }} }}
+    @keyframes perro-salto {{ 0%,100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-7px); }} }}
+    @keyframes perro-tiritona {{ 0%,100% {{ transform: translateX(-2px); }} 50% {{ transform: translateX(2px); }} }}
+    .lengua {{ animation: perro-lengua 0.8s ease-in-out infinite alternate; transform-origin: 104px 88px; }}
+    @keyframes perro-lengua {{ from {{ transform: scaleY(1); }} to {{ transform: scaleY(1.35); }} }}
+    .lluvia {{ animation: perro-lluvia 0.9s linear infinite; }}
+    .l2 {{ animation-delay: 0.3s; }} .l3 {{ animation-delay: 0.6s; }}
+    @keyframes perro-lluvia {{ from {{ transform: translateY(-6px); opacity: 0; }} 30% {{ opacity: 1; }} to {{ transform: translateY(14px); opacity: 0; }} }}
+    </style><div class="perro-wrap"><svg class="perro-svg {modo}" viewBox="0 0 180 130" width="200" height="145">
+    {extra}
+    <ellipse cx="85" cy="118" rx="62" ry="7" fill="#000" opacity="0.12"/>
+    <ellipse cx="85" cy="92" rx="42" ry="24" fill="#C68A4B"/>
+    <circle cx="92" cy="58" r="26" fill="#D89A55"/>
+    <ellipse cx="62" cy="40" rx="10" ry="20" fill="#8A5A2B" transform="{orejas}"/>
+    <ellipse cx="118" cy="42" rx="10" ry="20" fill="#8A5A2B"/>
+    <circle cx="83" cy="54" r="4" fill="#111"/><circle cx="103" cy="54" r="4" fill="#111"/>
+    <ellipse cx="93" cy="68" rx="6" ry="5" fill="#111"/>{lengua}{lagrima}
+    <path d="M44 84 Q22 78 28 60" stroke="#8A5A2B" stroke-width="9" fill="none" stroke-linecap="round" class="perro-cola"/>
+    <rect x="58" y="102" width="12" height="16" rx="5" fill="#8A5A2B"/><rect x="102" y="102" width="12" height="16" rx="5" fill="#8A5A2B"/>
+    </svg></div>"""
+
+
+def toggle_top(nombre: str):
+    st.session_state.top_panel = None if st.session_state.get("top_panel") == nombre else nombre
+
+
+# ── Botonera superior: perreras + tiempo ──────────────────────────────
+if "top_panel" not in st.session_state:
+    st.session_state.top_panel = None
+tp1, tp2 = st.columns(2)
+with tp1:
+    st.button("Perreras de Jerez", key="top_perreras", use_container_width=True,
+              on_click=toggle_top, args=("perreras",),
+              help="Direcciones y contacto de la perrera municipal y protectoras.")
+with tp2:
+    st.button("Tiempo en Jerez", key="top_tiempo", use_container_width=True,
+              on_click=toggle_top, args=("tiempo",),
+              help="Meteo actual de Jerez con el perro según el tiempo.")
+if st.session_state.top_panel == "perreras":
+    with st.container(border=True):
+        st.markdown("### Perreras y protectoras de Jerez")
+        for p in PERRERAS:
+            st.markdown(f"**{p['nombre']}**")
+            st.write(f"- {p['direccion']}")
+            st.write(f"- {p['contacto']}")
+            st.caption(p["nota"])
+        st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
+                "el Servicio de Laceros lo traslada al CMPA.")
+elif st.session_state.top_panel == "tiempo":
+    with st.container(border=True):
+        st.markdown("### Tiempo en Jerez")
+        try:
+            d = get_tiempo()
+            cur = d.get("current") or {}
+            dia = (d.get("daily") or {})
+            etiqueta, modo = estado_perro(d)
+            w1, w2 = st.columns([1, 1])
+            with w1:
+                st.markdown(perro_html(modo), unsafe_allow_html=True)
+                stat_box(etiqueta, "El perro está", mini=True)
+            with w2:
+                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
+                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
+                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
+                mx = (dia.get("temperature_2m_max") or [None])[0]
+                mn = (dia.get("temperature_2m_min") or [None])[0]
+                pv = (dia.get("precipitation_probability_max") or [None])[0]
+                if mx is not None:
+                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
+                if pv is not None:
+                    st.write(f"- Prob. lluvia: {pv:.0f} %")
+                st.caption("Fuente: Open-Meteo (sin claves).")
+        except Exception as e:
+            st.caption(f"Tiempo no disponible ({e}).")
+
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
 if LOGO:
     hc1, hc2 = st.columns([2, 5])
@@ -763,7 +917,7 @@ if page == "buscar":
     foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
                               type=["jpg", "jpeg", "png"], key="b_foto")
     if foto_b:
-        st.image(foto_b, caption="Vista previa de tu foto", width="stretch")
+        st.image(foto_b, caption="Vista previa de tu foto", width=360)
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
 
@@ -1009,7 +1163,7 @@ if page == "publicar":
                                                          "other": "Otro"}.get(a, a))
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
             if foto:
-                st.image(foto, caption="Vista previa", width="stretch")
+                st.image(foto, caption="Vista previa", width=360)
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
         with r2:

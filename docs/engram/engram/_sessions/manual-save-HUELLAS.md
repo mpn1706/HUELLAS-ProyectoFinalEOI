@@ -20,3 +20,4 @@ tags:
 - [[huellas-s49-bug-cloud-mismo-espacio-visual-72]]
 - [[huellas-s50-resultados-persistentes-sesion-73]]
 - [[huellas-s51-pesos-v1-2-umbral-80-ui-buscar-75]]
+- [[huellas-s52-perreras-tiempo-perro-imagenes-76]]

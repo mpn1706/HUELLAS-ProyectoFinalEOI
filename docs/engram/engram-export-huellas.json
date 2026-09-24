@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 01:09:49",
+  "exported_at": "2026-09-24 01:18:02",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1399,6 +1399,21 @@
       "last_seen_at": "2026-09-24 01:09:48",
       "created_at": "2026-09-24 01:09:48",
       "updated_at": "2026-09-24 01:09:48"
+    },
+    {
+      "id": 76,
+      "sync_id": "obs-10a50251b0c132b3",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S52 perreras tiempo perro imagenes",
+      "content": "S52 24/09/2026 (Muse Spark): botonera superior Perreras (CMPA+Nomeabandones verificados) y Tiempo (Open-Meteo + perro SVG 5 estados), imagenes a 380/360px. Pytest 29/29, smoke OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 01:17:58",
+      "created_at": "2026-09-24 01:17:58",
+      "updated_at": "2026-09-24 01:17:58"
     }
   ],
   "prompts": [
@@ -3041,6 +3056,14 @@
       "content": "- Ahora vamos a cambiar las puntuaciones: déjalo así 0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO, ya que hice la prueba y penaliza bastante si ubicación es lejana. - En la sección de BUSCAR MI MASCOTA Cambiar MOSTRAR DESDE (%) por MOSTRAR A PARTIR DE X PORCENTAJE DE COINCIDENCIA. En la barra de selección acompañar con el símbolo de % al número. Ejemplo, 65 %.\n\n- En la sección de BUSCAR MI MASCOTA dejar solo el mapa de las chichetas y que cumpla  también la función del otro, no es necesario dos mapas.\n\n- Cuando preselecciono alguno de los botones rojos o negros (PERDIDOS ACTIVOS, AVISTAMIENTOS, PUBLICAR AVISO, ETC.), que aparezca un pequeño cuadro emergente con una breve descripción de para que sirve esa función de la página. Ejemplo, en BUSCAR MI MASCOTA: PERMITE REALIZAR UNA BÚSQUEDA DE COINCIDENCIAS ENTRE TU MASCOTA PERDIDA Y LOS AVITSAMIENTOS ANTES DE PUBLICAR UN AVISO. Una vez lo hayas hehco, borra la descripccion que aparece arriba de FOTO ACTUAL \"Busca sin publicar: cruza tu foto, zona y descripción con los avistamientos. Si quieres, guárdala como aviso al lanzar.\" en la sección de BUSCAR MI MASCOTA.",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 01:02:05"
+    },
+    {
+      "id": 206,
+      "sync_id": "prompt-14543b68a47312a9",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "- arriba del header crear nuevos botones: perreras de jerez (direcciones y contacto, encárgate de recopilar la infomación);  plugin de tiempo en jerez y animación de perro contento, sesando, mojándose, triste, temblando, etc. en función de este \n\n- vista previa de la foto actual subida en buscar a mi mascota demasiado grande al igual que de otras imágenes de la web, haz que las imágenes funcionen en la web correctamente y que no se vean sobredimensionadas frente al conjunto web",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 01:14:34"
     }
   ]
 }
