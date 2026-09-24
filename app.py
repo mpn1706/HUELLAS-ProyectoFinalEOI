@@ -1436,8 +1436,12 @@ page = st.session_state.get("page", "inicio")
 # Si el sandbox bloquea el acceso al padre, falla en silencio (sin romper nada).
 _SIDEBAR_EXPAND_HTML = (
     "<script>(function(){try{var d=window.parent.document;"
-    "var c=d.querySelector('[data-testid=\"stSidebarCollapsedControl\"]');"
-    "if(c){var b=c.querySelector('button');if(b){b.click();}}"
+    "var sels=['[data-testid=\"stExpandSidebarButton\"]',"
+    "'[data-testid=\"stSidebarCollapsedControl\"]',"
+    "'[data-testid=\"collapsedControl\"]'];"
+    "for(var k=0;k<sels.length;k++){var c=d.querySelector(sels[k]);"
+    "if(c){var b=c.tagName==='BUTTON'?c:c.querySelector('button');"
+    "if(b){b.click();break;}}}"
     "}catch(e){}})();</script>"
 )
 if st.session_state.get("_side_prev_page") != page:

@@ -329,3 +329,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Streamlit no expone API para desplegar el sidebar: expansor de un solo disparo vía `components.html` (iframe invisible) que pulsa `stSidebarCollapsedControl`, solo en el run donde cambia `page` (con `_side_prev_page`/`_side_nav_n` para remontar; otros reruns no lo tocan). Falla en silencio si el sandbox lo bloquea. Nuevo `tests/test_sidebar_panel.py`.
 - Specs v1.10: REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 42/42, smoke 9 páginas OK.
+
+## S72 — 24/09/2026 — Fix expansor: selector real `stExpandSidebarButton` (Muse Spark)
+- El usuario reportó que no funcionaba: causa verificada en el bundle de Streamlit 1.64 — `stSidebarCollapsedControl`/`collapsedControl` NO existen en el DOM; el botón de apertura vive en el header con `data-testid="stExpandSidebarButton"` (icono `keyboard_double_arrow_right`). Snippet actualizado con ese selector primero + 2 fallbacks. Test ajustado.
+- Verificación: pytest 42/42, smoke 9 páginas OK. Pendiente confirmación visual del usuario.

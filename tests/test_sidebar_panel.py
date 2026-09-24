@@ -10,7 +10,7 @@ SRC = Path("app.py").read_text(encoding="utf-8")
 
 
 def test_expand_snippet_pulsa_control_colapsado():
-    assert "stSidebarCollapsedControl" in SRC
+    assert "stExpandSidebarButton" in SRC  # selector real en Streamlit 1.64
     assert ".click()" in SRC
     assert "_side_prev_page" in SRC  # solo actúa al cambiar de pestaña
 
