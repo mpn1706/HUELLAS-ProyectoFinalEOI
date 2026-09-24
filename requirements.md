@@ -307,6 +307,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   `sugerir_direcciones()` y `short_addr()`; Ubicación exacta vuelve a botón de
   geocodificado + clic en mapa + ajuste manual.
 
+## 20. Boli en el hueco + imagen admin contenida (v1.17 25/09/2026, solo UI)
+
+- REQ-UI-24 — Al subir foto en Publicar, la columna izquierda crece y deja hueco abajo
+  a la derecha: lo rellena un boli escribiendo trazos en bucle (`build_pen_html()` en
+  `ui_home.py`, al final de la columna derecha, SOLO si hay foto o precarga).
+- REQ-UI-25 — La foto del visor del administrador no desborda el sidebar: `show_image()`
+  con `width=220` (letterbox centrado, animal entero) + guarda CSS
+  (`max-width:100%` a las imágenes del sidebar).
+
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅

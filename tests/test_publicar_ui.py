@@ -3,6 +3,7 @@ from ui_home import (
     build_check_html,
     build_crossing_html,
     build_match_card_html,
+    build_pen_html,
     faltantes_publicar,
 )
 
@@ -58,4 +59,11 @@ def test_crossing_con_n_sin_contacto():
 def test_check_sin_contacto():
     out = build_check_html()
     assert "huellas-okcheck" in out and "<svg" in out
+    assert "contact" not in out.lower()
+
+
+def test_pen_sin_contacto():
+    out = build_pen_html()
+    assert "huellas-penwrap" in out and "huellas-trazo" in out
+    assert "huellas-boli" in out and "<svg" in out
     assert "contact" not in out.lower()

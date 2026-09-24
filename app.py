@@ -21,6 +21,7 @@ from ui_home import (
     build_check_html,
     build_crossing_html,
     build_match_card_html,
+    build_pen_html,
     faltantes_publicar,
     make_carousel_thumb,
     select_carousel_items,
@@ -1233,6 +1234,31 @@ div[class*="st-key-confirm_pub"] button { position:relative; }
 .huellas-track > span { display:block; height:1.4em; line-height:1.4; }
 .huellas-pctsign { margin-left:.15em; }
 .huellas-match-id { margin-top:.5rem; color:#57503F; }
+/* Boli escribiendo trazos (relleno del hueco al subir foto, en bucle). */
+.huellas-penwrap { background:#FFFFFF; border:1.5px dashed #57503F;
+  border-radius:12px; padding:.6rem .8rem; margin-top:.6rem; }
+.huellas-pen { width:100%; height:auto; display:block; }
+.huellas-trazo { fill:none; stroke:#57503F; stroke-width:3; stroke-linecap:round;
+  stroke-dasharray:100; stroke-dashoffset:100;
+  animation:huellas-trazar 3.2s ease-in-out infinite; }
+.huellas-trazo.t2 { stroke:#8A7F6A; animation-delay:.5s; }
+.huellas-trazo.t3 { stroke:#57503F; animation-delay:1s; }
+@keyframes huellas-trazar {
+  0% { stroke-dashoffset:100; }
+  55% { stroke-dashoffset:0; }
+  100% { stroke-dashoffset:0; }
+}
+.huellas-boli { transform-box:fill-box; transform-origin:center;
+  animation:huellas-wob .5s ease-in-out infinite alternate; }
+@keyframes huellas-wob {
+  from { transform:rotate(-6deg) translateY(0); }
+  to { transform:rotate(6deg) translateY(2px); }
+}
+/* Las fotos del sidebar (admin) nunca desbordan: tope al ancho del panel. */
+[data-testid="stSidebar"] [data-testid="stImage"] img {
+  max-width:100%;
+  height:auto;
+}
 /* Check verde que se dibuja solo (sin coincidencias). */
 .huellas-okcheck { text-align:center; margin:.6rem 0; }
 .huellas-okcheck svg { width:64px; height:64px; fill:none; stroke:#35AC46;
@@ -1253,11 +1279,13 @@ div[class*="st-key-confirm_pub"] button { position:relative; }
     > div[data-testid="stVerticalBlock"] > div,
   .huellas-float-paw, .huellas-scanline, .huellas-analizada,
   .huellas-dots span, .huellas-match-card, .huellas-strip, .huellas-ringfill,
+  .huellas-trazo, .huellas-boli,
   .huellas-okcheck circle, .huellas-okcheck path,
   div[class*="st-key-confirm_pub"] button,
   div[class*="st-key-confirm_pub"] button::after { animation:none !important; }
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
+  .huellas-trazo { stroke-dashoffset:0 !important; }
   .huellas-analizada, .huellas-okcheck circle,
   .huellas-okcheck path { opacity:1 !important; }
   .huellas-okcheck circle, .huellas-okcheck path { stroke-dashoffset:0 !important; }
@@ -1574,7 +1602,7 @@ with st.sidebar:
                     st.rerun()
                 for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
                     with st.container(border=True):
-                        show_image(a["image_url"], caption=a["id"])
+                        show_image(a["image_url"], caption=a["id"], width=220)
                         st.markdown(f"### {animal_tag(a)}")
                         st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
                         st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
@@ -2048,6 +2076,10 @@ if page == "publicar":
             c_movil = st.text_input("Móvil", "", key="c_movil")
             c_mail = st.text_input("Correo", "", key="c_mail")
             c_rrss = st.text_input("Red social", "", key="c_rrss")
+            if foto or (pre.get("qpath") and Path(pre["qpath"]).exists()):
+                # La foto alarga la columna izquierda: el boli rellena el hueco
+                # que queda abajo a la derecha. Solo aparece con foto, no antes.
+                st.markdown(build_pen_html(), unsafe_allow_html=True)
     st.subheader("Ubicación exacta")
     with st.container(border=True):
         if "reg_lat" not in st.session_state:

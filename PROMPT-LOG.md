@@ -407,3 +407,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
   como estaba: botón + mapa + manual). Cero restos verificado por grep.
 - Specs v1.16: `requirements.md` §19 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 50/50, smoke 9 páginas OK, demo_check E2E OK.
+
+## S81 — 25/09/2026 — Boli en el hueco + imagen admin v1.17 (Muse Spark)
+- REQ-UI-24: `build_pen_html()` (trazos con `pathLength=100` + boli con wobble, en bucle)
+  al final de la columna derecha de Publicar, solo con foto/precarga.
+- REQ-UI-25: admin con `show_image(..., width=220)` + guarda CSS `max-width:100%` en
+  imágenes del sidebar (el letterbox ya centra al animal entero).
+- Specs v1.17: `requirements.md` §20 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.
