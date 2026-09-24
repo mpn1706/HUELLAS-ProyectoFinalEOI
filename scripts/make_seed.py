@@ -14,6 +14,17 @@ IMG = ROOT / "data" / "seed" / "images"
 
 # (fichero, tipo, animal, raza, color1, color2, marcas, tamaño, collar, collar_desc,
 #  descripción, lat, lng, dirección, reported, last_seen, imagen, estado)
+# Contacto por aviso: teléfonos variados en algunos, vacío en el resto.
+CONTACTOS = {
+    "lost_001.json": "610 204 518",
+    "lost_003.json": "656 903 274",
+    "lost_005.json": "682 417 930",
+    "found_001.json": "617 552 086",
+    "found_004.json": "699 318 442",
+    "found_007.json": "640 771 295",
+    "found_009.json": "674 025 638",
+    "found_011.json": "619 884 203",
+}
 A = [
     ("lost_001.json", "lost", "cat", "europeo", "naranja", None, ["rayas", "cola anillada"], "small", False, None,
      "Gatito naranja atigrado perdido cerca de la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable.",
@@ -80,11 +91,11 @@ def main():
                "markings": marks, "size": size, "has_collar": collar,
                "collar_description": collar_d, "description_text": desc,
                "location": {"lat": lat, "lng": lng, "address_text": addr},
-               "date_reported": rep, "date_last_seen": seen,
-               "image_url": f"data/seed/images/{img}", "image_embedding": None,
-               "contact_info": "600 123 456", "status": status}
+                "date_reported": rep, "date_last_seen": seen,
+                "image_url": f"data/seed/images/{img}", "image_embedding": None,
+                "contact_info": CONTACTOS.get(fn, ""), "status": status}
         (folder / fn).write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"seed v2: {len(A)} avisos")
+    print(f"seed v3: {len(A)} avisos")
 
 
 if __name__ == "__main__":

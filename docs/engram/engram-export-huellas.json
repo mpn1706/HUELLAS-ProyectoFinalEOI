@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 01:41:33",
+  "exported_at": "2026-09-24 02:09:33",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1444,6 +1444,21 @@
       "last_seen_at": "2026-09-24 01:41:29",
       "created_at": "2026-09-24 01:41:29",
       "updated_at": "2026-09-24 01:41:29"
+    },
+    {
+      "id": 79,
+      "sync_id": "obs-87f7ccaf3ecc05d3",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S55 imagenes iconos luna contactos",
+      "content": "S55 24/09/2026 (Muse Spark): imagen_cuadrada en tarjetas + vista_previa, iconos casa/sol con paneles arriba (fuera pie), mapa 700 + leyenda completa, CONTACTOS por aviso + SEED v4, luna 20-8 + viento/termometro. Orden S52 reparado. Pytest 29/29, smoke+paneles y E2E OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 02:09:31",
+      "created_at": "2026-09-24 02:09:31",
+      "updated_at": "2026-09-24 02:09:31"
     }
   ],
   "prompts": [
@@ -3110,6 +3125,14 @@
       "content": "- Mucho mejor. Pero el texto del perro está borralo. Lo de animación del perro (contento=despejado y temperatura suave, sesando exhausto=mucho calor, mojándose=lluviendo, triste=viento fuerte, temblando=frío, etc.) en función del tiempo es solo para que la animación del perro vaya cambiando, no para que lo indiques con texto. - en el header alinea el logo con Agente de Búsqueda y Comparativa Visual de Animales Perdidos\nEncuentra a tu mascota entre los avisos de avistamientos en Jerez de la Frontera... El logo aparece más abajo, quiero que esté a su altura.\n\n- como te dije, la alerta se debe generar por cruzado automático al ingresar avistamientos o perdidos y compararse con el otro lado, avisar al usuario que ha creado el aviso si se genera alerta con una animación vistosa y que le permita clicar para una redirección que le permita visualizarlo. - datos de contacto opcional a la hora de publicar avisos (móvil, correos, rrss, etc.)",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 01:37:20"
+    },
+    {
+      "id": 209,
+      "sync_id": "prompt-b2e203b718558c24",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "- Como ves [Image 1]  en muchos sitios las imágenes se ven excesivamente alargadas. Tiene que fijar una dimesión por defecto y redimensionar todas las imágenes a dichos parámetros para que la visualización de la web sea agradable... - en lugar de los botones de perrera y tiempo abajo del todo, coloca un siímbolo de una casa y otro de un sol abajo del símbolo de \u003c\u003c que aparece para desplegar la barra lateral.. Cuando se selecciones la casa o el sol se desplegara la información de las perreras o el plugin del tiempo, respectivamente. El comportamiento debe ser mismo que con la barra lateral. También sería buena idea que aumentaras el tamaño de los 3 símbolos una vez creados y que estén en un tono negro oscuro, no gris. - Entre el mapa y la leyenda sale un cuadrado blanco que no sé porqué está ahi, elimínalo. - Has colocado el mismo contacto para todo los casos, pon numeros de telefono aleatorios para cada uno de ellos, omitelo y no pongas nada en otros casos.- en el tiempo, junto a la animación del perro, por la noche no puede haber un sol, pon una luna de 8pm a 8am y sol en lo restante. Más allá de eso mantenemos las animaciones del perro y variamos también animaciones visuales en función del tiempo (lluvia, termómetro extremo, termómetro mínimo, viento, etc.)",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 02:02:18"
     }
   ]
 }

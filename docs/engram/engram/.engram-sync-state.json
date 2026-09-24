@@ -1,5 +1,5 @@
 {
-  "last_export_at": "2026-09-24T01:41:31Z",
+  "last_export_at": "2026-09-24T02:09:31Z",
   "files": {
     "56": "huellas\\manual\\huellas-s01-specs-v1-0-56.md",
     "57": "huellas\\manual\\huellas-s02-scaffolding-verificado-57.md",
@@ -22,7 +22,8 @@
     "75": "huellas\\manual\\huellas-s51-pesos-v1-2-umbral-80-ui-buscar-75.md",
     "76": "huellas\\manual\\huellas-s52-perreras-tiempo-perro-imagenes-76.md",
     "77": "huellas\\manual\\huellas-s53-perro-components-botones-abajo-77.md",
-    "78": "huellas\\manual\\huellas-s54-perro-header-alerta-contacto-78.md"
+    "78": "huellas\\manual\\huellas-s54-perro-header-alerta-contacto-78.md",
+    "79": "huellas\\manual\\huellas-s55-imagenes-iconos-luna-contactos-79.md"
   },
   "session_hubs": {
     "manual-save-HUELLAS": "_sessions\\manual-save-HUELLAS.md",

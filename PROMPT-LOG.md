@@ -210,6 +210,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Buscar: slider "Mostrar a partir de este porcentaje…" con formato `65 %`; un solo mapa (zona clicable + clusters + leyenda); `help` descriptivo en los 5 botones; fuera el caption de buscar.
 - Verificación: pytest 29/29, smoke 5 páginas OK, E2E top found_011 84.3% ≥80%.
 
+## S52 — 24/09/2026 — Perreras, tiempo+perro e imágenes (Muse Spark)
+- Botonera sobre la cabecera: PERRERAS DE JEREZ (CMPA El Portal + No Me Abandones San Salvador 21B, verificados en jerez.es/nomeabandones.org + aviso Laceros) y TIEMPO EN JEREZ (Open-Meteo sin claves, caché 30 min; perro SVG animado: contento/calor(jadeo)/lluvia/triste/temblando según código+temperatura).
+- Imágenes: `show_image()` a 380px y previews a 360px (antes todo a `stretch`, sobredimensionadas).
+- Verificación: pytest 29/29, smoke 5 páginas OK. Tiempo no verificable en sandbox sin red ( Cloud sí tiene; con fallo muestra aviso).
+
 ## S53 — 24/09/2026 — Perro por components + botones abajo (Muse Spark)
 - El perro salía como código: `st.markdown` no traga `<style>`+`<svg>` → render con `components.html` (iframe, altura 190).
 - Botonera Perreras/Tiempo movida al pie de página; panel perreras en 2 tarjetas con cabecera negra.
@@ -222,7 +227,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Contacto opcional al publicar (móvil/correo/RRSS → `contact_info`) y visible en tarjetas de Perdidos/Avistamientos.
 - Verificación: pytest 29/29, smoke 5 páginas OK.
 
-## S52 — 24/09/2026 — Perreras, tiempo+perro e imágenes (Muse Spark)
-- Botonera sobre la cabecera: PERRERAS DE JEREZ (CMPA El Portal + No Me Abandones San Salvador 21B, verificados en jerez.es/nomeabandones.org + aviso Laceros) y TIEMPO EN JEREZ (Open-Meteo sin claves, caché 30 min; perro SVG animado: contento/calor(jadeo)/lluvia/triste/temblando según código+temperatura).
-- Imágenes: `show_image()` a 380px y previews a 360px (antes todo a `stretch`, sobredimensionadas).
-- Verificación: pytest 29/29, smoke 5 páginas OK. Tiempo no verificable en sandbox sin red ( Cloud sí tiene; con fallo muestra aviso).
+## S55 — 24/09/2026 — Imágenes, iconos, mapa, contactos, luna (Muse Spark)
+- Imágenes: `imagen_cuadrada()` (recorte central 480px, sin caché para ver sustituciones al instante) en tarjetas; `vista_previa()` ajustada en subidas.
+- Iconos ⌂/☀︎ negros grandes arriba-izquierda (CSS por aria-label) con paneles plegables; fuera botones del pie.
+- Mapa: ancho 700 + leyenda a alto completo (fuera el hueco blanco).
+- Contactos: 8 avisos con móvil variado, 9 vacíos (`make_seed.CONTACTOS`); SEED v4 (recarga Cloud; alerta se regenera con una búsqueda).
+- Perro: luna 20:00–08:00 (`es_de_noche`), lluvia, termómetro calor/frío y ráfagas de viento.
+- Verificación: pytest 29/29, smoke 5 páginas + paneles OK, E2E OK.

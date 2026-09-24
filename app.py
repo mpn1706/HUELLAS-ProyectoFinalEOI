@@ -222,6 +222,15 @@ def inject_background():
         [data-testid="stTab"] .react-aria-SelectionIndicator {{
             background-color: transparent !important;
         }}
+        /* Iconos casa/sol: grandes y negros */
+        [data-testid="stAppViewContainer"] button[aria-label="⌂"],
+        [data-testid="stAppViewContainer"] button[aria-label="☀︎"] {{
+            font-size: 2rem !important;
+            background-color: #000000 !important;
+            border: 3px solid #000000 !important;
+            color: #FFFFFF !important;
+            min-height: 3.2rem;
+        }}
         </style>""",
         unsafe_allow_html=True,
     )
@@ -247,10 +256,36 @@ def get_logo_img():
     return _LOGO_IMG
 
 
+def imagen_cuadrada(path: str, lado: int = 480):
+    """Recorte central cuadrado: todas las tarjetas con la misma dimensión.
+
+    Sin caché a propósito: si se sustituye la foto, se ve al instante.
+    """
+    from PIL import Image
+
+    img = Image.open(path).convert("RGB")
+    w, h = img.size
+    l0 = min(w, h)
+    img = img.crop(((w - l0) // 2, (h - l0) // 2, (w + l0) // 2, (h + l0) // 2))
+    return img.resize((lado, lado))
+
+
+def vista_previa(foto, caption: str = "Vista previa", ancho: int = 360):
+    """Preview de subida ajustada al ancho sin deformar ni sobredimensionar."""
+    from PIL import Image
+
+    img = Image.open(foto).convert("RGB")
+    img.thumbnail((ancho, ancho))
+    st.image(img, caption=caption, width=min(ancho, img.width))
+
+
 def show_image(path: str, caption: str = "", width: int = 380):
     """Muestra imagen si existe; si no, placeholder textual (rutas locales ausentes en Cloud)."""
     if path and Path(path).exists():
-        st.image(path, caption=caption, width=width)
+        try:
+            st.image(imagen_cuadrada(path), caption=caption, width=width)
+        except Exception:
+            st.image(path, caption=caption, width=width)
     else:
         st.info("[ IMAGEN NO DISPONIBLE EN ESTE DESPLIEGUE ]" + (f" {caption}" if caption else ""))
 
@@ -403,11 +438,14 @@ def popup_html(c: dict, marca: str = "", dist=None) -> str:
     return "green" if a.get("type") == "found" else "blue"
 
 
-def leyenda_mapa():
-    """Leyenda al lado del mapa: rojo = tu mascota, azul = perdidos, verde = encontrados."""
+def leyenda_mapa(altura: int = 380):
+    """Leyenda al lado del mapa: rojo = tu mascota, azul = perdidos, verde = encontrados.
+
+    Ocupa todo el alto del mapa para que no quede ningún hueco blanco.
+    """
     st.markdown(
         '<div style="background:#23201B;border-radius:10px;padding:.6rem .5rem;font-size:.72rem;'
-        'font-weight:700;color:#FFFFFF;line-height:2.1;">'
+        f'font-weight:700;color:#FFFFFF;line-height:2.1;min-height:{altura}px;">'
         '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
         'background:#E30613;margin-right:.4rem;"></span>TU MASCOTA</div>'
         '<div><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
@@ -467,9 +505,9 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                         popup_html(c, marca=marca, dist=it.get("dist_km")), max_width=260),
                     icon=folium.Icon(color=pin_color(c)),
                 ).add_to(cl_found)
-            st_folium(fmap, key=key, width=900, height=450)
+            st_folium(fmap, key=key, width=700, height=450)
         with c_leg:
-            leyenda_mapa()
+            leyenda_mapa(450)
     except Exception as e:
         st.caption(f"Mapa no disponible ({e}).")
 
@@ -575,20 +613,53 @@ def estado_perro(d: dict):
     return ("SOLEADO", "contento")
 
 
-def perro_html(modo: str) -> str:
-    """Perro SVG con animación según el tiempo. Solo CSS, sin dependencias."""
-    extra = ""
-    if modo == "lluvia":
-        extra = ('<g fill="#3388FF">'
-                 '<rect x="30" y="4" width="5" height="16" rx="2" class="lluvia l1"/>'
-                 '<rect x="80" y="4" width="5" height="16" rx="2" class="lluvia l2"/>'
-                 '<rect x="130" y="4" width="5" height="16" rx="2" class="lluvia l3"/></g>'
-                 '<ellipse cx="85" cy="26" rx="46" ry="16" fill="#9AA3AD"/>')
-    elif modo == "contento":
-        extra = ('<circle cx="150" cy="28" r="16" fill="#F5B301"/>'
+def es_de_noche(d: dict) -> bool:
+    """True de 20:00 a 08:00 con la hora local que trae Open-Meteo."""
+    try:
+        hora = int(str((d.get("current") or {}).get("time", ""))[11:13])
+        return hora >= 20 or hora < 8
+    except (TypeError, ValueError):
+        return False
+
+
+def perro_html(modo: str, noche: bool = False) -> str:
+    """Perro SVG con animación según el tiempo (y luna de 20:00 a 08:00).
+
+    Solo CSS, sin dependencias. Extras visuales: lluvia, termómetro
+    (rojo calor / azul frío) y ráfagas de viento.
+    """
+    if noche:
+        astro = ('<defs><mask id="luna"><rect width="180" height="130" fill="white"/>'
+                 '<circle cx="143" cy="22" r="13" fill="black"/></mask></defs>'
+                 '<circle cx="150" cy="28" r="15" fill="#E8D98A" mask="url(#luna)"/>'
+                 '<circle cx="28" cy="18" r="2" fill="#8A7F6A" class="twinkle"/>'
+                 '<circle cx="56" cy="10" r="1.5" fill="#8A7F6A" class="twinkle"/>')
+    else:
+        astro = ('<circle cx="150" cy="28" r="16" fill="#F5B301"/>'
                  '<g stroke="#F5B301" stroke-width="4" stroke-linecap="round">'
                  '<line x1="150" y1="4" x2="150" y2="10"/><line x1="150" y1="46" x2="150" y2="52"/>'
                  '<line x1="126" y1="28" x2="132" y2="28"/><line x1="168" y1="28" x2="174" y2="28"/></g>')
+    extra = astro
+    if modo == "lluvia":
+        extra += ('<g fill="#3388FF">'
+                  '<rect x="30" y="4" width="5" height="16" rx="2" class="lluvia l1"/>'
+                  '<rect x="80" y="4" width="5" height="16" rx="2" class="lluvia l2"/>'
+                  '<rect x="130" y="4" width="5" height="16" rx="2" class="lluvia l3"/></g>'
+                  '<ellipse cx="85" cy="26" rx="46" ry="16" fill="#9AA3AD"/>')
+    viento = ('<g stroke="#9AA3AD" stroke-width="4" stroke-linecap="round" fill="none">'
+              '<path d="M6 56 q20 -8 40 0 t40 0" class="viento v1"/>'
+              '<path d="M6 80 q20 -8 40 0 t40 0" class="viento v2"/>'
+              '<path d="M6 104 q20 -8 40 0 t40 0" class="viento v3"/></g>'
+              if modo == "triste" else "")
+    termo = ""
+    if modo == "calor":
+        termo = ('<rect x="158" y="60" width="12" height="50" rx="6" fill="#DDDDDD" stroke="#57503F"/>'
+                 '<circle cx="164" cy="114" r="10" fill="#E30613"/>'
+                 '<rect x="161" y="64" width="6" height="46" fill="#E30613"/>')
+    elif modo == "frio":
+        termo = ('<rect x="158" y="60" width="12" height="50" rx="6" fill="#DDDDDD" stroke="#57503F"/>'
+                 '<circle cx="164" cy="114" r="10" fill="#3388FF"/>'
+                 '<rect x="161" y="96" width="6" height="14" fill="#3388FF"/>')
     lengua = ('<ellipse cx="104" cy="98" rx="7" ry="12" fill="#E30613" class="lengua"/>'
               if modo == "calor" else "")
     lagrima = ('<ellipse cx="76" cy="72" rx="4" ry="7" fill="#3388FF" class="lagrima"/>'
@@ -608,8 +679,13 @@ def perro_html(modo: str) -> str:
     .lluvia {{ animation: perro-lluvia 0.9s linear infinite; }}
     .l2 {{ animation-delay: 0.3s; }} .l3 {{ animation-delay: 0.6s; }}
     @keyframes perro-lluvia {{ from {{ transform: translateY(-6px); opacity: 0; }} 30% {{ opacity: 1; }} to {{ transform: translateY(14px); opacity: 0; }} }}
+    .viento {{ stroke-dasharray: 14 12; animation: perro-viento 0.9s linear infinite; }}
+    .v2 {{ animation-delay: 0.3s; }} .v3 {{ animation-delay: 0.6s; }}
+    @keyframes perro-viento {{ to {{ stroke-dashoffset: -52; }} }}
+    .twinkle {{ animation: perro-tw 1.8s ease-in-out infinite alternate; }}
+    @keyframes perro-tw {{ from {{ opacity: 0.25; }} to {{ opacity: 1; }} }}
     </style><div class="perro-wrap"><svg class="perro-svg {modo}" viewBox="0 0 180 130" width="200" height="145">
-    {extra}
+    {extra}{viento}
     <ellipse cx="85" cy="118" rx="62" ry="7" fill="#000" opacity="0.12"/>
     <ellipse cx="85" cy="92" rx="42" ry="24" fill="#C68A4B"/>
     <circle cx="92" cy="58" r="26" fill="#D89A55"/>
@@ -619,12 +695,67 @@ def perro_html(modo: str) -> str:
     <ellipse cx="93" cy="68" rx="6" ry="5" fill="#111"/>{lengua}{lagrima}
     <path d="M44 84 Q22 78 28 60" stroke="#8A5A2B" stroke-width="9" fill="none" stroke-linecap="round" class="perro-cola"/>
     <rect x="58" y="102" width="12" height="16" rx="5" fill="#8A5A2B"/><rect x="102" y="102" width="12" height="16" rx="5" fill="#8A5A2B"/>
+    {termo}
     </svg></div>"""
 
 
 def toggle_top(nombre: str):
     st.session_state.top_panel = None if st.session_state.get("top_panel") == nombre else nombre
 
+
+# ── Iconos casa/sol (arriba-izquierda): abren sus paneles como la barra lateral ──
+if "top_panel" not in st.session_state:
+    st.session_state.top_panel = None
+ic1, ic2, _ = st.columns([1, 1, 8])
+with ic1:
+    st.button("⌂", key="top_casa", on_click=toggle_top, args=("perreras",),
+              help="Perreras de Jerez: direcciones y contacto.")
+with ic2:
+    st.button("☀︎", key="top_sol", on_click=toggle_top, args=("tiempo",),
+              help="Tiempo en Jerez con el perro según el tiempo.")
+if st.session_state.top_panel == "perreras":
+    st.markdown("### Perreras y protectoras de Jerez")
+    pc1, pc2 = st.columns(2)
+    for col, p in zip((pc1, pc2), PERRERAS):
+        with col:
+            with st.container(border=True):
+                st.markdown(
+                    '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
+                    'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
+                    f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
+                st.markdown(f"**Dirección:** {p['direccion']}")
+                st.markdown(f"**Contacto:** {p['contacto']}")
+                st.caption(p["nota"])
+    st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
+            "el Servicio de Laceros lo traslada al CMPA.")
+elif st.session_state.top_panel == "tiempo":
+    with st.container(border=True):
+        st.markdown("### Tiempo en Jerez")
+        try:
+            import streamlit.components.v1 as _components
+
+            d = get_tiempo()
+            cur = d.get("current") or {}
+            dia = (d.get("daily") or {})
+            _, modo = estado_perro(d)
+            noche = es_de_noche(d)
+            w1, w2 = st.columns([1, 1])
+            with w1:
+                _components.html(perro_html(modo, noche=noche), height=190)
+            with w2:
+                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
+                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
+                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
+                mx = (dia.get("temperature_2m_max") or [None])[0]
+                mn = (dia.get("temperature_2m_min") or [None])[0]
+                pv = (dia.get("precipitation_probability_max") or [None])[0]
+                if mx is not None:
+                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
+                if pv is not None:
+                    st.write(f"- Prob. lluvia: {pv:.0f} %")
+                st.caption("Fuente: Open-Meteo (sin claves).")
+        except Exception as e:
+            st.caption(f"Tiempo no disponible ({e}).")
 
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
 if LOGO:
@@ -873,7 +1004,7 @@ if page == "buscar":
     foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
                               type=["jpg", "jpeg", "png"], key="b_foto")
     if foto_b:
-        st.image(foto_b, caption="Vista previa de tu foto", width=360)
+        vista_previa(foto_b, caption="Vista previa de tu foto")
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
 
@@ -925,9 +1056,9 @@ if page == "buscar":
                         icon=folium.Icon(color="green")).add_to(cl_found)
                 out = st_folium(fmap, key="cerca_map",
                                 center=(st.session_state.q_lat, st.session_state.q_lon),
-                                zoom=14, width=900, height=380)
+                                zoom=14, width=700, height=380)
             with c_leg:
-                leyenda_mapa()
+                leyenda_mapa(380)
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
                 nlng = round(out["last_clicked"]["lng"], 4)
@@ -1123,7 +1254,7 @@ if page == "publicar":
                                                          "other": "Otro"}.get(a, a))
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
             if foto:
-                st.image(foto, caption="Vista previa", width=360)
+                vista_previa(foto)
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
         with r2:
@@ -1249,60 +1380,4 @@ if page == "alertas":
     if logp.exists():
         with st.expander("Ver log técnico"):
             st.code(logp.read_text(encoding="utf-8")[-2000:])
-
-# ── Pie: perreras + tiempo (abajo del todo) ─────────────────────────────
-if "top_panel" not in st.session_state:
-    st.session_state.top_panel = None
-st.divider()
-tp1, tp2 = st.columns(2)
-with tp1:
-    st.button("Perreras de Jerez", key="top_perreras", use_container_width=True,
-              on_click=toggle_top, args=("perreras",),
-              help="Direcciones y contacto de la perrera municipal y protectoras.")
-with tp2:
-    st.button("Tiempo en Jerez", key="top_tiempo", use_container_width=True,
-              on_click=toggle_top, args=("tiempo",),
-              help="Meteo actual de Jerez con el perro según el tiempo.")
-if st.session_state.top_panel == "perreras":
-    st.markdown("### Perreras y protectoras de Jerez")
-    pc1, pc2 = st.columns(2)
-    for col, p in zip((pc1, pc2), PERRERAS):
-        with col:
-            with st.container(border=True):
-                st.markdown(
-                    '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
-                    'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
-                    f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
-                st.markdown(f"**Dirección:** {p['direccion']}")
-                st.markdown(f"**Contacto:** {p['contacto']}")
-                st.caption(p["nota"])
-    st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
-            "el Servicio de Laceros lo traslada al CMPA.")
-elif st.session_state.top_panel == "tiempo":
-    with st.container(border=True):
-        st.markdown("### Tiempo en Jerez")
-        try:
-            import streamlit.components.v1 as _components
-
-            d = get_tiempo()
-            cur = d.get("current") or {}
-            dia = (d.get("daily") or {})
-            _, modo = estado_perro(d)
-            w1, w2 = st.columns([1, 1])
-            with w1:
-                _components.html(perro_html(modo), height=190)
-            with w2:
-                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
-                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
-                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
-                mx = (dia.get("temperature_2m_max") or [None])[0]
-                mn = (dia.get("temperature_2m_min") or [None])[0]
-                pv = (dia.get("precipitation_probability_max") or [None])[0]
-                if mx is not None:
-                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
-                if pv is not None:
-                    st.write(f"- Prob. lluvia: {pv:.0f} %")
-                st.caption("Fuente: Open-Meteo (sin claves).")
-        except Exception as e:
-            st.caption(f"Tiempo no disponible ({e}).")
 
