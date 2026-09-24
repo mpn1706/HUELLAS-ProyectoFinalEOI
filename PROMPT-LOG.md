@@ -397,3 +397,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - REQ-UI-21: "Foto analizada" a la derecha de la imagen (`.huellas-scanrow` flex).
 - Specs v1.15: `requirements.md` §18 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.
+
+## S80 — 25/09/2026 — Ajustes foto + revert sugerencias v1.16 (Muse Spark)
+- REQ-UI-22: "Foto analizada" más grande (1rem) y centrada (`.huellas-scanbadge` flex
+  con `align-self:stretch`); imagen a 300px + `margin-bottom` en la fila (aire con
+  el cuadro inferior).
+- REQ-UI-23: revert total del autocompletado a petición del alumno (fuera bloque,
+  CSS `addr_sug_*`, `sugerir_direcciones()`, `short_addr()` y su test; ubicación
+  como estaba: botón + mapa + manual). Cero restos verificado por grep.
+- Specs v1.16: `requirements.md` §19 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 50/50, smoke 9 páginas OK, demo_check E2E OK.

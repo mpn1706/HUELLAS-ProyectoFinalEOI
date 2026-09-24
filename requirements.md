@@ -298,6 +298,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-21 — "Foto analizada" a la DERECHA de la imagen (fila flex `.huellas-scanrow`
   que aprovecha el hueco lateral), no debajo.
 
+## 19. Ajustes foto + revert sugerencias (v1.16 25/09/2026, solo UI)
+
+- REQ-UI-22 — "Foto analizada" más grande (1rem) y centrada en el hueco lateral
+  (`.huellas-scanbadge` flex); imagen algo más pequeña (máx. 300px) con aire inferior
+  (`.huellas-scanrow` con `margin-bottom`) para no rozar el cuadro de abajo.
+- REQ-UI-23 — Revert total del autocompletado (REQ-UI-19/20): fuera sugerencias, CSS,
+  `sugerir_direcciones()` y `short_addr()`; Ubicación exacta vuelve a botón de
+  geocodificado + clic en mapa + ajuste manual.
+
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅

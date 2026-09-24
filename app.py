@@ -24,7 +24,6 @@ from ui_home import (
     faltantes_publicar,
     make_carousel_thumb,
     select_carousel_items,
-    short_addr,
 )
 
 DB = "data/huellas.db"
@@ -351,38 +350,6 @@ div[class*="st-key-foto_pub"] [data-testid="stFileUploader"] {
 </style>"""
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
-def sugerir_direcciones(query: str, limite: int = 5) -> list:
-    """Autocompletado de direcciones vía Nominatim OSM con sesgo a Jerez.
-
-    Cache 1 h por texto (no machaca el servicio al teclear). Vacío/error → [].
-    """
-    import json as _json
-    import urllib.parse
-    import urllib.request
-
-    q = (query or "").strip()
-    if len(q) < 3:
-        return []
-    url = ("https://nominatim.openstreetmap.org/search?" + urllib.parse.urlencode(
-        {"q": q, "format": "json", "limit": int(limite), "countrycodes": "es",
-         "viewbox": "-6.25,36.75,-6.00,36.60", "bounded": 0}))
-    req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
-    try:
-        with urllib.request.urlopen(req, timeout=8) as r:
-            data = _json.loads(r.read().decode("utf-8"))
-    except Exception:
-        return []
-    out = []
-    for d in data or []:
-        try:
-            out.append((round(float(d["lat"]), 4), round(float(d["lon"]), 4),
-                        str(d.get("display_name", q))[:120]))
-        except (KeyError, TypeError, ValueError):
-            continue
-    return out
-
-
 def vista_previa_scan(foto):
     """Preview con línea de escaneo roja (~1,5 s) y etiqueta 'Foto analizada'.
 
@@ -400,7 +367,8 @@ def vista_previa_scan(foto):
         f'<div class="huellas-scanrow"><div class="huellas-scan">'
         f'<img src="data:{mime};base64,{b64}" alt="{nombre}">'
         '<div class="huellas-scanline"></div></div>'
-        '<div><span class="huellas-analizada">Foto analizada</span></div></div>',
+        '<div class="huellas-scanbadge">'
+        '<span class="huellas-analizada">Foto analizada</span></div></div>',
         unsafe_allow_html=True)
 
 
@@ -1196,37 +1164,23 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   to { transform:translateY(6px) rotate(6deg); }
 }
 /* Vista previa con línea de escaneo roja (~1,5 s) y etiqueta posterior. */
-.huellas-scan { position:relative; width:fit-content; max-width:360px;
+.huellas-scan { position:relative; width:fit-content; max-width:300px;
   border-radius:10px; overflow:hidden; border:1.5px solid #57503F; }
-.huellas-scan img { display:block; width:100%; max-width:360px; }
+.huellas-scan img { display:block; width:100%; max-width:300px; }
 .huellas-scanline { position:absolute; left:0; right:0; top:0; height:3px;
   background:#E30613; box-shadow:0 0 14px 2px rgba(227,6,19,.8);
   animation:huellas-scan 1.5s ease-in-out 1 both; }
 @keyframes huellas-scan { from { top:0; } to { top:calc(100% - 3px); } }
 .huellas-analizada { display:inline-block; font-weight:800;
-  font-size:.8rem; color:#23201B; background:#FFFFFF;
-  border:1.5px solid #35AC46; border-radius:8px; padding:.25rem .7rem;
+  font-size:1rem; color:#23201B; background:#FFFFFF;
+  border:2px solid #35AC46; border-radius:10px; padding:.5rem 1rem;
   opacity:0; animation:huellas-fadein .4s ease 1.5s 1 both; }
 /* Fila imagen + etiqueta a la derecha (aprovecha el hueco lateral). */
-.huellas-scanrow { display:flex; gap:.7rem; align-items:flex-start; flex-wrap:wrap; }
-/* Sugerencias como lista emergente pegada al recuadro (estilo desplegable). */
-div[class*="st-key-addr_sug_0"] { margin-top:-0.9rem; }
-div[class*="st-key-addr_sug_"] button {
-  background:#FFFFFF !important;
-  color:#23201B !important;
-  border:1px solid #57503F !important;
-  border-radius:8px !important;
-  text-align:left !important;
-  padding:.45rem .8rem !important;
-  margin-bottom:2px !important;
-}
-div[class*="st-key-addr_sug_"] button:hover {
-  border-color:#E30613 !important;
-}
-div[class*="st-key-addr_sug_"] button::before {
-  content:""; display:inline-block; width:11px; height:11px; margin-right:.55rem;
-  background:#E30613; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
-}
+.huellas-scanrow { display:flex; gap:.7rem; align-items:flex-start; flex-wrap:wrap;
+  margin-bottom:.6rem; }
+.huellas-scanbadge { display:flex; align-items:center; justify-content:center;
+  flex:1; align-self:stretch; }
+
 @keyframes huellas-fadein {
   from { opacity:0; transform:translateY(4px); }
   to { opacity:1; transform:none; }
@@ -2099,22 +2053,6 @@ if page == "publicar":
         if "reg_lat" not in st.session_state:
             st.session_state.reg_lat, st.session_state.reg_lon = 36.6826, -6.1376
         addr_in = st.text_input("Calle, número y zona", value="Centro, Jerez", key="addr_in")
-        _sugs = sugerir_direcciones(addr_in)
-        if _sugs:
-            if st.session_state.get("addr_q") != (addr_in or "").strip():
-                st.session_state.addr_q = (addr_in or "").strip()
-            # Lista emergente pegada al recuadro: un toque y centra el mapa.
-            for _i, (_la, _lo, _dn) in enumerate(_sugs):
-                if st.button(short_addr(_dn), key=f"addr_sug_{_i}",
-                             use_container_width=True):
-                    st.session_state.reg_lat, st.session_state.reg_lon = _la, _lo
-                    st.rerun()
-            if any((la, lo) == (st.session_state.reg_lat, st.session_state.reg_lon)
-                   for la, lo, _ in _sugs):
-                _dn = next(d for la, lo, d in _sugs
-                           if (la, lo) == (st.session_state.reg_lat,
-                                           st.session_state.reg_lon))
-                st.caption(f"Zona elegida: {short_addr(_dn, 90)}")
         if st.button("Buscar dirección en el mapa"):
             res = geocode_nominatim(addr_in)
             if res:

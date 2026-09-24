@@ -101,12 +101,6 @@ def faltantes_publicar(tipo="", animal="", size="", color="", desc="",
     return faltan
 
 
-def short_addr(display: str, largo: int = 70) -> str:
-    """Recorta una dirección de Nominatim para la lista de sugerencias."""
-    txt = (display or "").strip().replace("\n", " ")
-    return txt[:largo] + ("…" if len(txt) > largo else "")
-
-
 def build_crossing_html(n: int) -> str:
     """Bloque 'Cruzando con N avisos…' con puntos que rebotan (solo CSS)."""
     return (

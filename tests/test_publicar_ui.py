@@ -4,7 +4,6 @@ from ui_home import (
     build_crossing_html,
     build_match_card_html,
     faltantes_publicar,
-    short_addr,
 )
 
 
@@ -30,11 +29,6 @@ def test_faltantes_solo_contacto():
 def test_faltantes_color_y_desc():
     f = faltantes_publicar("lost", "dog", "small", "", "", "610", "", "")
     assert "color principal" in f and "descripción" in f
-
-
-def test_short_addr_recorta():
-    assert short_addr("Calle Larga, 1, Jerez") == "Calle Larga, 1, Jerez"
-    assert short_addr("x" * 80).endswith("…") and len(short_addr("x" * 80)) == 71
 
 
 def test_match_card_con_porcentaje_y_sin_contacto():
