@@ -50,8 +50,9 @@ Actor: dueño / evaluador. Flujo: sube foto + elige zona (dirección con auto-zo
 ### CU-04 — Revisar detalle de posible coincidencia
 Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos coincidentes/divergentes, y aviso legal de no-identidad. Decide contactar fuera del sistema.
 
-### CU-05 — Resolver / expirar aviso
+### CU-05 — Resolver / expirar aviso / reencuentro
 Actor: dueño. Marca aviso como `resolved` mediante botón manual "Marcar como resuelto". Función `expire_old()` marca `expired` a los avisos con más de 30 días (invocable bajo demanda, sin cron). Los no-`active` no entran en matching.
+Actor: cualquiera que presencie el reencuentro. En VOLVIÓ A CASA selecciona el perdido y/o avistamiento que se resuelve, sube fotos del reencuentro y lo notifica: queda pendiente y el administrador lo valida (resuelve los avisos y cierra el caso visible) o lo rechaza (posible vandalismo: los avisos siguen activos). Toda decisión queda en `data/admin.log`.
 
 Fuera de MVP: CU-07 ingesta automática externa, CU-08 chat asistente, CU-09 impresión cartel.
 
@@ -157,6 +158,7 @@ v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
 - REQ-11.2: Puede listar con filtros, eliminar (borra aviso + notificaciones ligadas + foto subida, nunca seed) y resolver.
 - REQ-11.3: Toda acción se registra en `data/admin.log` con fecha.
 - REQ-11.4: El admin puede editar cualquier campo del aviso (con validación del esquema y log de campos cambiados).
+- REQ-11.5: El admin revisa los reencuentros pendientes (fotos + avisos): validar resuelve los avisos y publica el cierre; rechazar los deja activos.
 
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 

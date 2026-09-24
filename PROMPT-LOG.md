@@ -251,3 +251,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Publicar: Comportamiento y Estado en cuadros separados (ambos anexan a la descripción).
 - Mapa: leyenda en franja bajo el mapa, sin columna lateral blanca.
 - Verificación: pytest 29/29, smoke 5 páginas + paneles OK.
+
+## S59 — 24/09/2026 — Volvió a casa en vez de Alertas (Muse Spark)
+- Opinión: de acuerdo; la sección aportaba poco y el backend (`notifications`+log+E2E) sigue como trazabilidad.
+- Nueva sección VOLVIÓ A CASA (contador de cerrados): multiselect perdido/avistamiento + fotos + nota → pendiente; galería de cierres y en revisión. Admin: valida (resuelve avisos) o rechaza (vandalismo, intactos), todo en `admin.log`. Tabla `reencuentros` + 3 tests.
+- Alerta ≥80% intacta en publicar y buscar-guardada, pero "Ver la alerta" → "VER COINCIDENCIA" que salta al caso del otro lado y lo resalta primero.
+- Spec: CU-05 + REQ-11.5. Verificación: pytest 32/32, smoke 5 páginas OK, ciclo reencuentro OK (DB restaurada), E2E OK.

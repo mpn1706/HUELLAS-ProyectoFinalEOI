@@ -30,6 +30,15 @@ CREATE TABLE IF NOT EXISTS notifications (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   aviso_id TEXT, candidato_id TEXT, score REAL, created_at TEXT
 );
+CREATE TABLE IF NOT EXISTS reencuentros (
+  id TEXT PRIMARY KEY,
+  aviso_ids JSON,
+  fotos JSON,
+  nota TEXT,
+  estado TEXT CHECK(estado IN ('pendiente','validada','rechazada')),
+  created_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_reenc_estado ON reencuentros(estado);
 """
 
 COLS = ["id", "type", "animal", "breed_guess", "color_primary", "color_secondary",
@@ -135,4 +144,41 @@ def save_notification(con: sqlite3.Connection, aviso_id: str, cand_id: str, scor
         "INSERT INTO notifications (aviso_id, candidato_id, score, created_at) VALUES (?,?,?,?)",
         (aviso_id, cand_id, score, datetime.now().astimezone().isoformat()),
     )
+    con.commit()
+
+
+def save_reencuentro(con: sqlite3.Connection, aviso_ids: list, fotos: list, nota: str) -> str:
+    """Registra un reencuentro en estado pendiente (lo valida el admin)."""
+    import uuid
+
+    rid = f"renc_{uuid.uuid4().hex[:8]}"
+    con.execute(
+        "INSERT INTO reencuentros (id, aviso_ids, fotos, nota, estado, created_at)"
+        " VALUES (?,?,?,?,?,?)",
+        (rid, json.dumps(list(aviso_ids)), json.dumps(list(fotos)), (nota or "").strip(),
+         "pendiente", datetime.now().astimezone().isoformat()),
+    )
+    con.commit()
+    return rid
+
+
+def list_reencuentros(con: sqlite3.Connection, estado: str | None = None) -> list:
+    q = "SELECT * FROM reencuentros"
+    args: tuple = ()
+    if estado:
+        q += " WHERE estado=?"
+        args = (estado,)
+    q += " ORDER BY created_at DESC"
+    out = []
+    for r in con.execute(q, args).fetchall():
+        d = dict(r)
+        d["aviso_ids"] = json.loads(d["aviso_ids"] or "[]")
+        d["fotos"] = json.loads(d["fotos"] or "[]")
+        out.append(d)
+    return out
+
+
+def set_reencuentro(con: sqlite3.Connection, rid: str, estado: str):
+    assert estado in ("pendiente", "validada", "rechazada")
+    con.execute("UPDATE reencuentros SET estado=? WHERE id=?", (estado, rid))
     con.commit()

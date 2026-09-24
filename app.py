@@ -742,7 +742,7 @@ n_lost_total = con.execute("SELECT COUNT(*) FROM avisos WHERE type='lost'").fetc
 n_lost_res = con.execute(
     "SELECT COUNT(*) FROM avisos WHERE type='lost' AND status!='active'").fetchone()[0]
 n_found = con.execute("SELECT COUNT(*) FROM avisos WHERE status='active' AND type='found'").fetchone()[0]
-n_notif = con.execute("SELECT COUNT(*) FROM notifications").fetchone()[0]
+n_reenc = con.execute("SELECT COUNT(*) FROM reencuentros WHERE estado='validada'").fetchone()[0]
 n_total = con.execute("SELECT COUNT(*) FROM avisos").fetchone()[0]
 
 if "page" not in st.session_state:
@@ -751,6 +751,17 @@ if "page" not in st.session_state:
 
 def nav_to(dest: str):
     st.session_state.page = dest
+    st.session_state.pop("destacar_id", None)
+
+
+def ir_a_caso(aviso_id: str, tipo: str):
+    """Salta al caso del otro lado y lo resalta (botón VER COINCIDENCIA)."""
+    st.session_state.destacar_id = aviso_id
+    st.session_state.page = "perdidos" if tipo == "lost" else "encontrados"
+
+
+def tarjeta_destacada(aid: str) -> bool:
+    return st.session_state.get("destacar_id") == aid
 
 
 # ── Navegación superior: botones negros (cuenta + acceso directo) ──────
@@ -764,9 +775,9 @@ with m2:
               use_container_width=True, on_click=nav_to, args=("encontrados",),
               help="Muestra los avistamientos: animales encontrados pendientes de reunir con su dueño.")
 with m3:
-    st.button(f"ALERTAS ({n_notif})", key="nav_alertas",
-              use_container_width=True, on_click=nav_to, args=("alertas",),
-              help="Posibles coincidencias destacadas con un 80 % o más. Se generan solas al cruzar avisos.")
+    st.button(f"VOLVIÓ A CASA ({n_reenc})", key="nav_reencuentro",
+              use_container_width=True, on_click=nav_to, args=("reencuentro",),
+              help="Notifica que un animal volvió con su dueño y registra el cierre del caso.")
 # ── Justo debajo: PUBLICAR + BUSCAR, centrados y rojos ─────────────────
 _, b1, b2, _ = st.columns([1, 2, 2, 1])
 with b1:
@@ -1001,6 +1012,34 @@ with st.sidebar:
                         except Exception as e:
                             st.error(f"Error: {e}")
         loga = Path("data/admin.log")
+        pendientes = dbmod.list_reencuentros(con, "pendiente")
+        with st.expander(f"Reencuentros pendientes ({len(pendientes)})"):
+            if not pendientes:
+                st.caption("Nada pendiente de revisión.")
+            for r in pendientes:
+                st.markdown(f"**`{r['id']}`** · resuelve "
+                            f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+                if r["nota"]:
+                    st.write(r["nota"])
+                for fp in r["fotos"][:2]:
+                    show_image(fp, caption="Prueba", width=220)
+                c_ok, c_no = st.columns(2)
+                with c_ok:
+                    if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}", type="primary"):
+                        for aid in r["aviso_ids"]:
+                            admmod.resolve_aviso(con, aid)
+                        dbmod.set_reencuentro(con, r["id"], "validada")
+                        admmod.log_action(f"REENCUENTRO {r['id']} validado; "
+                                          f"resueltos {', '.join(r['aviso_ids'])}")
+                        st.success("Caso cerrado.")
+                        st.rerun()
+                with c_no:
+                    if st.button("Rechazar", key=f"rv_no_{r['id']}"):
+                        dbmod.set_reencuentro(con, r["id"], "rechazada")
+                        admmod.log_action(f"REENCUENTRO {r['id']} rechazado "
+                                          "(posible vandalismo); avisos intactos")
+                        st.info("Rechazado: los avisos siguen activos.")
+                        st.rerun()
         if loga.exists():
             with st.expander("Ver registro de administración"):
                 st.code(loga.read_text(encoding="utf-8")[-2000:])
@@ -1154,6 +1193,11 @@ if page == "buscar":
                 celebrate_search()
                 st.success(f"Búsqueda guardada como aviso `{q['id']}`."
                            + (f" {len(nuevos)} alerta(s) generada(s)." if nuevos else ""))
+                if nuevos:
+                    _nc = dbmod.get_aviso(con, nuevos[0]["candidato_id"])
+                    st.button("Ver coincidencia", key=f"ver_co_{q['id']}", type="primary",
+                              use_container_width=True, on_click=ir_a_caso,
+                              args=(nuevos[0]["candidato_id"], (_nc or {}).get("type", "found")))
 
     res = st.session_state.get("b_search")
     if res:
@@ -1210,8 +1254,11 @@ if page == "perdidos":
     else:
         lista_p = aplicar_filtros(lost_list, "lost")
         stat_box(len(lista_p), "Perdidos activos")
+        lista_p.sort(key=lambda a: 0 if tarjeta_destacada(a["id"]) else 1)
         for a in lista_p:
             with st.container(border=True):
+                if tarjeta_destacada(a["id"]):
+                    st.markdown("**COINCIDENCIA DE TU BÚSQUEDA**")
                 c1, c2 = st.columns([1, 1])
                 with c1:
                     show_image(a["image_url"], caption=f"Foto · {a['id']}")
@@ -1233,8 +1280,11 @@ if page == "encontrados":
     else:
         lista = aplicar_filtros(found, "found")
         stat_box(len(lista), "Avistamientos")
+        lista.sort(key=lambda a: 0 if tarjeta_destacada(a["id"]) else 1)
         for a in lista:
             with st.container(border=True):
+                if tarjeta_destacada(a["id"]):
+                    st.markdown("**COINCIDENCIA DE TU BÚSQUEDA**")
                 c1, c2 = st.columns([1, 1])
                 with c1:
                     show_image(a["image_url"], caption=f"Foto · {a['id']}")
@@ -1357,9 +1407,12 @@ if page == "publicar":
                         st.markdown(f"### ¡Posible coincidencia! `{top['candidato_id']}` · "
                                     f"**{top['score']*100:.1f}%**")
                         celebrate_search()
-                        st.button("Ver la alerta", key=f"ver_al_{av['id']}", type="primary",
+                        _tc = dbmod.get_aviso(con, top["candidato_id"])
+                        st.button("Ver coincidencia", key=f"ver_co_{av['id']}", type="primary",
                                   use_container_width=True,
-                                  on_click=nav_to, args=("alertas",))
+                                  on_click=ir_a_caso,
+                                  args=(top["candidato_id"],
+                                        (_tc or {}).get("type", "found")))
                 else:
                     st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
                             "Si aparece el par contrario, se avisará solo.")
@@ -1368,36 +1421,72 @@ if page == "publicar":
         except Exception as e:
             st.error(f"Error: {e}")
 
-# ── Página: Alertas ───────────────────────────────────────────────────
-if page == "alertas":
-    st.subheader("Alertas automáticas (score ≥80%)")
-    rows = con.execute("SELECT * FROM notifications ORDER BY id DESC LIMIT 50").fetchall()
-    if not rows:
-        st.info("Aún no hay alertas. Lanza una búsqueda: si algún candidato supera el 80%, "
-                "aparecerá aquí como posible coincidencia destacada.")
-    else:
-        stat_box(len(rows), "Total alertas")
-        for r in rows:
-            qa = dbmod.get_aviso(con, r["aviso_id"])
-            ca = dbmod.get_aviso(con, r["candidato_id"])
-            if qa and ca:
-                with st.container(border=True):
-                    st.markdown(f"**POSIBLE COINCIDENCIA DESTACADA** · `{r['aviso_id']}` → "
-                                f"`{r['candidato_id']}` · **{r['score']*100:.1f}%**")
-                    d1, d2 = st.columns(2)
-                    with d1:
-                        show_image(qa["image_url"], caption=f"Perdido · {qa['id']}")
-                        st.write(qa["description_text"])
-                    with d2:
-                        show_image(ca["image_url"], caption=f"Encontrado · {ca['id']}")
-                        st.write(ca["description_text"])
-                        st.write(f"- {ca['location'].get('address_text', '')}")
-            else:
-                st.write(dict(r))
-        with st.expander("Ver tabla técnica"):
-            st.table([dict(r) for r in rows])
-    logp = Path("data/notifications.log")
-    if logp.exists():
-        with st.expander("Ver log técnico"):
-            st.code(logp.read_text(encoding="utf-8")[-2000:])
+# ── Página: Volvió a casa ─────────────────────────────────────────────
+if page == "reencuentro":
+    st.subheader("Volvió a casa")
+    st.caption("Notifica que un animal volvió con su dueño. El administrador "
+               "revisa el caso y decide si se cierran los avisos.")
+    perd_opts = [dbmod.get_aviso(con, r["id"]) for r in
+                 con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
+    perd_opts = [a for a in perd_opts if a]
+    found_opts = dbmod.get_active_opuestos(con, "lost")
+    with st.container(border=True):
+        sel_lost = st.multiselect("Perdidos que se resuelven",
+                                  [a["id"] for a in perd_opts],
+                                  format_func=lambda i: next(
+                                      (f"[{x['id']}] {animal_tag(x)}" for x in perd_opts
+                                       if x["id"] == i), i),
+                                  key="re_lost")
+        sel_found = st.multiselect("Avistamientos que se resuelven",
+                                   [a["id"] for a in found_opts],
+                                   format_func=lambda i: next(
+                                       (f"[{x['id']}] {animal_tag(x)}" for x in found_opts
+                                        if x["id"] == i), i),
+                                   key="re_found")
+        nota = st.text_area("Cómo fue el reencuentro", "Apareció en el portal de casa.",
+                            key="re_nota")
+        fotos_r = st.file_uploader("Fotos del reencuentro", type=["jpg", "jpeg", "png"],
+                                   accept_multiple_files=True, key="re_fotos")
+    if st.button("Notificar reencuentro", type="primary"):
+        elegidos = list(dict.fromkeys(list(sel_lost) + list(sel_found)))
+        if not elegidos:
+            st.warning("Selecciona al menos un aviso (perdido, avistamiento o ambos).")
+        else:
+            try:
+                from datetime import datetime as _dtr
+
+                Path("data/uploads").mkdir(parents=True, exist_ok=True)
+                sello = _dtr.now().strftime("%Y%m%d%H%M%S")
+                guardadas = []
+                for i, f in enumerate(fotos_r or []):
+                    dest = f"data/uploads/reencuentro_{sello}_{i}.jpg"
+                    Path(dest).write_bytes(f.getbuffer())
+                    guardadas.append(dest)
+                rid = dbmod.save_reencuentro(con, elegidos, guardadas, nota)
+                admmod.log_action(f"REENCUENTRO {rid} pendiente: {', '.join(elegidos)}")
+                celebrate_search()
+                st.success(f"Reencuentro `{rid}` notificado al administrador. "
+                           "Él revisará las pruebas y cerrará (o no) los avisos.")
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+    st.subheader("Casos cerrados")
+    cerrados = dbmod.list_reencuentros(con, "validada")
+    pendientes = dbmod.list_reencuentros(con, "pendiente")
+    if pendientes:
+        st.caption(f"{len(pendientes)} caso(s) en revisión por el administrador.")
+    if not cerrados and not pendientes:
+        st.info("Aún no hay reencuentros notificados.")
+    for r in cerrados + pendientes:
+        marca = "CASO CERRADO" if r["estado"] == "validada" else "EN REVISIÓN"
+        with st.container(border=True):
+            st.markdown(f"**{marca}** · `{r['id']}` · resuelve "
+                        f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+            if r["nota"]:
+                st.write(r["nota"])
+            if r["fotos"]:
+                fcols = st.columns(min(3, len(r["fotos"])))
+                for fc, fp in zip(fcols, r["fotos"][:3]):
+                    with fc:
+                        show_image(fp, caption="Reencuentro", width=220)
 
