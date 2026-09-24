@@ -397,9 +397,10 @@ def vista_previa_scan(foto):
     b64 = base64.b64encode(raw).decode()
     nombre = _html.escape(getattr(foto, "name", "tu foto"), quote=False)
     st.markdown(
-        f'<div class="huellas-scan"><img src="data:{mime};base64,{b64}" alt="{nombre}">'
+        f'<div class="huellas-scanrow"><div class="huellas-scan">'
+        f'<img src="data:{mime};base64,{b64}" alt="{nombre}">'
         '<div class="huellas-scanline"></div></div>'
-        '<div><span class="huellas-analizada">Foto analizada</span></div>',
+        '<div><span class="huellas-analizada">Foto analizada</span></div></div>',
         unsafe_allow_html=True)
 
 
@@ -1202,10 +1203,30 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   background:#E30613; box-shadow:0 0 14px 2px rgba(227,6,19,.8);
   animation:huellas-scan 1.5s ease-in-out 1 both; }
 @keyframes huellas-scan { from { top:0; } to { top:calc(100% - 3px); } }
-.huellas-analizada { display:inline-block; margin-top:.4rem; font-weight:800;
+.huellas-analizada { display:inline-block; font-weight:800;
   font-size:.8rem; color:#23201B; background:#FFFFFF;
   border:1.5px solid #35AC46; border-radius:8px; padding:.25rem .7rem;
   opacity:0; animation:huellas-fadein .4s ease 1.5s 1 both; }
+/* Fila imagen + etiqueta a la derecha (aprovecha el hueco lateral). */
+.huellas-scanrow { display:flex; gap:.7rem; align-items:flex-start; flex-wrap:wrap; }
+/* Sugerencias como lista emergente pegada al recuadro (estilo desplegable). */
+div[class*="st-key-addr_sug_0"] { margin-top:-0.9rem; }
+div[class*="st-key-addr_sug_"] button {
+  background:#FFFFFF !important;
+  color:#23201B !important;
+  border:1px solid #57503F !important;
+  border-radius:8px !important;
+  text-align:left !important;
+  padding:.45rem .8rem !important;
+  margin-bottom:2px !important;
+}
+div[class*="st-key-addr_sug_"] button:hover {
+  border-color:#E30613 !important;
+}
+div[class*="st-key-addr_sug_"] button::before {
+  content:""; display:inline-block; width:11px; height:11px; margin-right:.55rem;
+  background:#E30613; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+}
 @keyframes huellas-fadein {
   from { opacity:0; transform:translateY(4px); }
   to { opacity:1; transform:none; }
@@ -2082,15 +2103,18 @@ if page == "publicar":
         if _sugs:
             if st.session_state.get("addr_q") != (addr_in or "").strip():
                 st.session_state.addr_q = (addr_in or "").strip()
-                st.session_state.pop("addr_pick", None)
-            _labels = ["— elige una sugerencia —"] + [short_addr(d) for _, _, d in _sugs]
-            _pick = st.radio("Sugerencias al escribir", _labels, key="addr_pick")
-            if _pick != _labels[0]:
-                _i = _labels.index(_pick) - 1
-                if 0 <= _i < len(_sugs):
-                    _la, _lo, _dn = _sugs[_i]
+            # Lista emergente pegada al recuadro: un toque y centra el mapa.
+            for _i, (_la, _lo, _dn) in enumerate(_sugs):
+                if st.button(short_addr(_dn), key=f"addr_sug_{_i}",
+                             use_container_width=True):
                     st.session_state.reg_lat, st.session_state.reg_lon = _la, _lo
-                    st.caption(f"Zona elegida: {short_addr(_dn, 90)}")
+                    st.rerun()
+            if any((la, lo) == (st.session_state.reg_lat, st.session_state.reg_lon)
+                   for la, lo, _ in _sugs):
+                _dn = next(d for la, lo, d in _sugs
+                           if (la, lo) == (st.session_state.reg_lat,
+                                           st.session_state.reg_lon))
+                st.caption(f"Zona elegida: {short_addr(_dn, 90)}")
         if st.button("Buscar dirección en el mapa"):
             res = geocode_nominatim(addr_in)
             if res:

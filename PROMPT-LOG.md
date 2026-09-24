@@ -388,3 +388,12 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
   mapa; sin red no aparece nada y nada rompe.
 - Specs v1.14: `requirements.md` §17 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.
+
+## S79 — 25/09/2026 — Desplegable de sugerencias + etiqueta lateral v1.15 (Muse Spark)
+- REQ-UI-20: sugerencias como lista emergente pegada al input (botones blancos
+  `addr_sug_{i}` con chincheta CSS y hover rojo; `!important` estático frente al
+  secundario oscuro). Límite honesto: Streamlit no emite por tecla, refrescan al
+  confirmar el texto; sin JS.
+- REQ-UI-21: "Foto analizada" a la derecha de la imagen (`.huellas-scanrow` flex).
+- Specs v1.15: `requirements.md` §18 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.

@@ -289,6 +289,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   sugerencias clicables vía Nominatim (`sugerir_direcciones()`, caché 1 h, sesgo Jerez);
   elegir una centra el mapa. Sin red o sin texto, no aparece nada (sin romper).
 
+## 18. Desplegable de sugerencias + etiqueta lateral (v1.15 25/09/2026, solo UI)
+
+- REQ-UI-20 — Las sugerencias salen como lista emergente pegada al recuadro (filas
+  blancas `addr_sug_{i}` con chincheta CSS y borde rojo en hover), no como radio:
+  un toque centra el mapa. Se refrescan al confirmar el texto (límite de Streamlit:
+  los widgets no emiten por cada tecla, solo al confirmar; sin JS).
+- REQ-UI-21 — "Foto analizada" a la DERECHA de la imagen (fila flex `.huellas-scanrow`
+  que aprovecha el hueco lateral), no debajo.
+
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅
