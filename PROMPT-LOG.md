@@ -271,3 +271,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Mapas con `use_container_width=True` (el iframe dejaba el hueco blanco a la derecha).
 - Textos libres en blanco con `placeholder` de ayuda; selects con `SELECCIONAR` (`index=None`) + validación; formulario fresco al entrar en Buscar.
 - Verificación: pytest 32/32, smoke 5 páginas OK, blancos comprobados por AppTest.
+
+## S63 — 24/09/2026 — Inicio + navegación lateral + carrusel (Muse Spark)
+- SDD primero: `requirements.md` §14 (REQ-UI-01..06) + `architecture.md` §8 (capa UI), espejados en `docs/`; matching, agentes, RAG y BD intactos; logo, header y fondo intactos.
+- Nuevo `ui_home.py` puro (testeable sin Streamlit): `select_carousel_items()` filtra activos lost/found, máx. 12 recientes, ignora `contact_info` por construcción; `build_carousel_html()` marquee CSS con foto + Especie·color + zona + Perdido/Avistado, clic `?aviso=<id>`; vacío invita a publicar el primero.
+- `app.py`: página `inicio` por defecto con hero (ESTOS PELUDOS / QUIEREN VOLVER A CASA en rojo con subrayado dibujado + corazón SVG con latido, fade-up por líneas) + 2 botones grandes (Publicar rojo sólido con pulso anillo / Búsqueda preliminar con borde rojo, visibles en móvil) + carrusel (miniaturas 300px data-URI con `st.cache_data(ttl=120)`, pausa en hover, `prefers-reduced-motion` sin animaciones) + 3 contadores (perdidos/avistamientos/reencuentros).
+- Sidebar: Inicio/Perdidos/Avistamientos/Volvió a casa con icono Material + contador y activo con barra roja `#E30613`; sección Más (Protectoras/Tiempo/Aviso legal como páginas); CTAs al final en rojo; Datos demo y Administración plegados. Navegar conserva `session_state` (filtros intactos); solo CSS con paleta existente, sin dependencias nuevas.
+- Verificación: pytest 36/36 (nuevo `tests/test_carousel.py`: sin contacto ni teléfono, máx. 12, etiquetas, vacío), smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 ≥80%).

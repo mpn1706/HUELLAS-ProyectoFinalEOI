@@ -13,9 +13,10 @@ def _texts(at) -> str:
         return ""
 
 
-for pagina in ("buscar", "perdidos", "encontrados", "reencuentro", "publicar"):
+for pagina in ("inicio", "buscar", "perdidos", "encontrados", "reencuentro",
+                 "publicar", "protectoras", "tiempo", "legal"):
     at = AppTest.from_file(str(APP))
     at.session_state["page"] = pagina
     at.run(timeout=60)
     assert not at.exception, f"La app lanzó excepción en {pagina}: {at.exception}"
-print("SMOKE OK: app.py ejecuta sin excepciones (5 páginas: buscar/perdidos/encontrados/reencuentro/publicar)")
+print("SMOKE OK: app.py ejecuta sin excepciones (9 páginas: inicio/buscar/perdidos/encontrados/reencuentro/publicar/protectoras/tiempo/legal)")

@@ -16,6 +16,7 @@ from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
+from ui_home import build_carousel_html, select_carousel_items
 
 DB = "data/huellas.db"
 LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
@@ -746,16 +747,13 @@ n_reenc = con.execute("SELECT COUNT(*) FROM reencuentros WHERE estado='validada'
 n_total = con.execute("SELECT COUNT(*) FROM avisos").fetchone()[0]
 
 if "page" not in st.session_state:
-    st.session_state.page = "buscar"
+    st.session_state.page = "inicio"
 
 
 def nav_to(dest: str):
+    # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
-    if dest == "buscar":
-        # Formulario siempre fresco al entrar: nada preseleccionado.
-        for _k in ("b_lado", "b_animal", "b_size", "b_search"):
-            st.session_state.pop(_k, None)
 
 
 def ir_a_caso(aviso_id: str, tipo: str):
@@ -786,81 +784,340 @@ def tarjeta_destacada(aid: str) -> bool:
     return st.session_state.get("destacar_id") == aid
 
 
-# ── Navegación superior: botones negros (cuenta + acceso directo) ──────
-m1, m2, m3 = st.columns(3)
-with m1:
-    st.button(f"PERDIDOS ACTIVOS ({n_lost})", key="nav_perdidos",
-              use_container_width=True, on_click=nav_to, args=("perdidos",),
-              help="Muestra los avisos de mascotas perdidas activos, con filtros por animal, color y tamaño.")
-with m2:
-    st.button(f"AVISTAMIENTOS ({n_found})", key="nav_encontrados",
-              use_container_width=True, on_click=nav_to, args=("encontrados",),
-              help="Muestra los avistamientos: animales encontrados pendientes de reunir con su dueño.")
-with m3:
-    st.button(f"VOLVIÓ A CASA ({n_reenc})", key="nav_reencuentro",
-              use_container_width=True, on_click=nav_to, args=("reencuentro",),
-              help="Notifica que un animal volvió con su dueño y registra el cierre del caso.")
-# ── Justo debajo: BUSCAR + PUBLICAR, centrados y rojos ─────────────────
-_, b1, b2, _ = st.columns([1, 2, 2, 1])
-with b1:
-    st.button("Búsqueda preliminar de coincidencias", key="top_buscar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("buscar",),
-              help="Búsqueda preliminar entre perdidos y avistamientos, sin registrar el aviso.")
-with b2:
-    st.button("Publicar aviso", key="top_publicar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("publicar",),
-              help="Publica un aviso de perdido o avistamiento. Al publicar se cruza solo y avisa si supera el 80 por ciento.")
+# ── Inicio / navegación lateral [REQ-UI-01..06] ──────────────────────
+# Solo UI: no toca matching, agentes, RAG ni BD.
+_NAV_ACTIVE_MAP = {
+    "inicio": "nav_inicio",
+    "perdidos": "nav_perdidos",
+    "encontrados": "nav_encontrados",
+    "reencuentro": "nav_reencuentro",
+    "protectoras": "nav_protectoras",
+    "tiempo": "nav_tiempo",
+    "legal": "nav_legal",
+    "buscar": "nav_buscar_side",
+    "publicar": "nav_publicar_side",
+}
+
+
+def inject_ui_css(active_page: str) -> None:
+    """Estilos nav/hero/carrusel/contadores (solo CSS, paleta existente)."""
+    base = """<style>
+[data-testid="stSidebar"] .st-key-nav_inicio button,
+[data-testid="stSidebar"] .st-key-nav_perdidos button,
+[data-testid="stSidebar"] .st-key-nav_encontrados button,
+[data-testid="stSidebar"] .st-key-nav_reencuentro button,
+[data-testid="stSidebar"] .st-key-nav_protectoras button,
+[data-testid="stSidebar"] .st-key-nav_tiempo button,
+[data-testid="stSidebar"] .st-key-nav_legal button {
+  border-radius:6px !important;
+  border-left:3px solid transparent !important;
+  transition:transform .2s, background .2s !important;
+  text-align:left;
+}
+[data-testid="stSidebar"] .st-key-nav_inicio button:hover,
+[data-testid="stSidebar"] .st-key-nav_perdidos button:hover,
+[data-testid="stSidebar"] .st-key-nav_encontrados button:hover,
+[data-testid="stSidebar"] .st-key-nav_reencuentro button:hover,
+[data-testid="stSidebar"] .st-key-nav_protectoras button:hover,
+[data-testid="stSidebar"] .st-key-nav_tiempo button:hover,
+[data-testid="stSidebar"] .st-key-nav_legal button:hover {
+  transform:translateX(3px) !important;
+  background:rgba(35,32,27,0.08) !important;
+}
+[data-testid="stSidebar"] .st-key-nav_publicar_side button,
+[data-testid="stAppViewContainer"] .st-key-hero_publicar button {
+  position:relative !important;
+  border-radius:6px !important;
+  background:#E30613 !important;
+  color:#FFFFFF !important;
+  border:none !important;
+  transition:transform .2s, background .2s !important;
+}
+[data-testid="stSidebar"] .st-key-nav_publicar_side button::after,
+[data-testid="stAppViewContainer"] .st-key-hero_publicar button::after {
+  content:"" !important;
+  position:absolute !important;
+  inset:-2px !important;
+  border:2px solid #E30613 !important;
+  border-radius:8px !important;
+  animation:huellas-ring 2.2s ease-out infinite !important;
+  pointer-events:none !important;
+}
+@keyframes huellas-ring { 0% { transform:scale(1); opacity:.8; } 100% { transform:scale(1.12,1.4); opacity:0; } }
+[data-testid="stSidebar"] .st-key-nav_buscar_side button,
+[data-testid="stAppViewContainer"] .st-key-hero_buscar button {
+  border-radius:6px !important;
+  background:transparent !important;
+  border:1px solid #E30613 !important;
+  color:#E30613 !important;
+  transition:transform .2s, background .2s !important;
+}
+[data-testid="stSidebar"] .st-key-nav_buscar_side button:hover,
+[data-testid="stAppViewContainer"] .st-key-hero_buscar button:hover {
+  transform:translateX(3px) !important;
+  background:rgba(227,6,19,0.08) !important;
+}
+[data-testid="stAppViewContainer"] .st-key-hero_publicar button,
+[data-testid="stAppViewContainer"] .st-key-hero_buscar button {
+  padding:0.9rem 1rem !important;
+  font-size:1rem !important;
+}
+.huellas-hero { padding:0.2rem 0 0.6rem; }
+.huellas-loc { font-size:0.8rem; color:#57503F; font-weight:600; letter-spacing:0.04em; }
+.huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.2; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.5rem 0 0.4rem; }
+.huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 1rem; }
+.huellas-up { animation:huellas-up .7s ease-out both; }
+@keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+em.u { font-style:normal; color:#E30613; position:relative; }
+em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; background:#E30613; animation:huellas-ul 4s ease-in-out infinite; }
+@keyframes huellas-ul { 0%,15% { width:0; } 45%,85% { width:100%; } 100% { width:0; } }
+.huellas-heart { display:inline-block; vertical-align:-3px; animation:huellas-bt 1.4s ease-in-out infinite; }
+@keyframes huellas-bt { 0%,100% { transform:scale(1); } 50% { transform:scale(1.25); } }
+.huellas-vp { overflow:hidden; padding:4px 0; }
+.huellas-trk { display:flex; width:max-content; animation:huellas-mv 32s linear infinite; }
+.huellas-vp:hover .huellas-trk { animation-play-state:paused; }
+@keyframes huellas-mv { to { transform:translateX(-50%); } }
+.huellas-cd-link { text-decoration:none; color:inherit; }
+.huellas-cd { width:150px; flex:none; margin-right:12px; background:#FFFFFF; border:1px solid #57503F; border-radius:10px; overflow:hidden; transition:transform .2s; }
+.huellas-cd:hover { transform:translateY(-4px); }
+.huellas-cd-img { height:104px; display:flex; align-items:center; justify-content:center; background:#F5F1EA; overflow:hidden; }
+.huellas-cd-img img { width:100%; height:100%; object-fit:cover; display:block; }
+.huellas-cd-ph { font-family:'Montserrat','Inter',sans-serif; font-weight:800; font-size:2rem; color:#23201B; }
+.huellas-cd-b { padding:9px 10px 10px; }
+.huellas-cd-t { font-size:0.82rem; font-weight:700; color:#23201B; }
+.huellas-cd-z { font-size:0.75rem; color:#57503F; margin:2px 0 6px; }
+.huellas-cd-et { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; }
+.huellas-cd-et.perd { background:#E30613; color:#FFFFFF; }
+.huellas-cd-et.avis { background:#23201B; color:#FFFFFF; }
+.huellas-vacio { background:#FFFFFF; border:1px solid #57503F; border-radius:10px; padding:1.2rem; text-align:center; }
+.huellas-vacio-t { font-weight:800; color:#23201B; margin:0 0 0.3rem; }
+.huellas-vacio-s { color:#57503F; margin:0; font-size:0.85rem; }
+.huellas-counts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:14px 0 0; }
+.huellas-count { background:#FFFFFF; border:1px solid #57503F; border-radius:8px; padding:10px 12px; }
+.huellas-count-v { font-family:'Montserrat','Inter',sans-serif; font-size:1.4rem; font-weight:800; color:#23201B; }
+.huellas-count-l { font-size:0.75rem; color:#57503F; }
+@media (prefers-reduced-motion:reduce) {
+  .huellas-trk, .huellas-up,
+  [data-testid="stSidebar"] .st-key-nav_publicar_side button::after,
+  [data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
+  em.u::after, .huellas-heart { animation:none !important; }
+  em.u::after { width:100% !important; }
+}
+</style>"""
+    key = _NAV_ACTIVE_MAP.get(active_page, "")
+    extra = ""
+    if key:
+        extra = ('<style>[data-testid="stSidebar"] .st-key-' + key
+                 + ' button { border-left-color:#E30613 !important;'
+                 + ' background:rgba(35,32,27,0.10) !important; }</style>')
+    st.markdown(base + extra, unsafe_allow_html=True)
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def carousel_thumb(path: str) -> str:
+    """Miniatura JPEG ≤300px en data URI para el carrusel (TTL corto)."""
+    try:
+        from PIL import Image
+        import base64
+        import io
+
+        img = Image.open(path).convert("RGB")
+        img.thumbnail((300, 300))
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=65)
+        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        return ""
+
+
+def get_carousel_cards(con, limit: int = 12) -> list:
+    """Tarjetas seguras del carrusel (sin contacto por construcción)."""
+    try:
+        rows = con.execute(
+            "SELECT id FROM avisos WHERE status='active' AND type IN ('lost','found')"
+            " ORDER BY date_reported DESC LIMIT ?", (int(limit),)).fetchall()
+    except Exception:
+        return []
+    avisos = []
+    for r in rows:
+        try:
+            a = dbmod.get_aviso(con, r["id"])
+        except Exception:
+            a = None
+        if a:
+            avisos.append(a)
+    cards = []
+    for b in select_carousel_items(avisos, limit=limit):
+        cards.append({
+            "id": b["id"], "titulo": b["titulo"], "zona": b["zona"],
+            "etiqueta": b["etiqueta"],
+            "img_uri": carousel_thumb(b["image_path"] or ""),
+        })
+    return cards
+
+
+def handle_carousel_click(con) -> None:
+    """Clic en tarjeta (?aviso=id) → salta a su aviso y lo resalta."""
+    try:
+        qp = st.query_params
+        if "aviso" not in qp:
+            return
+        aid = str(qp["aviso"])
+    except Exception:
+        return
+    try:
+        a = dbmod.get_aviso(con, aid)
+    except Exception:
+        a = None
+    try:
+        del st.query_params["aviso"]
+    except Exception:
+        pass
+    if a and a.get("type") in ("lost", "found"):
+        st.session_state.destacar_id = aid
+        st.session_state.page = "perdidos" if a["type"] == "lost" else "encontrados"
+        st.rerun()
+
+
+def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
+    """Hero + botones grandes + carrusel + contadores [REQ-UI-01/03/05/06]."""
+    st.markdown(
+        '<div class="huellas-hero">'
+        '<div class="huellas-up huellas-loc">Jerez de la Frontera</div>'
+        '<h1 class="huellas-title">'
+        '<span class="huellas-up" style="display:block">ESTOS PELUDOS</span>'
+        '<span class="huellas-up" style="display:block;animation-delay:.25s">QUIEREN VOLVER A '
+        '<em class="u">CASA</em> '
+        '<svg class="huellas-heart" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">'
+        '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 '
+        '3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 '
+        '6.86-8.55 11.54L12 21.35z" fill="#E30613"/></svg>'
+        '</span></h1>'
+        '<p class="huellas-up huellas-sub" style="animation-delay:.5s">'
+        'Mira quién te está esperando. Si reconoces a alguno, avisa.</p>'
+        '</div>',
+        unsafe_allow_html=True)
+    h1, h2 = st.columns(2)
+    with h1:
+        st.button("Publicar aviso", key="hero_publicar", type="primary",
+                  use_container_width=True, on_click=nav_to, args=("publicar",),
+                  help="Publica un aviso de perdido o avistamiento.")
+    with h2:
+        st.button("Búsqueda preliminar de coincidencias", key="hero_buscar",
+                  type="secondary", use_container_width=True,
+                  on_click=nav_to, args=("buscar",),
+                  help="Búsqueda preliminar entre perdidos y avistamientos, sin registrar el aviso.")
+    cards = get_carousel_cards(con)
+    st.markdown(build_carousel_html(cards), unsafe_allow_html=True)
+    if not cards:
+        st.button("Publicar el primer aviso", key="hero_empty_pub", type="primary",
+                  use_container_width=True, on_click=nav_to, args=("publicar",))
+    st.markdown(
+        '<div class="huellas-counts">'
+        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_lost)}</div>'
+        '<div class="huellas-count-l">perdidos activos</div></div>'
+        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_found)}</div>'
+        '<div class="huellas-count-l">avistamientos</div></div>'
+        f'<div class="huellas-count"><div class="huellas-count-v">{int(n_reenc)}</div>'
+        '<div class="huellas-count-l">reencuentros</div></div>'
+        '</div>',
+        unsafe_allow_html=True)
+
+
+def render_protectoras() -> None:
+    """Protectoras de Jerez en página principal (mismo contenido del sidebar)."""
+    st.subheader("Protectoras")
+    for p in PERRERAS:
+        with st.container(border=True):
+            st.markdown(
+                '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
+                'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
+                f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
+            st.markdown(f"**Dirección:** {p['direccion']}")
+            st.markdown(f"**Contacto:** {p['contacto']}")
+            st.caption(p["nota"])
+    st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
+            "el Servicio de Laceros lo traslada al CMPA.")
+
+
+def render_tiempo() -> None:
+    """Tiempo en Jerez con el perro según el tiempo (igual que el panel)."""
+    st.subheader("Tiempo en Jerez")
+    with st.container(border=True):
+        try:
+            import streamlit.components.v1 as _components
+
+            d = get_tiempo()
+            cur = d.get("current") or {}
+            dia = (d.get("daily") or {})
+            _, modo = estado_perro(d)
+            noche = es_de_noche(d)
+            _components.html(perro_html(modo, noche=noche), height=190)
+            st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
+                        f"{(cur.get('temperature_2m') or 0):.0f}º**")
+            st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
+            mx = (dia.get("temperature_2m_max") or [None])[0]
+            mn = (dia.get("temperature_2m_min") or [None])[0]
+            pv = (dia.get("precipitation_probability_max") or [None])[0]
+            if mx is not None:
+                st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
+            if pv is not None:
+                st.write(f"- Prob. lluvia: {pv:.0f} %")
+            st.caption("Fuente: Open-Meteo (sin claves).")
+        except Exception as e:
+            st.caption(f"Tiempo no disponible ({e}).")
+
+
+def render_legal() -> None:
+    """Aviso legal en página principal (mismo texto único del sidebar)."""
+    st.subheader("Aviso legal")
+    st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
+             "Una imagen no permite confirmar la identidad, verifique en persona.")
+
+
+# ── UI Inicio: CSS + clics del carrusel (?aviso=) ─────────────────────
+inject_ui_css(st.session_state.get("page", "inicio"))
+handle_carousel_click(con)
 
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
-    if "top_panel" not in st.session_state:
-        st.session_state.top_panel = None
-    sb1, sb2 = st.columns(2)
-    with sb1:
-        st.button("⌂", key="sb_casa", use_container_width=True,
-                  on_click=toggle_top, args=("perreras",),
-                  help="Perreras de Jerez: direcciones y contacto.")
-    with sb2:
-        st.button("☀︎", key="sb_sol", use_container_width=True,
-                  on_click=toggle_top, args=("tiempo",),
-                  help="Tiempo en Jerez con el perro según el tiempo.")
-    if st.session_state.top_panel == "perreras":
-        for p in PERRERAS:
-            with st.container(border=True):
-                st.markdown(
-                    '<div style="background:#000000;border-radius:8px;padding:.5rem .6rem;'
-                    'color:#FFFFFF;font-weight:800;margin-bottom:.4rem;">'
-                    f"{p['nombre'].upper()}</div>", unsafe_allow_html=True)
-                st.markdown(f"**Dirección:** {p['direccion']}")
-                st.markdown(f"**Contacto:** {p['contacto']}")
-                st.caption(p["nota"])
-        st.info("Animal vagabundo en la calle: avisa a Policía Local o SEPRONA; "
-                "el Servicio de Laceros lo traslada al CMPA.")
-    elif st.session_state.top_panel == "tiempo":
-        with st.container(border=True):
-            st.markdown("### Tiempo en Jerez")
-            try:
-                import streamlit.components.v1 as _components
-
-                d = get_tiempo()
-                cur = d.get("current") or {}
-                dia = (d.get("daily") or {})
-                _, modo = estado_perro(d)
-                noche = es_de_noche(d)
-                _components.html(perro_html(modo, noche=noche), height=190)
-                st.markdown(f"**{WMO_ES.get(cur.get('weather_code', 0), '—')} · "
-                            f"{(cur.get('temperature_2m') or 0):.0f}º**")
-                st.write(f"- Viento: {(cur.get('wind_speed_10m') or 0):.0f} km/h")
-                mx = (dia.get("temperature_2m_max") or [None])[0]
-                mn = (dia.get("temperature_2m_min") or [None])[0]
-                pv = (dia.get("precipitation_probability_max") or [None])[0]
-                if mx is not None:
-                    st.write(f"- Máx/mín hoy: {mx:.0f}º / {mn:.0f}º")
-                if pv is not None:
-                    st.write(f"- Prob. lluvia: {pv:.0f} %")
-                st.caption("Fuente: Open-Meteo (sin claves).")
-            except Exception as e:
-                st.caption(f"Tiempo no disponible ({e}).")
+    st.button("Inicio", key="nav_inicio", icon=":material/home:",
+              use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("inicio",),
+              help="Pantalla de inicio: hero, carrusel y contadores.")
+    st.button(f"Perdidos ({n_lost})", key="nav_perdidos", icon=":material/search:",
+              use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("perdidos",),
+              help="Muestra los avisos de mascotas perdidas activos, con filtros por animal, color y tamaño.")
+    st.button(f"Avistamientos ({n_found})", key="nav_encontrados",
+              icon=":material/visibility:", use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("encontrados",),
+              help="Muestra los avistamientos: animales encontrados pendientes de reunir con su dueño.")
+    st.button(f"Volvió a casa ({n_reenc})", key="nav_reencuentro",
+              icon=":material/favorite:", use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("reencuentro",),
+              help="Notifica que un animal volvió con su dueño y registra el cierre del caso.")
+    st.caption("Más")
+    st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
+              use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("protectoras",),
+              help="Protectoras de Jerez: direcciones y contacto.")
+    st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
+              use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("tiempo",),
+              help="Tiempo en Jerez con el perro según el tiempo.")
+    st.button("Aviso legal", key="nav_legal", icon=":material/description:",
+              use_container_width=True, type="tertiary",
+              on_click=nav_to, args=("legal",),
+              help="Este análisis no promete una coincidencia inequívoca.")
+    st.divider()
+    st.button("Publicar aviso", key="nav_publicar_side", type="primary",
+              use_container_width=True, on_click=nav_to, args=("publicar",),
+              help="Publica un aviso de perdido o avistamiento. Al publicar se cruza solo y avisa si supera el 80 por ciento.")
+    st.button("Búsqueda preliminar de coincidencias", key="nav_buscar_side",
+              type="secondary", use_container_width=True,
+              on_click=nav_to, args=("buscar",),
+              help="Búsqueda preliminar entre perdidos y avistamientos, sin registrar el aviso.")
     st.divider()
     st.subheader("Puntualizaciones sobre la web")
     with st.expander("Cómo puntúa (fórmula cerrada)"):
@@ -887,186 +1144,200 @@ with st.sidebar:
         st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
                  "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.divider()
-    st.subheader("Datos demo")
-    if st.button("Cargar seed Jerez (16 avisos activos)"):
-        import json as _json
+    with st.expander("Datos demo", expanded=False):
+        if st.button("Cargar seed Jerez (16 avisos activos)"):
+            import json as _json
 
-        con2 = get_con()
-        dbmod.wipe_all(con2)
-        total = 0
-        for folder in ("lost", "found"):
-            for fp in sorted(Path("data/seed", folder).glob("*.json")):
-                dbmod.upsert_aviso(con2, normalize_aviso(_json.loads(fp.read_text(encoding="utf-8"))))
-                total += 1
-        dbmod.set_seed_version(con2)
-        from agents.vision import backfill_embeddings as _bf, sync_seed_embeddings as _sy
+            con2 = get_con()
+            dbmod.wipe_all(con2)
+            total = 0
+            for folder in ("lost", "found"):
+                for fp in sorted(Path("data/seed", folder).glob("*.json")):
+                    dbmod.upsert_aviso(con2, normalize_aviso(_json.loads(fp.read_text(encoding="utf-8"))))
+                    total += 1
+            dbmod.set_seed_version(con2)
+            from agents.vision import backfill_embeddings as _bf, sync_seed_embeddings as _sy
 
-        _bf(con2)
-        _sy(con2)
-        retirar_alerta_demo(con2)
-        st.success(f"Seed cargada: 16 avisos activos "
-                   f"(5 perdidos + 11 encontrados, +1 resuelto demo).")
-        st.rerun()
-    if st.button("Expirar avisos >30 días"):
-        n = dbmod.expire_old(get_con(), 30)
-        st.info(f"Avisos expirados: {n}")
-    st.divider()
-    st.subheader("Administración")
-    TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
-    ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
-
-    def _expected_pw() -> str:
-        try:
-            v = st.secrets.get("ADMIN_PASSWORD", "")
-            if v:
-                return str(v)
-        except Exception:
-            pass
-        import os
-        return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
-
-    if not st.session_state.get("admin_ok"):
-        pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
-        if st.button("Entrar"):
-            if admmod.check_password(pw, _expected_pw()):
-                st.session_state.admin_ok = True
-                st.success("Sesión de administrador iniciada.")
-                st.rerun()
-            else:
-                st.error("Contraseña incorrecta.")
-    else:
-        f_tipo = st.selectbox("Tipo", ["todos", "lost", "found"], key="adm_tipo",
-                              format_func=lambda t: TIPO_ES.get(t, t))
-        f_txt = st.text_input("Buscar texto", key="adm_txt")
-        if st.button("Salir"):
-            st.session_state.admin_ok = False
+            _bf(con2)
+            _sy(con2)
+            retirar_alerta_demo(con2)
+            st.success(f"Seed cargada: 16 avisos activos "
+                       f"(5 perdidos + 11 encontrados, +1 resuelto demo).")
             st.rerun()
-        for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
-            with st.container(border=True):
-                show_image(a["image_url"], caption=a["id"])
-                st.markdown(f"### {animal_tag(a)}")
-                st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
-                st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
-                st.write(a["description_text"])
-                if st.session_state.get("confirm_del") == a["id"]:
-                    if st.button("Confirmar eliminación", key=f"cf_{a['id']}", type="primary"):
-                        admmod.delete_aviso(con, a["id"])
-                        st.session_state.pop("confirm_del", None)
-                        st.success(f"Aviso {a['id']} eliminado.")
-                        st.rerun()
-                elif st.button("Eliminar", key=f"del_{a['id']}"):
-                    st.session_state.confirm_del = a["id"]
-                    st.rerun()
-                if a["status"] == "active" and st.button("Marcar resuelto", key=f"ok_{a['id']}"):
-                    admmod.resolve_aviso(con, a["id"])
-                    st.success(f"Aviso {a['id']} resuelto.")
-                    st.rerun()
-                with st.expander(f"Editar datos · {a['id']}"):
-                    e_tipo = st.selectbox("Tipo", ["lost", "found"],
-                                          index=["lost", "found"].index(a["type"]),
-                                          key=f"e_tipo_{a['id']}",
-                                          format_func=lambda t: TIPO_ES.get(t, t))
-                    e_animal = st.selectbox("Animal", ["dog", "cat", "other"],
-                                            index=["dog", "cat", "other"].index(a["animal"]),
-                                            key=f"e_an_{a['id']}",
-                                            format_func=lambda x: {"dog": "Perro", "cat": "Gato",
-                                                                   "other": "Otro"}.get(x, x))
-                    e_breed = st.text_input("Raza aprox.", value=a.get("breed_guess") or "",
-                                            key=f"e_br_{a['id']}")
-                    e_c1 = st.text_input("Color principal", value=a.get("color_primary") or "",
-                                         key=f"e_c1_{a['id']}")
-                    e_c2 = st.text_input("Color secundario", value=a.get("color_secondary") or "",
-                                         key=f"e_c2_{a['id']}")
-                    e_marks = st.text_input("Marcas (separadas por comas)",
-                                            value=", ".join(a.get("markings") or ""),
-                                            key=f"e_mk_{a['id']}")
-                    e_size = st.selectbox("Tamaño", ["small", "medium", "large"],
-                                          index=["small", "medium", "large"].index(a["size"]),
-                                          key=f"e_sz_{a['id']}",
-                                          format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
-                                                                 "large": "Grande"}.get(s, s))
-                    e_collar = st.checkbox("Lleva collar", value=bool(a.get("has_collar")),
-                                           key=f"e_co_{a['id']}")
-                    e_collar_d = st.text_input("Descripción collar",
-                                               value=a.get("collar_description") or "",
-                                               key=f"e_cd_{a['id']}")
-                    e_desc = st.text_area("Descripción", value=a.get("description_text") or "",
-                                          key=f"e_de_{a['id']}")
-                    e_addr = st.text_input("Dirección",
-                                           value=(a.get("location") or {}).get("address_text") or "",
-                                           key=f"e_ad_{a['id']}")
-                    e_status = st.selectbox("Estado", ["active", "resolved", "expired"],
-                                            index=["active", "resolved", "expired"].index(a["status"]),
-                                            key=f"e_st_{a['id']}",
-                                            format_func=lambda s: ESTADO_ES.get(s, s))
-                    if st.button("Guardar cambios", key=f"e_sv_{a['id']}", type="primary"):
-                        try:
-                            from agents.ingestor import validate_aviso
+        if st.button("Expirar avisos >30 días"):
+            n = dbmod.expire_old(get_con(), 30)
+            st.info(f"Avisos expirados: {n}")
+    st.divider()
+    with st.expander("Administración", expanded=False):
+        TIPO_ES = {"todos": "Todos", "lost": "Perdidos", "found": "Encontrados"}
+        ESTADO_ES = {"active": "Activo", "resolved": "Resuelto", "expired": "Expirado"}
 
-                            nuevo = dict(a)
-                            nuevo.update({
-                                "type": e_tipo, "animal": e_animal,
-                                "breed_guess": (e_breed.strip() or None) if e_animal != "other" else None,
-                                "color_primary": e_c1.strip().lower(),
-                                "color_secondary": e_c2.strip().lower() or None,
-                                "markings": [m.strip().lower() for m in e_marks.split(",") if m.strip()],
-                                "size": e_size, "has_collar": bool(e_collar),
-                                "collar_description": e_collar_d.strip() or None,
-                                "description_text": e_desc.strip(), "status": e_status})
-                            nuevo["location"] = dict(a.get("location") or {},
-                                                     address_text=e_addr.strip() or None)
-                            errs = validate_aviso(nuevo)
-                            if errs:
-                                st.error("Revisa: " + "; ".join(errs))
-                            else:
-                                campos = ("type", "animal", "breed_guess", "color_primary",
-                                          "color_secondary", "markings", "size", "has_collar",
-                                          "collar_description", "description_text", "status")
-                                cambiados = [k for k in campos if nuevo.get(k) != a.get(k)]
-                                if (nuevo.get("location") or {}).get("address_text") != (
-                                        a.get("location") or {}).get("address_text"):
-                                    cambiados.append("address_text")
-                                dbmod.upsert_aviso(con, nuevo)
-                                admmod.log_action(
-                                    f"EDIT {a['id']} ({', '.join(cambiados) if cambiados else 'sin cambios'})")
-                                st.success(f"Aviso {a['id']} actualizado.")
-                                st.rerun()
-                        except Exception as e:
-                            st.error(f"Error: {e}")
-        loga = Path("data/admin.log")
-        pendientes = dbmod.list_reencuentros(con, "pendiente")
-        with st.expander(f"Reencuentros pendientes ({len(pendientes)})"):
-            if not pendientes:
-                st.caption("Nada pendiente de revisión.")
-            for r in pendientes:
-                st.markdown(f"**`{r['id']}`** · resuelve "
-                            f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
-                if r["nota"]:
-                    st.write(r["nota"])
-                for fp in r["fotos"][:2]:
-                    show_image(fp, caption="Prueba", width=220)
-                c_ok, c_no = st.columns(2)
-                with c_ok:
-                    if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}", type="primary"):
-                        for aid in r["aviso_ids"]:
-                            admmod.resolve_aviso(con, aid)
-                        dbmod.set_reencuentro(con, r["id"], "validada")
-                        admmod.log_action(f"REENCUENTRO {r['id']} validado; "
-                                          f"resueltos {', '.join(r['aviso_ids'])}")
-                        st.success("Caso cerrado.")
-                        st.rerun()
-                with c_no:
-                    if st.button("Rechazar", key=f"rv_no_{r['id']}"):
-                        dbmod.set_reencuentro(con, r["id"], "rechazada")
-                        admmod.log_action(f"REENCUENTRO {r['id']} rechazado "
-                                          "(posible vandalismo); avisos intactos")
-                        st.info("Rechazado: los avisos siguen activos.")
-                        st.rerun()
-        if loga.exists():
-            with st.expander("Ver registro de administración"):
-                st.code(loga.read_text(encoding="utf-8")[-2000:])
+        def _expected_pw() -> str:
+            try:
+                v = st.secrets.get("ADMIN_PASSWORD", "")
+                if v:
+                    return str(v)
+            except Exception:
+                pass
+            import os
+            return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
 
-page = st.session_state.get("page", "buscar")
+        if not st.session_state.get("admin_ok"):
+            pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
+            if st.button("Entrar"):
+                if admmod.check_password(pw, _expected_pw()):
+                    st.session_state.admin_ok = True
+                    st.success("Sesión de administrador iniciada.")
+                    st.rerun()
+                else:
+                    st.error("Contraseña incorrecta.")
+        else:
+            f_tipo = st.selectbox("Tipo", ["todos", "lost", "found"], key="adm_tipo",
+                                  format_func=lambda t: TIPO_ES.get(t, t))
+            f_txt = st.text_input("Buscar texto", key="adm_txt")
+            if st.button("Salir"):
+                st.session_state.admin_ok = False
+                st.rerun()
+            for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
+                with st.container(border=True):
+                    show_image(a["image_url"], caption=a["id"])
+                    st.markdown(f"### {animal_tag(a)}")
+                    st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
+                    st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
+                    st.write(a["description_text"])
+                    if st.session_state.get("confirm_del") == a["id"]:
+                        if st.button("Confirmar eliminación", key=f"cf_{a['id']}", type="primary"):
+                            admmod.delete_aviso(con, a["id"])
+                            st.session_state.pop("confirm_del", None)
+                            st.success(f"Aviso {a['id']} eliminado.")
+                            st.rerun()
+                    elif st.button("Eliminar", key=f"del_{a['id']}"):
+                        st.session_state.confirm_del = a["id"]
+                        st.rerun()
+                    if a["status"] == "active" and st.button("Marcar resuelto", key=f"ok_{a['id']}"):
+                        admmod.resolve_aviso(con, a["id"])
+                        st.success(f"Aviso {a['id']} resuelto.")
+                        st.rerun()
+                    with st.expander(f"Editar datos · {a['id']}"):
+                        e_tipo = st.selectbox("Tipo", ["lost", "found"],
+                                              index=["lost", "found"].index(a["type"]),
+                                              key=f"e_tipo_{a['id']}",
+                                              format_func=lambda t: TIPO_ES.get(t, t))
+                        e_animal = st.selectbox("Animal", ["dog", "cat", "other"],
+                                                index=["dog", "cat", "other"].index(a["animal"]),
+                                                key=f"e_an_{a['id']}",
+                                                format_func=lambda x: {"dog": "Perro", "cat": "Gato",
+                                                                       "other": "Otro"}.get(x, x))
+                        e_breed = st.text_input("Raza aprox.", value=a.get("breed_guess") or "",
+                                                key=f"e_br_{a['id']}")
+                        e_c1 = st.text_input("Color principal", value=a.get("color_primary") or "",
+                                             key=f"e_c1_{a['id']}")
+                        e_c2 = st.text_input("Color secundario", value=a.get("color_secondary") or "",
+                                             key=f"e_c2_{a['id']}")
+                        e_marks = st.text_input("Marcas (separadas por comas)",
+                                                value=", ".join(a.get("markings") or ""),
+                                                key=f"e_mk_{a['id']}")
+                        e_size = st.selectbox("Tamaño", ["small", "medium", "large"],
+                                              index=["small", "medium", "large"].index(a["size"]),
+                                              key=f"e_sz_{a['id']}",
+                                              format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
+                                                                     "large": "Grande"}.get(s, s))
+                        e_collar = st.checkbox("Lleva collar", value=bool(a.get("has_collar")),
+                                               key=f"e_co_{a['id']}")
+                        e_collar_d = st.text_input("Descripción collar",
+                                                   value=a.get("collar_description") or "",
+                                                   key=f"e_cd_{a['id']}")
+                        e_desc = st.text_area("Descripción", value=a.get("description_text") or "",
+                                              key=f"e_de_{a['id']}")
+                        e_addr = st.text_input("Dirección",
+                                               value=(a.get("location") or {}).get("address_text") or "",
+                                               key=f"e_ad_{a['id']}")
+                        e_status = st.selectbox("Estado", ["active", "resolved", "expired"],
+                                                index=["active", "resolved", "expired"].index(a["status"]),
+                                                key=f"e_st_{a['id']}",
+                                                format_func=lambda s: ESTADO_ES.get(s, s))
+                        if st.button("Guardar cambios", key=f"e_sv_{a['id']}", type="primary"):
+                            try:
+                                from agents.ingestor import validate_aviso
+
+                                nuevo = dict(a)
+                                nuevo.update({
+                                    "type": e_tipo, "animal": e_animal,
+                                    "breed_guess": (e_breed.strip() or None) if e_animal != "other" else None,
+                                    "color_primary": e_c1.strip().lower(),
+                                    "color_secondary": e_c2.strip().lower() or None,
+                                    "markings": [m.strip().lower() for m in e_marks.split(",") if m.strip()],
+                                    "size": e_size, "has_collar": bool(e_collar),
+                                    "collar_description": e_collar_d.strip() or None,
+                                    "description_text": e_desc.strip(), "status": e_status})
+                                nuevo["location"] = dict(a.get("location") or {},
+                                                         address_text=e_addr.strip() or None)
+                                errs = validate_aviso(nuevo)
+                                if errs:
+                                    st.error("Revisa: " + "; ".join(errs))
+                                else:
+                                    campos = ("type", "animal", "breed_guess", "color_primary",
+                                              "color_secondary", "markings", "size", "has_collar",
+                                              "collar_description", "description_text", "status")
+                                    cambiados = [k for k in campos if nuevo.get(k) != a.get(k)]
+                                    if (nuevo.get("location") or {}).get("address_text") != (
+                                            a.get("location") or {}).get("address_text"):
+                                        cambiados.append("address_text")
+                                    dbmod.upsert_aviso(con, nuevo)
+                                    admmod.log_action(
+                                        f"EDIT {a['id']} ({', '.join(cambiados) if cambiados else 'sin cambios'})")
+                                    st.success(f"Aviso {a['id']} actualizado.")
+                                    st.rerun()
+                            except Exception as e:
+                                st.error(f"Error: {e}")
+            loga = Path("data/admin.log")
+            pendientes = dbmod.list_reencuentros(con, "pendiente")
+            with st.expander(f"Reencuentros pendientes ({len(pendientes)})"):
+                if not pendientes:
+                    st.caption("Nada pendiente de revisión.")
+                for r in pendientes:
+                    st.markdown(f"**`{r['id']}`** · resuelve "
+                                f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+                    if r["nota"]:
+                        st.write(r["nota"])
+                    for fp in r["fotos"][:2]:
+                        show_image(fp, caption="Prueba", width=220)
+                    c_ok, c_no = st.columns(2)
+                    with c_ok:
+                        if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}", type="primary"):
+                            for aid in r["aviso_ids"]:
+                                admmod.resolve_aviso(con, aid)
+                            dbmod.set_reencuentro(con, r["id"], "validada")
+                            admmod.log_action(f"REENCUENTRO {r['id']} validado; "
+                                              f"resueltos {', '.join(r['aviso_ids'])}")
+                            st.success("Caso cerrado.")
+                            st.rerun()
+                    with c_no:
+                        if st.button("Rechazar", key=f"rv_no_{r['id']}"):
+                            dbmod.set_reencuentro(con, r["id"], "rechazada")
+                            admmod.log_action(f"REENCUENTRO {r['id']} rechazado "
+                                              "(posible vandalismo); avisos intactos")
+                            st.info("Rechazado: los avisos siguen activos.")
+                            st.rerun()
+            if loga.exists():
+                with st.expander("Ver registro de administración"):
+                    st.code(loga.read_text(encoding="utf-8")[-2000:])
+
+page = st.session_state.get("page", "inicio")
+
+# ── Página: Inicio ────────────────────────────────────────────────────
+if page == "inicio":
+    render_inicio(con, n_lost, n_found, n_reenc)
+
+# ── Páginas: Protectoras / Tiempo / Aviso legal ───────────────────────
+if page == "protectoras":
+    render_protectoras()
+
+if page == "tiempo":
+    render_tiempo()
+
+if page == "legal":
+    render_legal()
 
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
