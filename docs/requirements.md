@@ -181,8 +181,9 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
   reencuentros).
   Sin Perdidos/Avistamientos/Volvió a casa en el sidebar (se llega vía Inicio).
   Plegables = botón rojo que alterna `session_state` (al abrir la app, solo
-  FUNCIONALIDADES desplegada; al cambiar de pestaña se reabren todas para acceso
-  rápido + `initial_sidebar_state` en expanded) (v1.9). Botones a todo el ancho (`block-container` con `padding` lateral
+  FUNCIONALIDADES desplegada; al cambiar de pestaña se reabre el PANEL lateral
+  —no las secciones— vía expansor JS de un solo disparo + `initial_sidebar_state`
+  en expanded) (v1.10). Botones a todo el ancho (`block-container` con `padding` lateral
   mínimo). Sin caption de conteo bajo "Animales perdidos activos".
   Cambiar de sección es un rerun Streamlit: conserva `session_state` (no pierde filtros).
 - REQ-UI-03 — CTAs en el hero de Inicio y agrupados en FUNCIONALIDADES del sidebar

@@ -135,7 +135,7 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..06, v1.9 24/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..06, v1.10 24/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
@@ -148,7 +148,7 @@ Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
   DATOS DEMO (bar_chart → seed + expirar)
   MÁS (+ add → Protectoras + Tiempo, negros indentados con sus iconos)
   ADMINISTRACIÓN (key → login + moderación + reencuentros)
-        | session_state.page (rerun, conserva filtros; reabre secciones)
+        | session_state.page (rerun, conserva filtros; reabre PANEL, no secciones)
         v
 [ Inicio (page="inicio", defecto) ]                               [REQ-UI-01]
   Hero HTML (fade-up una vez, CASA roja subrayada, corazón SVG latido) [REQ-UI-05]

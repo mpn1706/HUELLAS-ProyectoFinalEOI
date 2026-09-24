@@ -323,3 +323,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - `nav_to()`/`ir_a_caso()`/`ir_a_publicar_con()` vuelven a reabrir las 5 secciones (`side_func/punt/demo/mas/admin = True`) como en S65. Al abrir la app sigue arrancando solo FUNCIONALIDADES desplegada (defectos de render intactos).
 - Specs v1.9: REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 40/40, smoke 9 páginas OK.
+
+## S71 — 24/09/2026 — Revert S70 + auto-apertura del PANEL al cambiar de pestaña (Muse Spark)
+- Malentendido mío: el usuario quería que se abra el PANEL lateral (no sus secciones) al cambiar de pestaña. Revertido S70 (`nav_to()` y cía. solo reabren `side_func`).
+- Streamlit no expone API para desplegar el sidebar: expansor de un solo disparo vía `components.html` (iframe invisible) que pulsa `stSidebarCollapsedControl`, solo en el run donde cambia `page` (con `_side_prev_page`/`_side_nav_n` para remontar; otros reruns no lo tocan). Falla en silencio si el sandbox lo bloquea. Nuevo `tests/test_sidebar_panel.py`.
+- Specs v1.10: REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 42/42, smoke 9 páginas OK.

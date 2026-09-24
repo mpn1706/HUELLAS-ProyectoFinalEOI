@@ -750,11 +750,10 @@ if "page" not in st.session_state:
 
 def nav_to(dest: str):
     # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
-    # Reabre las secciones del sidebar para tener acceso rápido tras cada cambio.
+    # Mantiene FUNCIONALIDADES abierta para tener inicio/funciones siempre a mano.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
-    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
-        st.session_state[_k] = True
+    st.session_state["side_func"] = True
     for _k in ("page", "aviso"):
         try:
             if _k in st.query_params:
@@ -776,8 +775,7 @@ def ir_a_caso(aviso_id: str, tipo: str):
     """Salta al caso del otro lado y lo resalta (botón VER COINCIDENCIA)."""
     st.session_state.destacar_id = aviso_id
     st.session_state.page = "perdidos" if tipo == "lost" else "encontrados"
-    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
-        st.session_state[_k] = True
+    st.session_state["side_func"] = True
 
 
 def ir_a_publicar_con(q: dict, lado: str):
@@ -796,8 +794,7 @@ def ir_a_publicar_con(q: dict, lado: str):
         "addr": loc.get("address_text", ""), "qpath": q.get("image_url", "")}
     st.session_state.pub_init = False
     st.session_state.page = "publicar"
-    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
-        st.session_state[_k] = True
+    st.session_state["side_func"] = True
 
 
 def tarjeta_destacada(aid: str) -> bool:
@@ -1431,6 +1428,28 @@ with st.sidebar:
                         st.code(loga.read_text(encoding="utf-8")[-2000:])
 
 page = st.session_state.get("page", "inicio")
+
+# ── Auto-apertura del PANEL lateral al cambiar de pestaña ─────────────
+# Streamlit no expone API para desplegar el sidebar: se pulsa el control de
+# apertura (`stSidebarCollapsedControl`) desde un iframe invisible, SOLO en el
+# run donde cambia `page` (otros reruns —escribir, sliders— no lo tocan).
+# Si el sandbox bloquea el acceso al padre, falla en silencio (sin romper nada).
+_SIDEBAR_EXPAND_HTML = (
+    "<script>(function(){try{var d=window.parent.document;"
+    "var c=d.querySelector('[data-testid=\"stSidebarCollapsedControl\"]');"
+    "if(c){var b=c.querySelector('button');if(b){b.click();}}"
+    "}catch(e){}})();</script>"
+)
+if st.session_state.get("_side_prev_page") != page:
+    st.session_state["_side_prev_page"] = page
+    st.session_state["_side_nav_n"] = int(st.session_state.get("_side_nav_n", 0)) + 1
+    try:
+        import streamlit.components.v1 as _components
+
+        _components.html(_SIDEBAR_EXPAND_HTML, height=0,
+                         key=f"side_expander_{st.session_state['_side_nav_n']}")
+    except Exception:
+        pass
 
 # ── Página: Inicio ────────────────────────────────────────────────────
 if page == "inicio":
