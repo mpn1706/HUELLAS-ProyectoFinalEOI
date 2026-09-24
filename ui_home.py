@@ -168,16 +168,16 @@ def build_pen_html() -> str:
     """
     return (
         '<div class="huellas-penwrap">'
-        '<svg viewBox="0 0 300 96" class="huellas-pen" aria-hidden="true">'
-        '<path d="M12 26 Q 70 6, 120 30 T 230 26" pathLength="100" '
+        '<svg viewBox="0 0 300 150" class="huellas-pen" aria-hidden="true">'
+        '<path d="M12 30 Q 70 8, 120 34 T 230 30" pathLength="100" '
         'class="huellas-trazo"></path>'
-        '<path d="M12 54 Q 80 40, 150 56 T 260 52" pathLength="100" '
+        '<path d="M12 75 Q 80 60, 150 80 T 260 75" pathLength="100" '
         'class="huellas-trazo t2"></path>'
-        '<path d="M12 80 L 120 80" pathLength="100" '
+        '<path d="M12 122 L 150 122" pathLength="100" '
         'class="huellas-trazo t3"></path>'
-        '<g class="huellas-boli"><g transform="rotate(28 30 22)">'
-        '<rect x="24" y="2" width="12" height="28" rx="4" fill="#23201B"/>'
-        '<path d="M24 30 L36 30 L30 44 Z" fill="#E30613"/>'
+        '<g class="huellas-boli"><g transform="rotate(28 30 26)">'
+        '<rect x="24" y="6" width="12" height="28" rx="4" fill="#23201B"/>'
+        '<path d="M24 34 L36 34 L30 48 Z" fill="#E30613"/>'
         "</g></g>"
         "</svg></div>"
     )

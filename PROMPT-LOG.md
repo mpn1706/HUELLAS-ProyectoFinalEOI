@@ -415,3 +415,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
   imágenes del sidebar (el letterbox ya centra al animal entero).
 - Specs v1.17: `requirements.md` §20 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.
+
+## S82 — 25/09/2026 — Boli alto y translúcido (Muse Spark)
+- Boli en formato alto (`min-height:240px`, SVG 300×150 con trazos repartidos) y fondo
+  translúcido (`rgba(255,255,255,0.45)`, se ve el patrón de la web).
+- Verificación: pytest 9/9 (UI) + smoke 9 páginas OK.
