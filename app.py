@@ -832,8 +832,8 @@ def inject_ui_css(active_page: str) -> None:
   text-align:left;
   background:#E30613 !important;
   color:#FFFFFF !important;
-  padding:0.75rem 1rem !important;
-  font-size:1.02rem !important;
+  padding:0.95rem 1rem !important;
+  font-size:1.08rem !important;
   font-weight:700 !important;
 }
 [data-testid="stSidebar"] .st-key-nav_inicio button:hover,
@@ -884,41 +884,9 @@ section[data-testid="stSidebar"] div.block-container {
   padding-left:0.5rem !important;
   padding-right:0.5rem !important;
 }
-/* Los 6 botones principales reparten el alto de la ventana: la columna llega
-   hasta abajo, a la altura de la página principal. Los secundarios conservan
-   su tamaño (flex:none por defecto). */
+/* Botones principales más altos y juntos (sin estirado flex). */
 [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  gap:10px !important;
-  min-height:calc(100vh - 110px) !important;
-}
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]:has(.st-key-nav_inicio),
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]:has(.st-key-tgl_func),
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]:has(.st-key-tgl_punt),
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]:has(.st-key-tgl_demo),
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]:has(.st-key-tgl_mas),
-[data-testid="stSidebar"] div[data-testid="stElementContainer"]:has(.st-key-tgl_admin) {
-  display:contents !important;
-}
-[data-testid="stSidebar"] .st-key-nav_inicio,
-[data-testid="stSidebar"] .st-key-tgl_func,
-[data-testid="stSidebar"] .st-key-tgl_punt,
-[data-testid="stSidebar"] .st-key-tgl_demo,
-[data-testid="stSidebar"] .st-key-tgl_mas,
-[data-testid="stSidebar"] .st-key-tgl_admin {
-  flex:1 0 auto !important;
-  display:flex !important;
-  min-height:3.4rem !important;
-}
-[data-testid="stSidebar"] .st-key-nav_inicio button,
-[data-testid="stSidebar"] .st-key-tgl_func button,
-[data-testid="stSidebar"] .st-key-tgl_punt button,
-[data-testid="stSidebar"] .st-key-tgl_demo button,
-[data-testid="stSidebar"] .st-key-tgl_mas button,
-[data-testid="stSidebar"] .st-key-tgl_admin button {
-  flex:1 !important;
+  gap:6px !important;
 }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button {

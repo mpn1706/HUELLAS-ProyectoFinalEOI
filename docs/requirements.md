@@ -194,11 +194,11 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
   `rgba(227,6,19,.85)`, sin aspecto de blog. Hero: los 2 CTAs en rojo sólido idéntico
   con pulso suave (anillo `::after` que se expande `scale 1 → 1.12,1.4` y se
   desvanece, `2.2s ease-out infinite`).
-  Sidebar: botones principales rojos grandes (`#E30613`, texto `#FFFFFF`, `padding .75rem 1rem`,
-  `1.02rem` negrita) y secundarios negros tabulados (`#23201B`, `margin-left 1.25rem`),
-  con iconos Material, sin emojis. Los 6 principales reparten el alto de la ventana
-  (`flex:1`, `min-height:calc(100vh - 110px)`, `min-height:3.4rem` por botón) para que
-  la columna llegue hasta abajo a la altura de la página (v1.7). Bocadillos `help=` + CSS sobre
+  Sidebar: botones principales rojos grandes (`#E30613`, texto `#FFFFFF`, `padding .95rem 1rem`,
+  `1.08rem` negrita, juntos con `gap 6px`) y secundarios negros tabulados (`#23201B`,
+  `margin-left 1.25rem`), con iconos Material, sin emojis, a todo el ancho
+  (`block-container` con `padding` lateral mínimo). Sin estirado flex (v1.8: se probó
+  en v1.7 y empeoraba la estética). Bocadillos `help=` + CSS sobre
   `[data-testid="stTooltipContent"]`: sin captura de puntero y auto-ocultado a los
   4s aunque Streamlit los deje pillados (v1.6).
 - REQ-UI-05 — Hero Inicio: titular `ESTOS PELUDOS QUIEREN VOLVER A CASA` en 2 líneas con
