@@ -750,10 +750,11 @@ if "page" not in st.session_state:
 
 def nav_to(dest: str):
     # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
-    # Mantiene FUNCIONALIDADES abierta para tener inicio/funciones siempre a mano.
+    # Reabre las secciones del sidebar para tener acceso rápido tras cada cambio.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
-    st.session_state["side_func"] = True
+    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
+        st.session_state[_k] = True
     for _k in ("page", "aviso"):
         try:
             if _k in st.query_params:
@@ -775,7 +776,8 @@ def ir_a_caso(aviso_id: str, tipo: str):
     """Salta al caso del otro lado y lo resalta (botón VER COINCIDENCIA)."""
     st.session_state.destacar_id = aviso_id
     st.session_state.page = "perdidos" if tipo == "lost" else "encontrados"
-    st.session_state["side_func"] = True
+    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
+        st.session_state[_k] = True
 
 
 def ir_a_publicar_con(q: dict, lado: str):
@@ -794,7 +796,8 @@ def ir_a_publicar_con(q: dict, lado: str):
         "addr": loc.get("address_text", ""), "qpath": q.get("image_url", "")}
     st.session_state.pub_init = False
     st.session_state.page = "publicar"
-    st.session_state["side_func"] = True
+    for _k in ("side_func", "side_punt", "side_demo", "side_mas", "side_admin"):
+        st.session_state[_k] = True
 
 
 def tarjeta_destacada(aid: str) -> bool:

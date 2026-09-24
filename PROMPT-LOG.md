@@ -318,3 +318,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Al usuario no le gustó la estética estirada: revertido el bloque flex (`display:contents` + `flex:1`, `100vh`). En su lugar, principales más altos de forma natural (`padding .95rem 1rem`, `1.08rem`) y juntos (`gap 6px`), manteniendo todo el ancho.
 - Specs v1.8: REQ-UI-04 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 40/40, smoke 9 páginas OK.
+
+## S70 — 24/09/2026 — Restaurado autodespliegue al cambiar de pestaña (Muse Spark)
+- `nav_to()`/`ir_a_caso()`/`ir_a_publicar_con()` vuelven a reabrir las 5 secciones (`side_func/punt/demo/mas/admin = True`) como en S65. Al abrir la app sigue arrancando solo FUNCIONALIDADES desplegada (defectos de render intactos).
+- Specs v1.9: REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 40/40, smoke 9 páginas OK.
