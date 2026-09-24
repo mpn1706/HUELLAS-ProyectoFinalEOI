@@ -853,8 +853,10 @@ def inject_ui_css(active_page: str) -> None:
   font-size:1.35rem !important;
   line-height:1.3 !important;
   margin:0.6rem 0 0.8rem !important;
-  background:linear-gradient(90deg, #23201B 35%, #E30613 50%, #23201B 65%) !important;
-  background-size:200% auto !important;
+  /* SIN !important en background/background-size: con !important la base
+     ganaría a los keyframes en la cascada y el barrido quedaría congelado. */
+  background:linear-gradient(90deg, #23201B 35%, #E30613 50%, #23201B 65%);
+  background-size:200% auto;
   -webkit-background-clip:text !important;
   background-clip:text !important;
   -webkit-text-fill-color:transparent !important;
@@ -884,8 +886,10 @@ def inject_ui_css(active_page: str) -> None:
 }
 .huellas-perimetro-paw {
   position:absolute !important;
-  top:-14px !important;
-  left:-14px !important;
+  /* SIN !important en top/left (los animan los keyframes): con !important
+     la base ganaría en la cascada y la huella quedaría clavada en la esquina. */
+  top:-14px;
+  left:-14px;
   width:26px !important;
   height:26px !important;
   line-height:0 !important;
@@ -1563,8 +1567,7 @@ if page == "buscar":
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
         st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta). " +
-                   ("Azules: perdidos · roja: tu zona." if lado == "lost"
-                    else "Verdes: avistamientos · roja: tu zona."))
+                   "Azules: perdidos · Verdes: avistamientos · roja: tu zona.")
         try:
             import folium
             from folium.plugins import MarkerCluster
@@ -1577,18 +1580,26 @@ if page == "buscar":
                           popup=("TU ZONA · "
                                  f"{st.session_state.get('q_addr_in', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
-            cl_lado = MarkerCluster(name="Canal").add_to(fmap)
-            for c in dbmod.get_active_opuestos(con, qtype):
+            # El mapa de zona es de referencia: muestra AMBOS lados (perdidos en
+            # azul y avistamientos en verde). El cruce sí va solo contra el canal.
+            cl_perd = MarkerCluster(name="Perdidos").add_to(fmap)
+            for c in dbmod.get_active_opuestos(con, "found"):
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
                     tooltip=c["id"],
                     popup=folium.Popup(popup_html(c), max_width=260),
-                    icon=folium.Icon(color=pin_color(c))).add_to(cl_lado)
+                    icon=folium.Icon(color=pin_color(c))).add_to(cl_perd)
+            cl_av = MarkerCluster(name="Avistamientos").add_to(fmap)
+            for c in dbmod.get_active_opuestos(con, "lost"):
+                folium.Marker(
+                    [c["location"]["lat"], c["location"]["lng"]],
+                    tooltip=c["id"],
+                    popup=folium.Popup(popup_html(c), max_width=260),
+                    icon=folium.Icon(color=pin_color(c))).add_to(cl_av)
             out = st_folium(fmap, key="cerca_map",
                             center=(st.session_state.q_lat, st.session_state.q_lon),
                             zoom=14, height=380, use_container_width=True)
-            leyenda_mapa(mostrar_perdidos=(lado == "lost"),
-                         mostrar_avist=(lado != "lost"))
+            leyenda_mapa()
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
                 nlng = round(out["last_clicked"]["lng"], 4)

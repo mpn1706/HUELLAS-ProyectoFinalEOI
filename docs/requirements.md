@@ -227,11 +227,12 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 
 ## 15. Tanda UI v1.12 (24/09/2026, a petición del alumno; solo UI, sin tocar matching/agentes/RAG/BD)
 
-- REQ-UI-07 — Mapa de Buscar: la leyenda dice AVISTAMIENTOS (nunca ENCONTRADOS) y es
-  contextual (`leyenda_mapa(mostrar_perdidos, mostrar_avist)`): con canal avistamientos
-  (o sin elegir, que por defecto ya muestra avistamientos) solo TU CASO + AVISTAMIENTOS;
-  con canal perdidos solo TU CASO + PERDIDOS. Las chinchetas del canal se pintan con
-  `pin_color()` (verdes = avistamientos, azules = perdidos) vía `get_active_opuestos()`.
+- REQ-UI-07 — Mapa de Buscar: la leyenda dice AVISTAMIENTOS (nunca ENCONTRADOS) y
+  muestra AMBOS lados (TU CASO + PERDIDOS + AVISTAMIENTOS). El mapa de zona es de
+  referencia: pinta perdidos (azules) y avistamientos (verdes) con `pin_color()` vía
+  `get_active_opuestos()` en dos `MarkerCluster`. El cruce sí va solo contra el canal
+  elegido. `leyenda_mapa()` acepta `mostrar_perdidos/mostrar_avist` para el mapa de
+  resultados (`render_mapa_avistados()` la infiere de los tipos visibles).
 - REQ-UI-08 — Buscar se titula ANÁLISIS PRELIMINAR DE SIMILITUDES RESPECTO AL REGISTRO
   y se reenumera: 1. ¿Dónde buscas? · 2. Foto actual · 3. Zona · 4. Descripción ·
   5. Lanza la búsqueda.
@@ -248,6 +249,10 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   `stTooltipContent`, y fuera el `title=` del carrusel (`ui_home.build_carousel_html`)
   que repetía el texto en negro al pasar el cursor.
 - Accesibilidad: `prefers-reduced-motion` apaga también `huellas-sweep` y `huellas-peri`.
+- Regla CSS crítica (S76): las propiedades animadas por keyframes (`background-position`
+  del barrido, `top/left` de la huella) van SIN `!important` en la base — con `!important`
+  la base gana a los keyframes en la cascada y la animación queda congelada en el
+  fotograma inicial (verificado en Edge headless: reloj avanzando, valores fijos).
 
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 

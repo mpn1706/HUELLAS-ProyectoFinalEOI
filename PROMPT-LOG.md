@@ -352,3 +352,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Fuera bocadillos: cero `help=` en app.py + CSS tooltip eliminada + `title=` fuera del carrusel (`ui_home.py`); `prefers-reduced-motion` cubre sweep/peri.
 - Specs v1.12: `requirements.md` §15 (REQ-UI-07..12) + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 42/42, smoke 9 páginas OK, demo_check E2E OK (found_011 top-1 84.3% ≥80%).
+
+## S76 — 24/09/2026 — Fixes v1.12: mapa con ambos lados + animaciones congeladas (Muse Spark)
+- Mapa Buscar: el contextual escondía un lado (primero perdidos, luego avistamientos). Ahora el mapa de zona muestra AMBOS (dos `MarkerCluster`, leyenda completa TU CASO + PERDIDOS + AVISTAMIENTOS); el cruce sigue yendo solo contra el canal. Caption único.
+- Causa raíz de las animaciones congeladas (barrido y huella se veían pero quietas): el `!important` de la base gana a los keyframes en la cascada CSS — el reloj avanzaba (`currentTime` 7.1s→12.3s) pero el estilo computado quedaba fijo. Fix: `background/background-size` (barrido) y `top/left` (huella) sin `!important`, con comentario de guarda en el CSS.
+- Verificado en Edge headless con Playwright (capturas + estilos computados): huella `left` 282px→83px, barrido `background-position` 3.8%→98.5%. Servidor de pruebas parado y Playwright desinstalado tras verificar.
+- Verificación: pytest 42/42, smoke 9 páginas OK, demo_check E2E OK.
