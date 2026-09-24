@@ -278,6 +278,17 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   pista interior `.huellas-track`: animar el propio contenedor con `overflow:hidden`
   desplaza la ventana entera y no se ve nada).
 
+## 17. Obligatorios completos + foto despejada + autocompletado (v1.14 25/09/2026, solo UI)
+
+- REQ-UI-17 — En Publicar, color principal y descripción pasan a obligatorios de verdad:
+  etiqueta con `*`, validación en `faltantes_publicar()` (pulso/shake incluidos) y tests.
+- REQ-UI-18 — Foto despejada: fuera la huella flotante y el caption
+  "Sube una foto… (40%)"; el cuadro del uploader crece (`min-height:190px`) para ocupar
+  el hueco.
+- REQ-UI-19 — Autocompletado en Ubicación exacta (Publicar): al escribir (3+ letras),
+  sugerencias clicables vía Nominatim (`sugerir_direcciones()`, caché 1 h, sesgo Jerez);
+  elegir una centra el mapa. Sin red o sin texto, no aparece nada (sin romper).
+
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅

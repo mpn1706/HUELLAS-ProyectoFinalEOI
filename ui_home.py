@@ -78,10 +78,12 @@ def make_carousel_thumb(path: str) -> str:
         return ""
 
 
-def faltantes_publicar(tipo="", animal="", size="", movil="", mail="", rrss="") -> list:
+def faltantes_publicar(tipo="", animal="", size="", color="", desc="",
+                       movil="", mail="", rrss="") -> list:
     """Campos obligatorios que faltan al publicar (shake + aviso).
 
     Pura y testeada: la app la usa para decidir pulso/shake sin tocar el matching.
+    Color principal y descripción también son obligatorios (v1.14).
     """
     faltan = []
     if not tipo:
@@ -90,9 +92,19 @@ def faltantes_publicar(tipo="", animal="", size="", movil="", mail="", rrss="") 
         faltan.append("animal")
     if not size:
         faltan.append("tamaño")
+    if not (color or "").strip():
+        faltan.append("color principal")
+    if not (desc or "").strip():
+        faltan.append("descripción")
     if not ((movil or "").strip() or (mail or "").strip() or (rrss or "").strip()):
         faltan.append("contacto (móvil, correo o red social)")
     return faltan
+
+
+def short_addr(display: str, largo: int = 70) -> str:
+    """Recorta una dirección de Nominatim para la lista de sugerencias."""
+    txt = (display or "").strip().replace("\n", " ")
+    return txt[:largo] + ("…" if len(txt) > largo else "")
 
 
 def build_crossing_html(n: int) -> str:

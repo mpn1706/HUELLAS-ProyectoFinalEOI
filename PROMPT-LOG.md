@@ -377,3 +377,14 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
   Servidor de pruebas parado y Playwright desinstalado tras verificar.
 - Verificación: pytest 49/49 (nuevo `tests/test_publicar_ui.py`), smoke 9 páginas OK,
   demo_check E2E OK (found_011 top-1 84.3% ≥80%).
+
+## S78 — 25/09/2026 — Obligatorios, foto despejada y autocompletado v1.14 (Muse Spark)
+- REQ-UI-17: color principal y descripción con `*` y validación real (`faltantes_publicar`
+  con 2 args más; pulso/shake la respetan; tests actualizados + `short_addr`).
+- REQ-UI-18: fuera huella flotante y caption "Sube una foto…"; uploader con
+  `min-height:190px` ocupando el hueco.
+- REQ-UI-19: autocompletado en Ubicación exacta (Publicar): `sugerir_direcciones()`
+  (Nominatim, caché 1 h, 3+ letras, sesgo Jerez) + radio de sugerencias que centra el
+  mapa; sin red no aparece nada y nada rompe.
+- Specs v1.14: `requirements.md` §17 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.

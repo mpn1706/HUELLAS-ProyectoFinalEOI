@@ -4,23 +4,37 @@ from ui_home import (
     build_crossing_html,
     build_match_card_html,
     faltantes_publicar,
+    short_addr,
 )
 
 
 def test_faltantes_todo_vacio():
-    f = faltantes_publicar("", "", "", "", "", "")
-    assert f == ["tipo de aviso", "animal", "tamaño",
-                 "contacto (móvil, correo o red social)"]
+    f = faltantes_publicar()
+    assert f == ["tipo de aviso", "animal", "tamaño", "color principal",
+                 "descripción", "contacto (móvil, correo o red social)"]
 
 
 def test_faltantes_completo_sin_falta():
-    assert faltantes_publicar("lost", "dog", "small", "610 204 518", "", "") == []
-    assert faltantes_publicar("found", "cat", "large", "", "a@x.es", "") == []
+    assert faltantes_publicar("lost", "dog", "small", "marrón", "perro noble",
+                              "610 204 518", "", "") == []
+    assert faltantes_publicar("found", "cat", "large", "negro", "gata tranquila",
+                              "", "a@x.es", "") == []
 
 
 def test_faltantes_solo_contacto():
-    f = faltantes_publicar("lost", "dog", "small", "", "", "")
+    f = faltantes_publicar("lost", "dog", "small", "marrón", "perro noble",
+                           "", "", "")
     assert f == ["contacto (móvil, correo o red social)"]
+
+
+def test_faltantes_color_y_desc():
+    f = faltantes_publicar("lost", "dog", "small", "", "", "610", "", "")
+    assert "color principal" in f and "descripción" in f
+
+
+def test_short_addr_recorta():
+    assert short_addr("Calle Larga, 1, Jerez") == "Calle Larga, 1, Jerez"
+    assert short_addr("x" * 80).endswith("…") and len(short_addr("x" * 80)) == 71
 
 
 def test_match_card_con_porcentaje_y_sin_contacto():

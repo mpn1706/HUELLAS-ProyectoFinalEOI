@@ -24,6 +24,7 @@ from ui_home import (
     faltantes_publicar,
     make_carousel_thumb,
     select_carousel_items,
+    short_addr,
 )
 
 DB = "data/huellas.db"
@@ -339,13 +340,47 @@ div[class*="st-key-confirm_pub"] button { animation:huellas-shake .4s ease 1; }
 </style>"""
 
 FOTO_PUB_STYLE = """<style>
-/* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca. */
+/* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca,
+   con altura mínima para dar aire (compensa la huella y el caption retirados). */
 div[class*="st-key-foto_pub"] [data-testid="stFileUploader"] {
   border:2px dashed #E30613;
   border-radius:12px;
   background:#FFFFFF;
+  min-height:190px;
 }
 </style>"""
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def sugerir_direcciones(query: str, limite: int = 5) -> list:
+    """Autocompletado de direcciones vía Nominatim OSM con sesgo a Jerez.
+
+    Cache 1 h por texto (no machaca el servicio al teclear). Vacío/error → [].
+    """
+    import json as _json
+    import urllib.parse
+    import urllib.request
+
+    q = (query or "").strip()
+    if len(q) < 3:
+        return []
+    url = ("https://nominatim.openstreetmap.org/search?" + urllib.parse.urlencode(
+        {"q": q, "format": "json", "limit": int(limite), "countrycodes": "es",
+         "viewbox": "-6.25,36.75,-6.00,36.60", "bounded": 0}))
+    req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = _json.loads(r.read().decode("utf-8"))
+    except Exception:
+        return []
+    out = []
+    for d in data or []:
+        try:
+            out.append((round(float(d["lat"]), 4), round(float(d["lon"]), 4),
+                        str(d.get("display_name", q))[:120]))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
 
 
 def vista_previa_scan(foto):
@@ -2010,8 +2045,6 @@ if page == "publicar":
                                   format_func=lambda a: {"dog": "Perro", "cat": "Gato",
                                                          "other": "Otro"}.get(a, "SELECCIONAR"))
             st.markdown(FOTO_PUB_STYLE, unsafe_allow_html=True)
-            st.markdown(f'<span class="huellas-float-paw">{PAW_ROJA_SVG}</span>',
-                        unsafe_allow_html=True)
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"],
                                     key="foto_pub")
             if foto:
@@ -2019,8 +2052,6 @@ if page == "publicar":
             elif pre.get("qpath") and Path(pre["qpath"]).exists():
                 st.image(imagen_cuadrada(pre["qpath"]), caption="Foto de tu búsqueda",
                          width=360)
-            else:
-                st.caption("Sube una foto: es la señal que más pesa (40%).")
             comp = st.text_input("Comportamiento", "", key="c_comp",
                                  placeholder="Ej. sociable, se deja coger")
             est = st.text_input("Estado del animal", "", key="c_est",
@@ -2028,9 +2059,9 @@ if page == "publicar":
             paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar", "", key="c_paso",
                                 placeholder="Ej. se escapó en el parque y no volvió")
         with r2:
-            desc = st.text_area("Descripción libre", "", key="pub_desc",
+            desc = st.text_area("Descripción libre *", "", key="pub_desc",
                                 placeholder="Describe al animal: color, marcas, collar…")
-            c1 = st.text_input("Color principal", "", key="pub_color",
+            c1 = st.text_input("Color principal *", "", key="pub_color",
                                placeholder="Ej. marrón")
             size = st.selectbox("Tamaño *", ["small", "medium", "large"], key="pub_size",
                                 index=None, placeholder="SELECCIONAR",
@@ -2047,6 +2078,19 @@ if page == "publicar":
         if "reg_lat" not in st.session_state:
             st.session_state.reg_lat, st.session_state.reg_lon = 36.6826, -6.1376
         addr_in = st.text_input("Calle, número y zona", value="Centro, Jerez", key="addr_in")
+        _sugs = sugerir_direcciones(addr_in)
+        if _sugs:
+            if st.session_state.get("addr_q") != (addr_in or "").strip():
+                st.session_state.addr_q = (addr_in or "").strip()
+                st.session_state.pop("addr_pick", None)
+            _labels = ["— elige una sugerencia —"] + [short_addr(d) for _, _, d in _sugs]
+            _pick = st.radio("Sugerencias al escribir", _labels, key="addr_pick")
+            if _pick != _labels[0]:
+                _i = _labels.index(_pick) - 1
+                if 0 <= _i < len(_sugs):
+                    _la, _lo, _dn = _sugs[_i]
+                    st.session_state.reg_lat, st.session_state.reg_lon = _la, _lo
+                    st.caption(f"Zona elegida: {short_addr(_dn, 90)}")
         if st.button("Buscar dirección en el mapa"):
             res = geocode_nominatim(addr_in)
             if res:
@@ -2080,11 +2124,12 @@ if page == "publicar":
         st.markdown(SHAKE_CONFIRM_STYLE, unsafe_allow_html=True)
     if st.session_state.get("pub_faltan"):
         st.warning("Te falta: " + ", ".join(st.session_state.pop("pub_faltan")) + ".")
-    if not faltantes_publicar(tipo, animal, size, c_movil, c_mail, c_rrss):
+    if not faltantes_publicar(tipo, animal, size, c1, desc, c_movil, c_mail, c_rrss):
         # Formulario completo: pulso suave invitando a publicar.
         st.markdown(PULSE_CONFIRM_STYLE, unsafe_allow_html=True)
     if st.button("Confirmar y publicar", type="primary", key=f"confirm_pub_{_shake_n}"):
-        _faltan = faltantes_publicar(tipo, animal, size, c_movil, c_mail, c_rrss)
+        _faltan = faltantes_publicar(tipo, animal, size, c1, desc,
+                                     c_movil, c_mail, c_rrss)
         if _faltan:
             st.session_state.pub_shake_n = _shake_n + 1
             st.session_state.pub_shake_pending = True
