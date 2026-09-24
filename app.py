@@ -464,7 +464,7 @@ def leyenda_mapa():
         'color:#FFFFFF;font-weight:700;font-size:.75rem;display:flex;gap:1.4rem;'
         'flex-wrap:wrap;align-items:center;margin-top:.4rem;">'
         '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
-        'background:#E30613;margin-right:.35rem;"></span>TU MASCOTA</span>'
+        'background:#E30613;margin-right:.35rem;"></span>TU CASO</span>'
         '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
         'background:#3388FF;margin-right:.35rem;"></span>PERDIDOS</span>'
         '<span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;'
@@ -491,8 +491,8 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
         fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=zoom)
         folium.Marker(
             [q["location"]["lat"], q["location"]["lng"]],
-            tooltip=f"PERDIDO {q['id']}",
-            popup=folium.Popup(popup_html(q, marca=" · TU MASCOTA"), max_width=260),
+            tooltip=f"TU CASO {q['id']}",
+            popup=folium.Popup(popup_html(q, marca=" · TU CASO"), max_width=260),
             icon=folium.Icon(color="red"),
         ).add_to(fmap)
         cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
@@ -778,16 +778,16 @@ with m3:
     st.button(f"VOLVIÓ A CASA ({n_reenc})", key="nav_reencuentro",
               use_container_width=True, on_click=nav_to, args=("reencuentro",),
               help="Notifica que un animal volvió con su dueño y registra el cierre del caso.")
-# ── Justo debajo: PUBLICAR + BUSCAR, centrados y rojos ─────────────────
+# ── Justo debajo: BUSCAR + PUBLICAR, centrados y rojos ─────────────────
 _, b1, b2, _ = st.columns([1, 2, 2, 1])
 with b1:
+    st.button("Búsqueda preliminar de coincidencias", key="top_buscar", type="primary",
+              use_container_width=True, on_click=nav_to, args=("buscar",),
+              help="Búsqueda preliminar entre perdidos y avistamientos, sin registrar el aviso.")
+with b2:
     st.button("Publicar aviso", key="top_publicar", type="primary",
               use_container_width=True, on_click=nav_to, args=("publicar",),
               help="Publica un aviso de perdido o avistamiento. Al publicar se cruza solo y avisa si supera el 80 por ciento.")
-with b2:
-    st.button("Buscar a mi mascota", key="top_buscar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("buscar",),
-              help="Permite realizar una búsqueda de coincidencias entre tu mascota perdida y los avistamientos antes de publicar un aviso.")
 
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
@@ -1048,6 +1048,14 @@ page = st.session_state.get("page", "buscar")
 
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
+    st.subheader("¿Dónde buscas?")
+    lado = st.selectbox("Canal", ["found", "lost"], key="b_lado",
+                        format_func=lambda t: ("Entre avistamientos (perdí mi mascota)"
+                                               if t == "found" else
+                                               "Entre perdidos (encontré un animal)"),
+                        on_change=lambda: st.session_state.pop("b_search", None))
+    # Quien busca es el caso inverso al canal elegido.
+    qtype = "lost" if lado == "found" else "found"
     st.subheader("1. Foto actual")
     foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
                               type=["jpg", "jpeg", "png"], key="b_foto")
@@ -1068,8 +1076,9 @@ if page == "buscar":
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
-        st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta). "
-                   "Verdes: avistamientos · azules: perdidos · roja: tu zona.")
+        st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta). " +
+                   ("Verdes: avistamientos · roja: tu zona." if lado == "found"
+                    else "Azules: perdidos · roja: tu zona."))
         try:
             import folium
             from folium.plugins import MarkerCluster
@@ -1082,24 +1091,13 @@ if page == "buscar":
                           popup=("TU ZONA · "
                                  f"{st.session_state.get('q_addr_in', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
-            cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
-            for o in (dbmod.get_aviso(con, r["id"]) for r in
-                      con.execute("SELECT id FROM avisos WHERE status='active'"
-                                  " AND type='lost'").fetchall()):
-                if not o:
-                    continue
-                folium.Marker(
-                    [o["location"]["lat"], o["location"]["lng"]],
-                    tooltip=f"PERDIDO {o['id']}",
-                    popup=folium.Popup(popup_html(o), max_width=260),
-                    icon=folium.Icon(color="blue")).add_to(cl_lost)
-            cl_found = MarkerCluster(name="Avistamientos").add_to(fmap)
-            for c in dbmod.get_active_opuestos(con, "lost"):
+            cl_lado = MarkerCluster(name="Canal").add_to(fmap)
+            for c in dbmod.get_active_opuestos(con, qtype):
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
                     tooltip=c["id"],
                     popup=folium.Popup(popup_html(c), max_width=260),
-                    icon=folium.Icon(color="green")).add_to(cl_found)
+                    icon=folium.Icon(color=pin_color(c))).add_to(cl_lado)
             out = st_folium(fmap, key="cerca_map",
                             center=(st.session_state.q_lat, st.session_state.q_lon),
                             zoom=14, width=900, height=380)
@@ -1144,11 +1142,6 @@ if page == "buscar":
                                  help="Solo filtra lo que se muestra, no cambia el score.")
     with f2:
         topn = st.slider("Máx. resultados", 3, 15, 8)
-    b_guardar = st.checkbox("Guardar esta búsqueda como aviso de perdido",
-                            key="b_guardar",
-                            help="Aparecerá en PERDIDOS ACTIVOS y entrará en cruces futuros.")
-    if st.session_state.get("b_saved_id"):
-        st.info(f"Búsqueda ya guardada como `{st.session_state.b_saved_id}`.")
     if st.button("Buscar coincidencias", type="primary"):
         if not foto_b:
             st.warning("Sube una foto para buscar: sin imagen no hay comparativa visual.")
@@ -1164,7 +1157,7 @@ if page == "buscar":
 
             q_emb, espacio = embedida_con_espacio(qpath)
             q = normalize_aviso({
-                "type": "lost", "animal": b_animal,
+                "type": qtype, "animal": b_animal,
                 "breed_guess": (b_breed.strip() or None) if b_animal != "other" else None,
                 "color_primary": b_color.strip().lower(), "size": b_size,
                 "has_collar": bool(b_collar), "markings": b_marks,
@@ -1175,29 +1168,15 @@ if page == "buscar":
                 "date_reported": _dt.now().astimezone().isoformat(),
                 "image_url": qpath, "contact_info": "", "status": "active"})
             q["image_embedding"] = q_emb
-            cands = dbmod.get_active_opuestos(con, "lost")
+            cands = dbmod.get_active_opuestos(con, qtype)
             matches = retrieve(q, cands,
                                lambda a, _e=espacio: embed_candidato(a, _e),
                                semantic_similarity)
-            # Se guarda en sesión: si un mapa/widget provoca otro rerun,
-            # los resultados NO se repliegan (antes vivían solo en el run del clic).
+            # Preliminar y transitoria: se guarda en sesión para no replegarse,
+            # pero no persiste ni escribe alertas (eso nace al publicar).
             st.session_state.b_search = {"q": q, "matches": matches}
-            if b_guardar and not st.session_state.get("b_saved_id"):
-                persist = dict(q)
-                img_path = f"data/uploads/busqueda_{q['id'][:8]}.jpg"
-                Path(img_path).write_bytes(foto_b.getbuffer())
-                persist["image_url"] = img_path
-                dbmod.upsert_aviso(con, persist)
-                st.session_state.b_saved_id = q["id"]
-                nuevos = notificar(con, q["id"], matches)
+            if any(m["notifica"] for m in matches):
                 celebrate_search()
-                st.success(f"Búsqueda guardada como aviso `{q['id']}`."
-                           + (f" {len(nuevos)} alerta(s) generada(s)." if nuevos else ""))
-                if nuevos:
-                    _nc = dbmod.get_aviso(con, nuevos[0]["candidato_id"])
-                    st.button("Ver coincidencia", key=f"ver_co_{q['id']}", type="primary",
-                              use_container_width=True, on_click=ir_a_caso,
-                              args=(nuevos[0]["candidato_id"], (_nc or {}).get("type", "found")))
 
     res = st.session_state.get("b_search")
     if res:
@@ -1222,9 +1201,9 @@ if page == "buscar":
                 r1, r2 = st.columns(2)
                 with r1:
                     show_image(q["image_url"], caption="Tu foto")
-                with r2:
-                    show_image(c["image_url"], caption=f"Avistamiento · {c['id']}")
-                    st.write(c["description_text"])
+                    with r2:
+                        show_image(c["image_url"], caption=f"{'Avistamiento' if c['type'] == 'found' else 'Perdido'} · {c['id']}")
+                        st.write(c["description_text"])
                     with st.expander("Por qué este resultado"):
                         s1, s2, s3, s4 = st.columns(4)
                         with s1:
@@ -1238,8 +1217,26 @@ if page == "buscar":
                         st.code(explain(m))
         if visibles:
             st.subheader("Mapa de candidatos")
-            st.caption("Verdes: encontrados (DESTACADA si ≥80%) · roja: tu mascota.")
+            st.caption(("Verdes: avistamientos (DESTACADA si ≥80%) · roja: tu caso."
+                        if q["type"] == "lost" else
+                        "Azules: perdidos (DESTACADA si ≥80%) · roja: tu caso."))
             render_mapa_avistados(q, visibles, key="res_map")
+        destacados = [m for m in matches if m["notifica"]]
+        if destacados:
+            top = destacados[0]
+            with st.container(border=True):
+                st.markdown(f"### ¡Posible coincidencia! `{top['candidato_id']}` · "
+                            f"**{top['score']*100:.1f}%**")
+                _tc = dbmod.get_aviso(con, top["candidato_id"])
+                st.button("Ver coincidencia", key="ver_co_busqueda", type="primary",
+                          use_container_width=True, on_click=ir_a_caso,
+                          args=(top["candidato_id"], (_tc or {}).get("type", "found")))
+        st.divider()
+        st.subheader("¿No es ninguno? Publícalo")
+        st.caption("Hayas encontrado o no coincidencia, desde aquí publicas el aviso "
+                   "(de perdido o de avistamiento, lo decides allí).")
+        st.button("Publicar aviso", key="ir_publicar", type="primary",
+                  use_container_width=True, on_click=nav_to, args=("publicar",))
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":

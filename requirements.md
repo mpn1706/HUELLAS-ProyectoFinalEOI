@@ -44,8 +44,8 @@ Actor: dueño. Flujo: sube foto + descripción + ubicación + fechas + contacto 
 ### CU-02 — Registrar aviso `found`
 Actor: persona que encuentra / protectora. Flujo simétrico a CU-01, comparando contra corpus `lost` activos.
 
-### CU-03 — Buscar coincidencias sin publicar (búsqueda libre)
-Actor: dueño / evaluador. Flujo: sube foto + elige zona (dirección con auto-zoom, clic en mapa con autocompletado, o ajuste manual) + describe animal (color, tamaño, raza, collar, marcas, texto) → Matcher cruza contra avistamientos activos sin necesidad de aviso publicado → ranking ≥65% con desglose. Opcional: casilla "Guardar como aviso de perdido" (entra en Perdidos y en cruces futuros; si supera 80% genera alerta). Las alertas nacen del cruce de datos: al publicar (ambos sentidos) y al guardar una búsqueda, nunca de la mera visualización.
+### CU-03 — Búsqueda preliminar de coincidencias (sin registrar)
+Actor: dueño o quien avista. Flujo: elige canal (avistamientos si perdió, perdidos si encontró: quien busca es el caso inverso) + foto + zona + descripción → Matcher cruza SOLO contra ese canal → ranking ≥65% con desglose. Transitoria: no persiste ni escribe alertas. Haya coincidencia o no, el botón PUBLICAR AVISO lleva a CU-01/CU-02 (allí se discierne el tipo). Las alertas persistentes nacen del cruce al publicar.
 
 ### CU-04 — Revisar detalle de posible coincidencia
 Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos coincidentes/divergentes, y aviso legal de no-identidad. Decide contactar fuera del sistema.

@@ -257,3 +257,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Nueva sección VOLVIÓ A CASA (contador de cerrados): multiselect perdido/avistamiento + fotos + nota → pendiente; galería de cierres y en revisión. Admin: valida (resuelve avisos) o rechaza (vandalismo, intactos), todo en `admin.log`. Tabla `reencuentros` + 3 tests.
 - Alerta ≥80% intacta en publicar y buscar-guardada, pero "Ver la alerta" → "VER COINCIDENCIA" que salta al caso del otro lado y lo resalta primero.
 - Spec: CU-05 + REQ-11.5. Verificación: pytest 32/32, smoke 5 páginas OK, ciclo reencuentro OK (DB restaurada), E2E OK.
+
+## S60 — 24/09/2026 — Preliminar ambos lados + orden (Muse Spark)
+- Buscar = BÚSQUEDA PRELIMINAR DE COINCIDENCIAS con selector de canal (quien busca es el caso inverso), transitoria sin guardar ni filas; al final botón PUBLICAR AVISO (allí se discierne el tipo). Caja de coincidencia + VER COINCIDENCIA en pantalla.
+- Rojos invertidos: primero preliminar, luego publicar.
+- Spec: CU-03 reescrito. Verificación: pytest 32/32, smoke 5 páginas OK, lado inverso simulado (top lost_001 73.9%, DB intacta).
