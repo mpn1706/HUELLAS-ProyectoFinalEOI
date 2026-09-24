@@ -16,7 +16,15 @@ from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
-from ui_home import build_carousel_html, make_carousel_thumb, select_carousel_items
+from ui_home import (
+    build_carousel_html,
+    build_check_html,
+    build_crossing_html,
+    build_match_card_html,
+    faltantes_publicar,
+    make_carousel_thumb,
+    select_carousel_items,
+)
 
 DB = "data/huellas.db"
 LOGO = next((p for p in ("assets/logo.png", "assets/logo.jpg", "assets/logo.jpeg", "assets/logo.webp")
@@ -316,6 +324,48 @@ def stat_box(value, label: str, mini: bool = False):
     cls = "huellas-stat huellas-stat-mini" if mini else "huellas-stat"
     st.markdown(f'<div class="{cls}"><div class="huellas-stat-value">{value}</div>'
                 f'<div class="huellas-stat-label">{label}</div></div>', unsafe_allow_html=True)
+
+
+PULSE_CONFIRM_STYLE = """<style>
+div[class*="st-key-confirm_pub"] button::after {
+  content:""; position:absolute; inset:-2px; border:2px solid #E30613;
+  border-radius:8px; animation:huellas-ring 2s ease-out infinite;
+  pointer-events:none;
+}
+</style>"""
+
+SHAKE_CONFIRM_STYLE = """<style>
+div[class*="st-key-confirm_pub"] button { animation:huellas-shake .4s ease 1; }
+</style>"""
+
+FOTO_PUB_STYLE = """<style>
+/* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca. */
+div[class*="st-key-foto_pub"] [data-testid="stFileUploader"] {
+  border:2px dashed #E30613;
+  border-radius:12px;
+  background:#FFFFFF;
+}
+</style>"""
+
+
+def vista_previa_scan(foto):
+    """Preview con línea de escaneo roja (~1,5 s) y etiqueta 'Foto analizada'.
+
+    Solo HTML+CSS: la línea barre una vez al montar y la etiqueta aparece con
+    retardo 1.5s. Sin caché a propósito (cada subida remonta y re-anima).
+    """
+    import base64
+    import html as _html
+
+    raw = foto.getvalue()
+    mime = "image/png" if raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
+    b64 = base64.b64encode(raw).decode()
+    nombre = _html.escape(getattr(foto, "name", "tu foto"), quote=False)
+    st.markdown(
+        f'<div class="huellas-scan"><img src="data:{mime};base64,{b64}" alt="{nombre}">'
+        '<div class="huellas-scanline"></div></div>'
+        '<div><span class="huellas-analizada">Foto analizada</span></div>',
+        unsafe_allow_html=True)
 
 
 def celebrate_search():
@@ -1070,12 +1120,137 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-count { background:#FFFFFF; border:1px solid #57503F; border-radius:8px; padding:10px 12px; }
 .huellas-count-v { font-family:'Montserrat','Inter',sans-serif; font-size:1.4rem; font-weight:800; color:#23201B; }
 .huellas-count-l { font-size:0.75rem; color:#57503F; }
+/* Entrada en cascada de los campos al cargar cada pestaña (una sola vez,
+   60 ms entre campos). Solo hijas directas del bloque principal. */
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div {
+  animation:huellas-cascade .45s ease-out both;
+}
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(1) { animation-delay:0s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(2) { animation-delay:.06s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(3) { animation-delay:.12s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(4) { animation-delay:.18s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(5) { animation-delay:.24s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(6) { animation-delay:.30s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(7) { animation-delay:.36s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(8) { animation-delay:.42s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(9) { animation-delay:.48s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(10) { animation-delay:.54s; }
+[data-testid="stAppViewContainer"] div.block-container
+  > div[data-testid="stVerticalBlock"] > div:nth-child(n+11) { animation-delay:.60s; }
+@keyframes huellas-cascade {
+  from { opacity:0; transform:translateY(14px); }
+  to { opacity:1; transform:none; }
+}
+/* Huella flotante sobre la zona de foto (sube y baja suave, continuo). */
+.huellas-float-paw { display:inline-block; line-height:0; margin-bottom:.2rem;
+  animation:huellas-float 2.4s ease-in-out infinite alternate; }
+@keyframes huellas-float {
+  from { transform:translateY(-4px) rotate(-6deg); }
+  to { transform:translateY(6px) rotate(6deg); }
+}
+/* Vista previa con línea de escaneo roja (~1,5 s) y etiqueta posterior. */
+.huellas-scan { position:relative; width:fit-content; max-width:360px;
+  border-radius:10px; overflow:hidden; border:1.5px solid #57503F; }
+.huellas-scan img { display:block; width:100%; max-width:360px; }
+.huellas-scanline { position:absolute; left:0; right:0; top:0; height:3px;
+  background:#E30613; box-shadow:0 0 14px 2px rgba(227,6,19,.8);
+  animation:huellas-scan 1.5s ease-in-out 1 both; }
+@keyframes huellas-scan { from { top:0; } to { top:calc(100% - 3px); } }
+.huellas-analizada { display:inline-block; margin-top:.4rem; font-weight:800;
+  font-size:.8rem; color:#23201B; background:#FFFFFF;
+  border:1.5px solid #35AC46; border-radius:8px; padding:.25rem .7rem;
+  opacity:0; animation:huellas-fadein .4s ease 1.5s 1 both; }
+@keyframes huellas-fadein {
+  from { opacity:0; transform:translateY(4px); }
+  to { opacity:1; transform:none; }
+}
+/* Botón Confirmar: la app inyecta el pulso (si completo) o la sacudida
+   (si faltan campos) solo cuando toca. Base neutra sin animación. */
+div[class*="st-key-confirm_pub"] button { position:relative; }
+@keyframes huellas-shake {
+  0%,100% { transform:translateX(0); } 20% { transform:translateX(-8px); }
+  40% { transform:translateX(8px); } 60% { transform:translateX(-5px); }
+  80% { transform:translateX(5px); }
+}
+/* Bloque de cruce: puntos que rebotan. */
+.huellas-cruce { font-weight:800; color:#23201B; background:#FFFFFF;
+  border:2px solid #23201B; border-radius:10px; padding:.7rem 1rem; }
+.huellas-dots span { display:inline-block; width:9px; height:9px; margin-left:5px;
+  border-radius:50%; background:#E30613;
+  animation:huellas-bounce 1s ease-in-out infinite; }
+.huellas-dots span:nth-child(2) { animation-delay:.15s; }
+.huellas-dots span:nth-child(3) { animation-delay:.30s; }
+@keyframes huellas-bounce {
+  0%,100% { transform:translateY(0); opacity:.5; }
+  50% { transform:translateY(-7px); opacity:1; }
+}
+/* Tarjeta de coincidencia: entra deslizándose; el anillo barre 0→real y los
+   dígitos ruedan 0→real con steps(). Los keyframes llevan valores FIJOS
+   generados por tarjeta (ver ui_home.build_match_card_html): var()/counter/
+   @property fallan en Chromium para este uso y se quedan en 0. */
+.huellas-match-card { text-align:center; background:#FFFFFF;
+  border:2px solid #23201B; border-radius:12px; padding:1rem;
+  animation:huellas-cardin .5s ease-out both; }
+@keyframes huellas-cardin {
+  from { opacity:0; transform:translateY(18px); }
+  to { opacity:1; transform:none; }
+}
+.huellas-match-t { font-family:'Montserrat','Inter',sans-serif; font-weight:800;
+  color:#23201B; font-size:1.1rem; margin-bottom:.5rem; }
+.huellas-ringwrap { position:relative; width:150px; margin:0 auto; }
+.huellas-ring { width:150px; height:150px; display:block; }
+.huellas-ring-bg { fill:none; stroke:#E8E0D2; stroke-width:11; }
+.huellas-ring-fg { fill:none; stroke:#E30613; stroke-width:11; stroke-linecap:round;
+  stroke-dasharray:100; stroke-dashoffset:100;
+  transform:rotate(-90deg); transform-origin:center; }
+.huellas-ring-num { position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:center; font-family:'Montserrat','Inter',sans-serif;
+  font-weight:800; font-size:1.5rem; color:#23201B; }
+.huellas-strip { display:inline-block; height:1.4em; line-height:1.4;
+  overflow:hidden; vertical-align:middle; }
+.huellas-track { display:block; }
+.huellas-track > span { display:block; height:1.4em; line-height:1.4; }
+.huellas-pctsign { margin-left:.15em; }
+.huellas-match-id { margin-top:.5rem; color:#57503F; }
+/* Check verde que se dibuja solo (sin coincidencias). */
+.huellas-okcheck { text-align:center; margin:.6rem 0; }
+.huellas-okcheck svg { width:64px; height:64px; fill:none; stroke:#35AC46;
+  stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; }
+.huellas-okcheck circle { stroke-dasharray:151; stroke-dashoffset:151;
+  animation:huellas-draw .7s ease-out both; }
+.huellas-okcheck path { stroke-dasharray:40; stroke-dashoffset:40;
+  animation:huellas-draw .45s ease-out .55s both; }
+@keyframes huellas-draw { to { stroke-dashoffset:0; } }
 @media (prefers-reduced-motion:reduce) {
   .huellas-trk, .huellas-up, .huellas-barrido, .huellas-perimetro-paw,
   [data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
   [data-testid="stAppViewContainer"] .st-key-hero_buscar button::after,
   em.u::after, .huellas-heart { animation:none !important; }
   em.u::after { width:100% !important; }
+  /* Tanda Publicar con vida: todo queda en su estado final estático. */
+  [data-testid="stAppViewContainer"] div.block-container
+    > div[data-testid="stVerticalBlock"] > div,
+  .huellas-float-paw, .huellas-scanline, .huellas-analizada,
+  .huellas-dots span, .huellas-match-card, .huellas-strip, .huellas-ringfill,
+  .huellas-okcheck circle, .huellas-okcheck path,
+  div[class*="st-key-confirm_pub"] button,
+  div[class*="st-key-confirm_pub"] button::after { animation:none !important; }
+  .huellas-strip { display:none !important; }
+  .huellas-ring-fg { stroke-dashoffset:0 !important; }
+  .huellas-analizada, .huellas-okcheck circle,
+  .huellas-okcheck path { opacity:1 !important; }
+  .huellas-okcheck circle, .huellas-okcheck path { stroke-dashoffset:0 !important; }
 }
 </style>"""
     key = _NAV_ACTIVE_MAP.get(active_page, "")
@@ -1834,9 +2009,13 @@ if page == "publicar":
                                   index=None, placeholder="SELECCIONAR",
                                   format_func=lambda a: {"dog": "Perro", "cat": "Gato",
                                                          "other": "Otro"}.get(a, "SELECCIONAR"))
-            foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"])
+            st.markdown(FOTO_PUB_STYLE, unsafe_allow_html=True)
+            st.markdown(f'<span class="huellas-float-paw">{PAW_ROJA_SVG}</span>',
+                        unsafe_allow_html=True)
+            foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"],
+                                    key="foto_pub")
             if foto:
-                vista_previa(foto)
+                vista_previa_scan(foto)
             elif pre.get("qpath") and Path(pre["qpath"]).exists():
                 st.image(imagen_cuadrada(pre["qpath"]), caption="Foto de tu búsqueda",
                          width=360)
@@ -1895,14 +2074,22 @@ if page == "publicar":
         with st.expander("Ajuste manual de coordenadas"):
             st.number_input("Latitud", format="%.4f", key="reg_lat")
             st.number_input("Longitud", format="%.4f", key="reg_lon")
-    if st.button("Confirmar y publicar", type="primary"):
-        if not tipo or not animal or not size:
-            st.warning("Elige tipo de aviso, animal y tamaño para publicar.")
-            st.stop()
-        if not ((c_movil or "").strip() or (c_mail or "").strip()
-                or (c_rrss or "").strip()):
-            st.warning("Indica al menos un dato de contacto (móvil, correo o red social).")
-            st.stop()
+    _shake_n = st.session_state.get("pub_shake_n", 0)
+    if st.session_state.pop("pub_shake_pending", False):
+        # El botón remonta con clave nueva: la sacudida suena una sola vez.
+        st.markdown(SHAKE_CONFIRM_STYLE, unsafe_allow_html=True)
+    if st.session_state.get("pub_faltan"):
+        st.warning("Te falta: " + ", ".join(st.session_state.pop("pub_faltan")) + ".")
+    if not faltantes_publicar(tipo, animal, size, c_movil, c_mail, c_rrss):
+        # Formulario completo: pulso suave invitando a publicar.
+        st.markdown(PULSE_CONFIRM_STYLE, unsafe_allow_html=True)
+    if st.button("Confirmar y publicar", type="primary", key=f"confirm_pub_{_shake_n}"):
+        _faltan = faltantes_publicar(tipo, animal, size, c_movil, c_mail, c_rrss)
+        if _faltan:
+            st.session_state.pub_shake_n = _shake_n + 1
+            st.session_state.pub_shake_pending = True
+            st.session_state.pub_faltan = _faltan
+            st.rerun()
         try:
             lat = float(st.session_state.get("reg_lat", 36.6826))
             lng = float(st.session_state.get("reg_lon", -6.1376))
@@ -1940,32 +2127,54 @@ if page == "publicar":
             st.session_state.pop("pub_init", None)
             celebrate_search()
             st.success(f"Aviso `{av['id']}` publicado.")
+            cruce_box = None
             try:
                 from agents.vision import embed_candidato as _ec, embedida_con_espacio as _ee
+                import time as _time
 
                 _, espacio_pub = _ee(img_path)
                 cands_auto = dbmod.get_active_opuestos(con, tipo)
+                cruce_box = st.empty()
+                with cruce_box.container():
+                    st.markdown(build_crossing_html(len(cands_auto)),
+                                unsafe_allow_html=True)
+                    _barra = st.progress(0)
+                _t0 = _time.time()
+                _barra.progress(30)
                 ms_auto = retrieve(av, cands_auto,
                                    lambda a, _e=espacio_pub: _ec(a, _e),
                                    semantic_similarity)
+                _barra.progress(70)
                 auto = notificar(con, av["id"], ms_auto)
+                _barra.progress(90)
+                _dt = _time.time() - _t0
+                if _dt < 1.5:
+                    _time.sleep(1.5 - _dt)
+                _barra.progress(100)
+                cruce_box.empty()
+                cruce_box = None
                 if auto:
                     top = auto[0]
                     st.success(f"Cruce automático: {len(auto)} alerta(s) ≥80%.")
-                    with st.container(border=True):
-                        st.markdown(f"### ¡Posible coincidencia! `{top['candidato_id']}` · "
-                                    f"**{top['score']*100:.1f}%**")
-                        celebrate_search()
-                        _tc = dbmod.get_aviso(con, top["candidato_id"])
-                        st.button("Ver coincidencia", key=f"ver_co_{av['id']}", type="primary",
-                                  use_container_width=True,
-                                  on_click=ir_a_caso,
-                                  args=(top["candidato_id"],
-                                        (_tc or {}).get("type", "found")))
+                    st.markdown(build_match_card_html(top["candidato_id"], top["score"]),
+                                unsafe_allow_html=True)
+                    celebrate_search()
+                    _tc = dbmod.get_aviso(con, top["candidato_id"])
+                    st.button("Ver aviso y contactar", key=f"ver_co_{av['id']}",
+                              type="primary", use_container_width=True,
+                              on_click=ir_a_caso,
+                              args=(top["candidato_id"],
+                                    (_tc or {}).get("type", "found")))
                 else:
+                    st.markdown(build_check_html(), unsafe_allow_html=True)
                     st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
-                            "Si aparece el par contrario, se avisará solo.")
+                            "Te avisaremos si aparece algo.")
             except Exception as e:
+                try:
+                    if cruce_box is not None:
+                        cruce_box.empty()
+                except Exception:
+                    pass
                 st.caption(f"Cruce automático no disponible ({e}).")
         except Exception as e:
             st.error(f"Error: {e}")

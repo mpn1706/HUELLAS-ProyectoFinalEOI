@@ -135,7 +135,7 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..12, v1.12 24/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..16, v1.13 25/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
@@ -176,8 +176,13 @@ Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun
 - Títulos v1.12 (solo CSS): `.huellas-barrido` (barrido rojo izq↔der sobre negro,
   Publicar + Buscar) + `.huellas-perimetro` con huella roja SVG recorriendo el borde
   (`huellas-peri 6s`, MASCOTAS DESAPARECIDAS / RASTROS COMPARTIDOS / VOLVIÓ A CASA).
-  Buscar = `ANÁLISIS PRELIMINAR…` + pasos 1–5; leyenda del mapa contextual
-  (TU CASO + PERDIDOS y/o AVISTAMIENTOS según canal; por defecto avistamientos).
+  Buscar = `ANÁLISIS PRELIMINAR…` + pasos 1–5; mapa de zona con AMBOS lados.
+- Publicar con vida v1.13 (solo CSS + `session_state`, sin JS): cascada global
+  (`huellas-cascade`, hijas del bloque principal, 60 ms); foto con borde discontinuo +
+  huella flotante + escaneo 1,5 s + "Foto analizada"; Confirmar con pulso/shake
+  (`confirm_pub_{n}` + `faltantes_publicar()` pura en `ui_home.py`); cruce con dots +
+  progreso ≥1,5 s; tarjeta match con anillo y dígitos de valores FIJOS por tarjeta
+  (sin `@property`/counters) + "Ver aviso y contactar"; check dibujado si no hay match.
 - Accesibilidad/móvil: todo CSS, sin JS ni libs; `prefers-reduced-motion: reduce`
   apaga `trk/up/pulse/subrayado/latido/sweep/peri`; inicio con botones reales (no links).
 - Trazabilidad: `tests/test_carousel.py` (sin contacto, letterbox 300×208, counts con

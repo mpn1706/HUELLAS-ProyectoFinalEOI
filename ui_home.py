@@ -78,6 +78,93 @@ def make_carousel_thumb(path: str) -> str:
         return ""
 
 
+def faltantes_publicar(tipo="", animal="", size="", movil="", mail="", rrss="") -> list:
+    """Campos obligatorios que faltan al publicar (shake + aviso).
+
+    Pura y testeada: la app la usa para decidir pulso/shake sin tocar el matching.
+    """
+    faltan = []
+    if not tipo:
+        faltan.append("tipo de aviso")
+    if not animal:
+        faltan.append("animal")
+    if not size:
+        faltan.append("tamaño")
+    if not ((movil or "").strip() or (mail or "").strip() or (rrss or "").strip()):
+        faltan.append("contacto (móvil, correo o red social)")
+    return faltan
+
+
+def build_crossing_html(n: int) -> str:
+    """Bloque 'Cruzando con N avisos…' con puntos que rebotan (solo CSS)."""
+    return (
+        '<div class="huellas-cruce">'
+        f'Cruzando con {int(n)} aviso(s)…'
+        '<span class="huellas-dots"><span></span><span></span><span></span></span>'
+        '</div>'
+    )
+
+
+def build_match_card_html(cand_id: str, score: float) -> str:
+    """Tarjeta de coincidencia con anillo y dígitos que van de 0 al % real.
+
+    Solo CSS robusto: los keyframes se generan con valores FIJOS por tarjeta
+    (anillo `stroke-dashoffset` 100→100-pct; tira de dígitos con `steps(pct)`).
+    Sin animación, queda el `%` final en la línea del id (visible y correcto).
+    """
+    try:
+        pct = int(round(max(0.0, min(1.0, float(score))) * 100))
+    except (TypeError, ValueError):
+        pct = 0
+    cid = _html.escape(str(cand_id), quote=True)
+    if pct <= 0:
+        tira = ('<span class="huellas-strip"><span class="huellas-track">'
+                '<span>0</span></span></span><span class="huellas-pctsign"> %</span>')
+        estilo = ''
+    else:
+        digitos = "".join(f"<span>{i}</span>" for i in range(pct + 1))
+        viaje = f"{pct * 1.4:.1f}"
+        estilo = (
+            "<style>"
+            f"@keyframes huellas-ringfill-{pct} "
+            f"{{ from {{ stroke-dashoffset:100; }} to {{ stroke-dashoffset:{100 - pct}; }} }}"
+            f"@keyframes huellas-strip-{pct} "
+            f"{{ from {{ transform:translateY(0); }} to {{ transform:translateY(-{viaje}em); }} }}"
+            "</style>"
+        )
+        tira = (f'<span class="huellas-strip"><span class="huellas-track" '
+                f'style="animation:huellas-strip-{pct} 1.6s steps({pct}) .25s both">'
+                f'{digitos}</span></span><span class="huellas-pctsign"> %</span>')
+    return (
+        f"{estilo}"
+        '<div class="huellas-match-card">'
+        '<div class="huellas-match-t">¡Posible coincidencia!</div>'
+        '<div class="huellas-ringwrap">'
+        '<svg viewBox="0 0 120 120" class="huellas-ring" aria-hidden="true">'
+        '<circle cx="60" cy="60" r="52" class="huellas-ring-bg"></circle>'
+        '<circle cx="60" cy="60" r="52" pathLength="100" '
+        f'class="huellas-ring-fg huellas-ringfill"'
+        + (f' style="animation:huellas-ringfill-{pct} 1.6s ease-out .25s both"'
+           if pct > 0 else '')
+        + '></circle>'
+        '</svg>'
+        f'<div class="huellas-ring-num">{tira}</div></div>'
+        f'<div class="huellas-match-id"><code>{cid}</code> · <b>{pct} %</b></div>'
+        '</div>'
+    )
+
+
+def build_check_html() -> str:
+    """Check verde que se dibuja solo (solo CSS) para 'sin coincidencias'."""
+    return (
+        '<div class="huellas-okcheck">'
+        '<svg viewBox="0 0 52 52" aria-hidden="true">'
+        '<circle cx="26" cy="26" r="24"></circle>'
+        '<path d="M15 27l7 7 15-16"></path>'
+        '</svg></div>'
+    )
+
+
 def build_counts_html(n_lost: int, n_found: int, n_reenc: int) -> str:
     """3 contadores blancos clicables (?page= → su pestaña). Sin contacto."""
     return (

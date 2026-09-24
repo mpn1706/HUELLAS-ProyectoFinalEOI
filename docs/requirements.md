@@ -254,6 +254,30 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   la base gana a los keyframes en la cascada y la animación queda congelada en el
   fotograma inicial (verificado en Edge headless: reloj avanzando, valores fijos).
 
+## 16. Publicar con vida + cascada global (v1.13 25/09/2026, solo UI)
+
+- REQ-UI-13 — Cascada global: en todas las pestañas, las hijas directas del bloque
+  principal entran con fade-up escalonado de 60 ms (`huellas-cascade .45s`, delays
+  0–.60 s, `both`). Juega una sola vez al montar (los reruns conservan el DOM).
+- REQ-UI-14 — Foto en Publicar: zona con borde discontinuo rojo + huella flotante;
+  al subir imagen, miniatura con línea de escaneo roja (~1,5 s, `huellas-scan`) y
+  después la etiqueta "Foto analizada" (fade con retardo 1,5 s).
+- REQ-UI-15 — Botón "Confirmar y publicar": pulso suave (anillo) cuando el
+  formulario está completo; si faltan campos, se sacude (shake 400 ms, con remontaje
+  por clave `confirm_pub_{n}` para que repita) y lista qué falta (`faltantes_publicar`
+  pura y testeada en `ui_home.py`).
+- REQ-UI-16 — Al publicar: bloque "Cruzando con N avisos…" con puntos que rebotan y
+  barra de progreso (mínimo 1,5 s, real si tarda más). Con coincidencia ≥80%: tarjeta
+  que entra deslizándose con anillo que barre 0→real y dígitos que ruedan 0→real
+  (`steps(pct)`) + botón "Ver aviso y contactar". Sin coincidencia: check verde que se
+  dibuja solo + "Te avisaremos si aparece algo".
+- Regla CSS crítica (S77): NADA de `@property`/contadores CSS para el conteo — en
+  Chromium `var()` dentro de `counter-reset` invalida la declaración (cae a `none`) y
+  con `inherits:false` el SVG ni hereda: todo se quedaba en 0. Los keyframes se generan
+  con valores FIJOS por tarjeta (`huellas-ringfill-<pct>`, `huellas-strip-<pct>` con
+  pista interior `.huellas-track`: animar el propio contenedor con `overflow:hidden`
+  desplaza la ventana entera y no se ve nada).
+
 ## 13. Decisiones cerradas 23/09/2026 (13/13 — bloquean inicio de código)
 
 1. Stack: Streamlit + Python + SQLite, 100% local. ✅

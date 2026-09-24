@@ -358,3 +358,22 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Causa raíz de las animaciones congeladas (barrido y huella se veían pero quietas): el `!important` de la base gana a los keyframes en la cascada CSS — el reloj avanzaba (`currentTime` 7.1s→12.3s) pero el estilo computado quedaba fijo. Fix: `background/background-size` (barrido) y `top/left` (huella) sin `!important`, con comentario de guarda en el CSS.
 - Verificado en Edge headless con Playwright (capturas + estilos computados): huella `left` 282px→83px, barrido `background-position` 3.8%→98.5%. Servidor de pruebas parado y Playwright desinstalado tras verificar.
 - Verificación: pytest 42/42, smoke 9 páginas OK, demo_check E2E OK.
+
+## S77 — 25/09/2026 — Publicar con vida + cascada global v1.13 (Muse Spark)
+- Cascada global (REQ-UI-13): hijas del bloque principal con fade-up 60 ms (`huellas-cascade`),
+  una sola vez al montar; verificado en Edge headless (delays 0/.06/…/.36 s).
+- Foto (REQ-UI-14): borde discontinuo rojo (`foto_pub`) + huella flotante + `vista_previa_scan()`
+  (escaneo 1,5 s + "Foto analizada" con retardo).
+- Confirmar (REQ-UI-15): pulso si completo; shake 400 ms + lista de faltantes si no
+  (`faltantes_publicar()` pura en `ui_home.py` + remontaje `confirm_pub_{n}` + `st.rerun()`).
+- Cruce (REQ-UI-16): "Cruzando con N avisos…" (dots + progreso, mín. 1,5 s real); match →
+  tarjeta slide-in con anillo 0→real y dígitos 0→real (`steps`) + "Ver aviso y contactar";
+  sin match → check dibujado + "Te avisaremos si aparece algo".
+- Causa raíz del conteo en 0: `var()` en `counter-reset` cae a `none` en Chromium y con
+  `inherits:false` el SVG no hereda (verificado por bisección); además animar el contenedor
+  con `overflow:hidden` desplaza la ventana (pista interior `.huellas-track`). Fix: keyframes
+  con valores FIJOS por tarjeta. Verificado en Edge: anillo 37.9px→16px, dígito final "84".
+- Specs v1.13: `requirements.md` §16 + `architecture.md` §8 (root + `docs/`).
+  Servidor de pruebas parado y Playwright desinstalado tras verificar.
+- Verificación: pytest 49/49 (nuevo `tests/test_publicar_ui.py`), smoke 9 páginas OK,
+  demo_check E2E OK (found_011 top-1 84.3% ≥80%).
