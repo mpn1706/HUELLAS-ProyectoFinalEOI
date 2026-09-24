@@ -876,11 +876,9 @@ if page == "buscar":
             matches = retrieve(q, cands,
                                lambda a, _e=espacio: embed_candidato(a, _e),
                                semantic_similarity)
-            k1, k2 = st.columns(2)
-            with k1:
-                stat_box(sum(1 for m in matches if m["notifica"]), "Destacadas ≥85%", mini=True)
-            with k2:
-                stat_box(len(matches), "En lista ≥65%", mini=True)
+            # Se guarda en sesión: si un mapa/widget provoca otro rerun,
+            # los resultados NO se repliegan (antes vivían solo en el run del clic).
+            st.session_state.b_search = {"q": q, "matches": matches}
             if b_guardar and not st.session_state.get("b_saved_id"):
                 persist = dict(q)
                 img_path = f"data/uploads/busqueda_{q['id'][:8]}.jpg"
@@ -892,36 +890,48 @@ if page == "buscar":
                 celebrate_search()
                 st.success(f"Búsqueda guardada como aviso `{q['id']}`."
                            + (f" {len(nuevos)} alerta(s) generada(s)." if nuevos else ""))
-            visibles = [m for m in matches if m["score"] * 100 >= umbral_vista][:topn]
-            if not visibles:
-                st.info("Sin candidatos con ese filtro. Baja el umbral de vista o espera nuevos avisos.")
-            for m in visibles:
-                c = m["candidato"]
-                badge = "POSIBLE COINCIDENCIA DESTACADA" if m["notifica"] else "Posible coincidencia"
-                with st.container(border=True):
-                    st.markdown(f"**{badge}** · `{c['id']}` · **{m['score']*100:.1f}%** · {m['dist_km']} km")
-                    st.progress(min(max(m["score"], 0.0), 1.0))
-                    r1, r2 = st.columns(2)
-                    with r1:
-                        show_image(q["image_url"], caption="Tu foto")
-                    with r2:
-                        show_image(c["image_url"], caption=f"Avistamiento · {c['id']}")
-                        st.write(c["description_text"])
-                    with st.expander("Por qué este resultado"):
-                        s1, s2, s3, s4 = st.columns(4)
-                        with s1:
-                            stat_box(f"{m['visual']:.2f}", "Visual", mini=True)
-                        with s2:
-                            stat_box(f"{m['geo']:.2f}", "Geo", mini=True)
-                        with s3:
-                            stat_box(f"{m['texto']:.2f}", "Texto", mini=True)
-                        with s4:
-                            stat_box(f"{m['temporal']:.2f}", "Tiempo", mini=True)
-                        st.code(explain(m))
-            if visibles:
-                st.subheader("Mapa de candidatos")
-                st.caption("Verdes: encontrados (DESTACADA si ≥85%) · roja: tu mascota.")
-                render_mapa_avistados(q, visibles, key="res_map")
+
+    res = st.session_state.get("b_search")
+    if res:
+        q, matches = res["q"], res["matches"]
+        if st.button("Limpiar resultados", key="b_limpiar"):
+            st.session_state.pop("b_search", None)
+            st.rerun()
+        k1, k2 = st.columns(2)
+        with k1:
+            stat_box(sum(1 for m in matches if m["notifica"]), "Destacadas ≥85%", mini=True)
+        with k2:
+            stat_box(len(matches), "En lista ≥65%", mini=True)
+        visibles = [m for m in matches if m["score"] * 100 >= umbral_vista][:topn]
+        if not visibles:
+            st.info("Sin candidatos con ese filtro. Baja el umbral de vista o espera nuevos avisos.")
+        for m in visibles:
+            c = m["candidato"]
+            badge = "POSIBLE COINCIDENCIA DESTACADA" if m["notifica"] else "Posible coincidencia"
+            with st.container(border=True):
+                st.markdown(f"**{badge}** · `{c['id']}` · **{m['score']*100:.1f}%** · {m['dist_km']} km")
+                st.progress(min(max(m["score"], 0.0), 1.0))
+                r1, r2 = st.columns(2)
+                with r1:
+                    show_image(q["image_url"], caption="Tu foto")
+                with r2:
+                    show_image(c["image_url"], caption=f"Avistamiento · {c['id']}")
+                    st.write(c["description_text"])
+                with st.expander("Por qué este resultado"):
+                    s1, s2, s3, s4 = st.columns(4)
+                    with s1:
+                        stat_box(f"{m['visual']:.2f}", "Visual", mini=True)
+                    with s2:
+                        stat_box(f"{m['geo']:.2f}", "Geo", mini=True)
+                    with s3:
+                        stat_box(f"{m['texto']:.2f}", "Texto", mini=True)
+                    with s4:
+                        stat_box(f"{m['temporal']:.2f}", "Tiempo", mini=True)
+                    st.code(explain(m))
+        if visibles:
+            st.subheader("Mapa de candidatos")
+            st.caption("Verdes: encontrados (DESTACADA si ≥85%) · roja: tu mascota.")
+            render_mapa_avistados(q, visibles, key="res_map")
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":

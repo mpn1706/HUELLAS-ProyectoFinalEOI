@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 00:44:24",
+  "exported_at": "2026-09-24 00:52:46",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1354,6 +1354,21 @@
       "last_seen_at": "2026-09-24 00:44:20",
       "created_at": "2026-09-24 00:44:20",
       "updated_at": "2026-09-24 00:44:20"
+    },
+    {
+      "id": 73,
+      "sync_id": "obs-f9aac0acd38fe21a",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S50 resultados persistentes sesion",
+      "content": "S50 24/09/2026 (Muse Spark): candidatos se replegaban por rerun extra, vivian solo en run del clic. Fix b_search en session_state + boton Limpiar + st.code desindentado. Pytest 29/29, smoke OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 00:52:43",
+      "created_at": "2026-09-24 00:52:43",
+      "updated_at": "2026-09-24 00:52:43"
     }
   ],
   "prompts": [
@@ -2972,6 +2987,14 @@
       "content": "Por lo que veo no funciona muy bien. Incluso poniendo la misma foto y descripcion que se puso en avistamientos no encuentra coincidencias... hay algún error?",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 00:36:20"
+    },
+    {
+      "id": 203,
+      "sync_id": "prompt-f23a098f4f6811c5",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Ahora se desplegan abajo los candidatos pero luego se repliegan rapidamente y ya no aparece nada.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 00:48:25"
     }
   ]
 }

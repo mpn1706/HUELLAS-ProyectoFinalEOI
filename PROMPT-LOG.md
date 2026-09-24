@@ -198,3 +198,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Sí había error: en Cloud (sin torch) la query se incrustaba en histograma y los candidatos en CLIP → coseno 0.09, todo bajo 65, lista vacía. Repro local: mixto 0 matches, hist-hist 5 matches (top 98.7%).
 - Fix: `embedida_con_espacio()` + `embed_candidato()` en `agents/vision.py` (mismo espacio a ambos lados; fotos seed en git, también en Cloud); fuera `visual_fn_factory()`; 2 tests nuevos; nota en `requirements.md` §8.
 - Verificación: pytest 29/29, smoke 5 páginas OK, E2E OK.
+
+## S50 — 24/09/2026 — Resultados que no se repliegan (Muse Spark)
+- Bug: los candidatos vivían solo en el run del clic (`if st.button`); cualquier rerun extra (montaje de mapas, sliders, checkbox) los hacía desaparecer.
+- Fix: la búsqueda se guarda en `st.session_state.b_search` y el render (filtros, tarjetas, mapa) lee de ahí; + botón "Limpiar resultados"; de paso se corrigió `st.code(explain)` que estaba indentado dentro de la columna Tiempo.
+- Verificación: pytest 29/29, smoke 5 páginas OK.
