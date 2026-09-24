@@ -235,6 +235,12 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Perro: luna 20:00–08:00 (`es_de_noche`), lluvia, termómetro calor/frío y ráfagas de viento.
 - Verificación: pytest 29/29, smoke 5 páginas + paneles OK, E2E OK.
 
+## S57 — 24/09/2026 — Publicar completo, sin fullscreen, iconos al >> (Muse Spark)
+- Publicar: columna izquierda con Comportamiento/estado + Cómo lo perdiste/qué hiciste (se anexan a la descripción y mejoran el texto).
+- Fullscreen de imágenes desactivado por CSS (daba error y no se usa).
+- Iconos pegados al `>>` (contenido a 0.2rem, fila compacta).
+- Verificación: pytest 29/29, smoke 5 páginas OK.
+
 ## S56 — 24/09/2026 — Iconos bajo >>, letterbox, >> negro (Muse Spark)
 - Iconos pegados arriba (contenido a 1.2rem del `>>`) + CSS para el `>>` en negro (varias variantes de testid, best-effort).
 - Fotos: letterbox crema 480px (animal entero, nada de recortes que decapiten).

@@ -233,7 +233,11 @@ def inject_background():
         }}
         /* Contenido pegado arriba, justo bajo el >> */
         [data-testid="stAppViewContainer"] .block-container {{
-            padding-top: 1.2rem !important;
+            padding-top: 0.2rem !important;
+        }}
+        /* Fuera el botón de fullscreen de las imágenes */
+        [data-testid="stImage"] button {{
+            display: none !important;
         }}
         /* El >> de la barra lateral, también negro */
         button[data-testid="stSidebarCollapsedControl"],
@@ -721,7 +725,7 @@ def toggle_top(nombre: str):
 # ── Iconos casa/sol (arriba-izquierda): abren sus paneles como la barra lateral ──
 if "top_panel" not in st.session_state:
     st.session_state.top_panel = None
-ic1, ic2, _ = st.columns([1, 1, 8])
+ic1, ic2, _ = st.columns([1, 1, 12], gap="small")
 with ic1:
     st.button("⌂", key="top_casa", on_click=toggle_top, args=("perreras",),
               help="Perreras de Jerez: direcciones y contacto.")
@@ -1272,6 +1276,11 @@ if page == "publicar":
                 vista_previa(foto)
             else:
                 st.caption("Sube una foto: es la señal que más pesa (40%).")
+            comp = st.text_input("Comportamiento / estado", "Sociable, se deja coger.",
+                                 key="c_comp")
+            paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar",
+                                "Se escapó en el parque y no volvió.",
+                                key="c_paso")
         with r2:
             desc = st.text_area("Descripción libre",
                                 "Perro marrón mediano con mancha blanca en el pecho, collar rojo.")
@@ -1325,8 +1334,13 @@ if page == "publicar":
             img_path = f"data/uploads/{foto.name}" if foto else "data/seed/images/perrete 3.jpg"
             if foto:
                 Path(img_path).write_bytes(foto.getbuffer())
+            desc_full = desc.strip()
+            if comp.strip():
+                desc_full += f" Comportamiento y estado: {comp.strip()}."
+            if paso.strip():
+                desc_full += f" Lo ocurrido: {paso.strip()}."
             av = normalize_aviso({"type": tipo, "animal": animal, "color_primary": c1, "size": size,
-                                  "has_collar": collar, "markings": [], "description_text": desc,
+                                  "has_collar": collar, "markings": [], "description_text": desc_full,
                                   "location": {"lat": lat, "lng": lng, "address_text": addr},
                                   "date_reported": "2026-09-23T12:00:00+02:00", "image_url": img_path,
                                   "contact_info": " · ".join(x.strip() for x in
