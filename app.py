@@ -474,27 +474,6 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
         st.caption(f"Mapa no disponible ({e}).")
 
 
-def visual_fn_factory():
-    """Devuelve embed_fn(aviso) -> vector. El coseno lo calcula retrieval."""
-    cache = {}
-
-    def fn(a):
-        if a.get("image_embedding"):
-            return a["image_embedding"]
-        if a["id"] in cache:
-            return cache[a["id"]]
-        try:
-            v = get_image_embedding(a["image_url"])
-        except Exception:
-            from agents.vision import _fallback_embedding
-
-            v = _fallback_embedding(f"img:{a['id']}")
-        cache[a["id"]] = v
-        return v
-
-    return fn
-
-
 def geocode_nominatim(q: str):
     """Calle/número → (lat, lng, nombre) vía Nominatim OSM con sesgo a Jerez.
 
@@ -878,7 +857,9 @@ if page == "buscar":
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
             qpath = "data/uploads/_busqueda.jpg"
             Path(qpath).write_bytes(foto_b.getbuffer())
-            q_emb = get_image_embedding(qpath)
+            from agents.vision import embed_candidato, embedida_con_espacio
+
+            q_emb, espacio = embedida_con_espacio(qpath)
             q = normalize_aviso({
                 "type": "lost", "animal": b_animal,
                 "breed_guess": (b_breed.strip() or None) if b_animal != "other" else None,
@@ -892,7 +873,9 @@ if page == "buscar":
                 "image_url": qpath, "contact_info": "", "status": "active"})
             q["image_embedding"] = q_emb
             cands = dbmod.get_active_opuestos(con, "lost")
-            matches = retrieve(q, cands, visual_fn_factory(), semantic_similarity)
+            matches = retrieve(q, cands,
+                               lambda a, _e=espacio: embed_candidato(a, _e),
+                               semantic_similarity)
             k1, k2 = st.columns(2)
             with k1:
                 stat_box(sum(1 for m in matches if m["notifica"]), "Destacadas ≥85%", mini=True)
@@ -1061,8 +1044,13 @@ if page == "publicar":
             celebrate_search()
             st.success(f"Aviso `{av['id']}` publicado.")
             try:
+                from agents.vision import embed_candidato as _ec, embedida_con_espacio as _ee
+
+                _, espacio_pub = _ee(img_path)
                 cands_auto = dbmod.get_active_opuestos(con, tipo)
-                ms_auto = retrieve(av, cands_auto, visual_fn_factory(), semantic_similarity)
+                ms_auto = retrieve(av, cands_auto,
+                                   lambda a, _e=espacio_pub: _ec(a, _e),
+                                   semantic_similarity)
                 auto = notificar(con, av["id"], ms_auto)
                 if auto:
                     st.success(f"Cruce automático: {len(auto)} alerta(s) ≥85% (ver ALERTAS).")

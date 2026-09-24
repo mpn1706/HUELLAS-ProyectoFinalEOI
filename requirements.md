@@ -115,7 +115,7 @@ score_total = (0.40 × similitud_visual)
             + (0.10 × proximidad_temporal)
 ```
 
-- `similitud_visual`: similitud coseno entre embeddings CLIP `openai/clip-vit-base-patch32` 512-dim (0-1).
+- `similitud_visual`: similitud coseno entre embeddings CLIP `openai/clip-vit-base-patch32` 512-dim (0-1). Sin torch (Cloud), query y candidatos se comparan en histograma de color: lo que importa es que ambos lados usen el MISMO espacio (S49; mezclarlos da ~0.09 y vacía el ranking).
 - `proximidad_geográfica`: max(0, 1 - distancia_km / 15), radio_máximo fijo = 15 km.
 - `similitud_texto`: 0.70 × estructurado + 0.30 × semántico. Estructurado: coincidencia campo a campo de `color_primary`, `markings`, `has_collar`, `size`. Semántico: coseno con `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` sobre `description_text`.
 - `proximidad_temporal`: max(0, 1 - dias_diferencia / 30), ventana 30 días. Fecha usada: `date_last_seen` si existe, si no `date_reported`.

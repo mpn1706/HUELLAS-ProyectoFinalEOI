@@ -17,3 +17,4 @@ tags:
 - [[huellas-s46-foto-found-011-calidad-69]]
 - [[huellas-s47-textos-avistamientos-70]]
 - [[huellas-s48-buscar-libre-alerta-publicar-71]]
+- [[huellas-s49-bug-cloud-mismo-espacio-visual-72]]

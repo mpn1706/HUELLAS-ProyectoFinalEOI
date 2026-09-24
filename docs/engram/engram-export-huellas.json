@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 00:28:35",
+  "exported_at": "2026-09-24 00:44:24",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1339,6 +1339,21 @@
       "last_seen_at": "2026-09-24 00:28:32",
       "created_at": "2026-09-24 00:28:32",
       "updated_at": "2026-09-24 00:28:32"
+    },
+    {
+      "id": 72,
+      "sync_id": "obs-e92406d29e0aafb3",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S49 bug cloud mismo espacio visual",
+      "content": "S49 24/09/2026 (Muse Spark): bug real en Cloud sin torch, query hist vs candidatos CLIP cos 0.09 y ranking vacio. Fix embedida_con_espacio + embed_candidato mismo espacio, fuera visual_fn_factory, 2 tests nuevos, nota REQ-07. Pytest 29/29, smoke y E2E OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 00:44:20",
+      "created_at": "2026-09-24 00:44:20",
+      "updated_at": "2026-09-24 00:44:20"
     }
   ],
   "prompts": [
@@ -2949,6 +2964,14 @@
       "content": "No entiendo muy bien porqué en BUSCAR MI MASCOTA, sale el primer apartado de 1.ELIGE TU AVISO... Creo que este apartado no sirve para nada. Debería salir: 1. Foto actual, 2. ZONA (mapa al lado que se ampliara automáticamente al escribir una dirección o, por el contrario, posibilidad de seleccionarla en el mapa y que esta se autocompletara en su cuadro), 3. DESCRIPCIÓN (permite introducir datos del animal como color, tamaño, raza, collar, etc.), 4. LANZAR BÚSQUEDA   \n\nEsto lo que permitiría sería cruzar datos y realizar una búsqueda de coincidencias con los avistamientos sin necesidad de dejar publicado el aviso de perdido, lo cual se podría preguntar también automáticamente para su autoregistro opcional. Creo que la función original de esta sección era generar alertas, pero estas no debería generarse así, sino automáticamente al ir cruzando datos entre perdidos y avistamientos. Dime qué opinas, vamos a discutirlo antes de cualquier cambio.",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 00:21:26"
+    },
+    {
+      "id": 202,
+      "sync_id": "prompt-893e58321eca9803",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Por lo que veo no funciona muy bien. Incluso poniendo la misma foto y descripcion que se puso en avistamientos no encuentra coincidencias... hay algún error?",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 00:36:20"
     }
   ]
 }

@@ -193,3 +193,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Decisión del alumno tras discutirlo: fuera "Elige tu aviso"; Buscar es libre (1 foto obligatoria + 2 zona con geocoder, mapa clicable con dirección autocompletada vía `reverse_geocode_nominatim`, y manual + mini-mapa de avistados + 3 descripción + 4 lanzar con autoregistro opcional que reutiliza el mismo id para alertas).
 - Alertas del cruce de datos: al publicar (ambos sentidos) y al guardar una búsqueda; la búsqueda libre transitoria no notifica ni persiste (verificado: DB intacta).
 - Spec: CU-03 reescrito en `requirements.md`. Verificación: pytest 27/27, smoke 5 páginas OK, E2E OK, flujo libre simulado (top found_011 82.6%, 0 filas nuevas).
+
+## S49 — 24/09/2026 — Bug Cloud: mismo espacio visual (Muse Spark)
+- Sí había error: en Cloud (sin torch) la query se incrustaba en histograma y los candidatos en CLIP → coseno 0.09, todo bajo 65, lista vacía. Repro local: mixto 0 matches, hist-hist 5 matches (top 98.7%).
+- Fix: `embedida_con_espacio()` + `embed_candidato()` en `agents/vision.py` (mismo espacio a ambos lados; fotos seed en git, también en Cloud); fuera `visual_fn_factory()`; 2 tests nuevos; nota en `requirements.md` §8.
+- Verificación: pytest 29/29, smoke 5 páginas OK, E2E OK.

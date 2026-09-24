@@ -45,12 +45,23 @@ def _histogram_embedding(image_path: str, dim: int = DIM) -> list:
     return hist.tolist()
 
 
-def get_image_embedding(image_path: str) -> list:
-    """Devuelve vector 512 normalizado. Intenta CLIP real, si no fallback.
+def _hash_bytes_embedding(key) -> list:
+    """Hash determinista → vector 512 normalizado (bytes o ruta)."""
+    if isinstance(key, bytes):
+        h = hashlib.sha256(key).digest()
+        seed = int.from_bytes(h[:8], "big") % (2**32)
+        rng = np.random.RandomState(seed)
+        v = rng.randn(DIM)
+        return (v / np.linalg.norm(v)).tolist()
+    return _fallback_embedding(key)
 
-    Fallback: hash de los bytes del fichero (dos fotos placeholder del
-    mismo color sólido dan el mismo vector → similitud alta, coherente).
-    Si el fichero no existe, hash de la ruta.
+
+def embedida_con_espacio(image_path: str) -> tuple:
+    """Incrusta una imagen y dice en qué espacio: clip | hist | hash.
+
+    Regla de oro (S49): query y candidatos DEBEN compararse en el mismo
+    espacio. Mezclarlos (p.ej. query en hist contra CLIP almacenado) da
+    similitud ~0.09 y vacía el ranking en Cloud, donde no hay torch.
     """
     global _model, _processor
     try:
@@ -71,11 +82,11 @@ def get_image_embedding(image_path: str) -> list:
             feat = out.pooler_output if hasattr(out, "pooler_output") else out
             feat = feat.cpu().numpy()[0]
         feat = feat / np.linalg.norm(feat)
-        return feat.tolist()
+        return feat.tolist(), "clip"
     except Exception:
         pass
     try:
-        return _histogram_embedding(image_path)
+        return _histogram_embedding(image_path), "hist"
     except Exception:
         pass
     try:
@@ -83,13 +94,44 @@ def get_image_embedding(image_path: str) -> list:
             key = f.read()
     except OSError:
         key = f"img:{image_path}"
-        if isinstance(key, bytes):
-            h = hashlib.sha256(key).digest()
-            seed = int.from_bytes(h[:8], "big") % (2**32)
-            rng = np.random.RandomState(seed)
-            v = rng.randn(DIM)
-            return (v / np.linalg.norm(v)).tolist()
-        return _fallback_embedding(key)
+    return _hash_bytes_embedding(key), "hash"
+
+
+def get_image_embedding(image_path: str) -> list:
+    """Devuelve vector 512 normalizado. Intenta CLIP real, si no fallback.
+
+    Fallback: hash de los bytes del fichero (dos fotos placeholder del
+    mismo color sólido dan el mismo vector → similitud alta, coherente).
+    Si el fichero no existe, hash de la ruta.
+    """
+    vec, _ = embedida_con_espacio(image_path)
+    return vec
+
+
+def embed_candidato(a: dict, espacio: str):
+    """Vector del candidato EN EL MISMO espacio que la query (ver S49).
+
+    clip → vector almacenado; hist/hash → recalculado del fichero
+    (las fotos del seed viajan en git, también en Cloud). Si el fichero
+    falta, último recurso: lo almacenado aunque mezcle espacios.
+    """
+    if espacio == "clip" and a.get("image_embedding"):
+        return a["image_embedding"]
+    if espacio == "hist":
+        try:
+            return _histogram_embedding(a["image_url"])
+        except Exception:
+            pass
+    if espacio == "hash":
+        try:
+            with open(a["image_url"], "rb") as f:
+                key = f.read()
+        except OSError:
+            key = f"img:{a.get('image_url')}"
+        return _hash_bytes_embedding(key)
+    if a.get("image_embedding"):
+        return a["image_embedding"]
+    return _fallback_embedding(f"img:{a['id']}")
 
 
 def sync_seed_embeddings(con) -> int:
