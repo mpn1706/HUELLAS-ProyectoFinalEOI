@@ -1,8 +1,10 @@
 """Agente Matcher — REQ-06.3 + REQ-07 + REQ-08.
 
-score_total = 0.40*visual + 0.30*geo + 0.20*texto + 0.10*temporal
+score_total = 0.40*visual + 0.30*texto + 0.20*temporal + 0.10*geo
 similitud_texto = 0.70*estructurado + 0.30*semántico
-Umbrales con >= (decisión 6): >=0.85 notifica, >=0.65 lista.
+Umbrales con >= (decisión 6, v1.2 S51): >=0.80 notifica, >=0.65 lista.
+v1.2 (S51): geo 0.30→0.10, texto 0.20→0.30, temporal 0.10→0.20 —
+decisión del alumno: la ubicación lejana penalizaba demasiado.
 """
 import math
 
@@ -12,14 +14,14 @@ from .geo import haversine_km, proximidad_geografica, RADIO_MAX_KM
 from .ingestor import effective_date
 
 PESO_VISUAL = 0.40
-PESO_GEO = 0.30
-PESO_TEXTO = 0.20
-PESO_TEMP = 0.10
+PESO_TEXTO = 0.30
+PESO_TEMP = 0.20
+PESO_GEO = 0.10
 
 PESO_ESTRUCT = 0.70
 PESO_SEMANT = 0.30
 
-UMBRAL_NOTIF = 0.85
+UMBRAL_NOTIF = 0.80
 UMBRAL_LISTA = 0.65
 
 VENTANA_DIAS = 30
@@ -64,7 +66,7 @@ def similitud_texto(q: dict, c: dict, semant: float) -> float:
 
 
 def score_total(visual: float, geo: float, texto: float, temp: float) -> float:
-    return PESO_VISUAL * visual + PESO_GEO * geo + PESO_TEXTO * texto + PESO_TEMP * temp
+    return PESO_VISUAL * visual + PESO_TEXTO * texto + PESO_TEMP * temp + PESO_GEO * geo
 
 
 def match_one(q: dict, c: dict, visual: float, semant: float) -> dict:

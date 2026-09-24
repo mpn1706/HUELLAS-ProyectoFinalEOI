@@ -12,10 +12,10 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 ## Funcionalidades (MVP)
 
 - Registrar avisos `lost` / `found` con foto + texto libre + ubicación (mapa Leaflet clicable) + fechas (cualquier animal doméstico: `dog | cat | other`).
-- **5 agentes**: Ingestor (normaliza) → Vision Analyst (atributos + embedding CLIP 512) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=85%`).
+- **5 agentes**: Ingestor (normaliza) → Vision Analyst (atributos + embedding CLIP 512) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=80%`).
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
-- **Automatización**: al registrar o buscar, si un candidato supera el 85% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos >30 días" (`expire_old()`, sin cron).
+- **Automatización**: al registrar o buscar, si un candidato supera el 80% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos >30 días" (`expire_old()`, sin cron).
 - **Administración** (sidebar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. Contraseña: Secrets `ADMIN_PASSWORD` en Cloud, o variable `HUELLAS_ADMIN_PASSWORD`, o defecto local `huellas123`.
 - Las alertas no se duplican: un par (aviso, candidato) genera una sola fila (se actualiza si cambia el score).
 
@@ -30,11 +30,11 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 ### Fórmula (cerrada, `requirements.md` §8)
 
 ```
-score = 0.40·visual + 0.30·geo + 0.20·texto + 0.10·temporal
+score = 0.40·visual + 0.30·texto + 0.20·temporal + 0.10·geo
 geo   = max(0, 1 - km/15) · texto = 0.70·estructurado + 0.30·semántico
 temp  = max(0, 1 - días/30), fecha = last_seen si existe si no reported
 ```
-Umbrales: `>=85%` notifica + destaca · `>=65%` lista · `<65%` solo indexa.
+Umbrales: `>=80%` notifica + destaca · `>=65%` lista · `<65%` solo indexa.
 
 ## Stack
 

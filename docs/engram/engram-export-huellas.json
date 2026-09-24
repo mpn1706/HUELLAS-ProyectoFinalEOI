@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "exported_at": "2026-09-24 00:52:46",
+  "exported_at": "2026-09-24 01:09:49",
   "sessions": [
     {
       "id": "01a09161-c926-759a-90f0-8f60754bd9a7",
@@ -1369,6 +1369,36 @@
       "last_seen_at": "2026-09-24 00:52:43",
       "created_at": "2026-09-24 00:52:43",
       "updated_at": "2026-09-24 00:52:43"
+    },
+    {
+      "id": 74,
+      "sync_id": "obs-c8eac95cc12d9d02",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "type": "session_summary",
+      "title": "Session summary: huellas-proyectofinaleoi",
+      "content": "## Goal\nSesión de evolución UI + bugs de HUELLAS (S41–S50): navegación por botones, chinchetas, alertas, búsqueda libre y fixes de Cloud.\n\n## Instructions\n- Usuario escribe en español; pushes solo con confirmación explícita (preguntar con opciones Sí/No).\n- Verificar siempre: pytest + smoke 5 páginas + demo_check antes de push.\n- Engram: proyecto canónico `huellas` (no consolidar hacia `huellas-proyectofinaleoi`); PROMPT-LOG.md + export vault/JSON en cada hito.\n\n## Discoveries\n- Cloud sin torch: query en hist vs candidatos CLIP da coseno 0.09 y ranking vacío (S49); fix con mismo espacio ambos lados.\n- Resultados en `if st.button` se repliegan con reruns extra (S50); fix con `b_search` en session_state.\n- Seed: 17 avisos (5 lost activos + 1 resuelto + 11 found); lost_006 resuelto es demo intencional.\n- Sin sentence-transformers el par lost_001→found_001 da 79.8% (bajo umbral); found_011 da 85.6–89.9%.\n\n## Accomplished\n- ✅ S41–S50: Perdidos+5 páginas con botones negros/rojos, chinchetas con clusters+foto+leyenda, filtros animal/color/tamaño, alertas demo retirada + alerta real found_011 (85.6%), buscar libre foto+zona+descripción con autoregistro, alerta auto al publicar, CU-03 reescrito\n- ✅ 29 tests, smoke 5 páginas, E2E top found_011 ≥85%\n- ✅ Commits hasta 8e1ebe3 pusheados; Engram #56–#73 exportado; PROMPT-LOG hasta S50\n\n## Next Steps\n- Probar en Cloud que found_011 sale fijo tras S50; regenerar alerta allí con una búsqueda si hace falta\n- Pendiente del alumno: slides defensa 13 oct\n\n## Relevant Files\n- app.py — UI completa por páginas + mapas + cruce automático\n- agents/vision.py — embedida_con_espacio, embed_candidato, sync_seed_embeddings\n- scripts/demo_check.py — E2E top found_011 ≥85%\n- PROMPT-LOG.md — memoria S01–S50 | docs/engram/ — export Engram",
+      "project": "huellas-proyectofinaleoi",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 00:58:39",
+      "created_at": "2026-09-24 00:58:39",
+      "updated_at": "2026-09-24 00:58:39"
+    },
+    {
+      "id": 75,
+      "sync_id": "obs-f2f4db9709f80a23",
+      "session_id": "manual-save-huellas",
+      "type": "manual",
+      "title": "HUELLAS S51 pesos v1.2 umbral 80 UI buscar",
+      "content": "S51 24/09/2026 (Muse Spark): pesos 40 visual+30 texto+20 temporal+10 geo, umbral alerta 85-\u003e80 (demo 84.3%), slider con formato %, mapa unico en Buscar, help en 5 botones, fuera caption. Spec v1.2. Pytest 29/29, smoke y E2E OK.",
+      "project": "huellas",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-09-24 01:09:48",
+      "created_at": "2026-09-24 01:09:48",
+      "updated_at": "2026-09-24 01:09:48"
     }
   ],
   "prompts": [
@@ -2995,6 +3025,22 @@
       "content": "Ahora se desplegan abajo los candidatos pero luego se repliegan rapidamente y ya no aparece nada.",
       "project": "huellas-proyectofinaleoi",
       "created_at": "2026-09-24 00:48:25"
+    },
+    {
+      "id": 204,
+      "sync_id": "prompt-37beb71c7d1a0ff3",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "Vale, por ahora deja todo guardado y actualizado",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 00:58:14"
+    },
+    {
+      "id": 205,
+      "sync_id": "prompt-23fcf6c40eef37c1",
+      "session_id": "ses_f2f901534ffeFcAAP64nfu6B42",
+      "content": "- Ahora vamos a cambiar las puntuaciones: déjalo así 0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO, ya que hice la prueba y penaliza bastante si ubicación es lejana. - En la sección de BUSCAR MI MASCOTA Cambiar MOSTRAR DESDE (%) por MOSTRAR A PARTIR DE X PORCENTAJE DE COINCIDENCIA. En la barra de selección acompañar con el símbolo de % al número. Ejemplo, 65 %.\n\n- En la sección de BUSCAR MI MASCOTA dejar solo el mapa de las chichetas y que cumpla  también la función del otro, no es necesario dos mapas.\n\n- Cuando preselecciono alguno de los botones rojos o negros (PERDIDOS ACTIVOS, AVISTAMIENTOS, PUBLICAR AVISO, ETC.), que aparezca un pequeño cuadro emergente con una breve descripción de para que sirve esa función de la página. Ejemplo, en BUSCAR MI MASCOTA: PERMITE REALIZAR UNA BÚSQUEDA DE COINCIDENCIAS ENTRE TU MASCOTA PERDIDA Y LOS AVITSAMIENTOS ANTES DE PUBLICAR UN AVISO. Una vez lo hayas hehco, borra la descripccion que aparece arriba de FOTO ACTUAL \"Busca sin publicar: cruza tu foto, zona y descripción con los avistamientos. Si quieres, guárdala como aviso al lanzar.\" en la sección de BUSCAR MI MASCOTA.",
+      "project": "huellas-proyectofinaleoi",
+      "created_at": "2026-09-24 01:02:05"
     }
   ]
 }

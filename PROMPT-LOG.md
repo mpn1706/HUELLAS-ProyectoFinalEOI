@@ -203,3 +203,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Bug: los candidatos vivían solo en el run del clic (`if st.button`); cualquier rerun extra (montaje de mapas, sliders, checkbox) los hacía desaparecer.
 - Fix: la búsqueda se guarda en `st.session_state.b_search` y el render (filtros, tarjetas, mapa) lee de ahí; + botón "Limpiar resultados"; de paso se corrigió `st.code(explain)` que estaba indentado dentro de la columna Tiempo.
 - Verificación: pytest 29/29, smoke 5 páginas OK.
+
+## S51 — 24/09/2026 — Pesos v1.2 + umbral 80 + UI buscar (Muse Spark)
+- Pesos (decisión alumno, geo penalizaba): 0.40 visual + 0.30 texto + 0.20 temporal + 0.10 geo (`matcher.py`, spec §8 v1.2, `architecture.md`, `README.md`, sidebar, sub-scores en orden V-T-T-G).
+- Consecuencia medida: found_011 84.3% <85 → umbral de alerta 85→80 (decisión alumno; spec §9, notifier, tests, E2E, README, UI). Demo viva como alerta real.
+- Buscar: slider "Mostrar a partir de este porcentaje…" con formato `65 %`; un solo mapa (zona clicable + clusters + leyenda); `help` descriptivo en los 5 botones; fuera el caption de buscar.
+- Verificación: pytest 29/29, smoke 5 páginas OK, E2E top found_011 84.3% ≥80%.

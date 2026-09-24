@@ -50,6 +50,6 @@ def test_match_one_cercano_alto():
 
 
 def test_umbrales_borde_inclusivos():
-    assert UMBRAL_NOTIF == 0.85 and UMBRAL_LISTA == 0.65
+    assert UMBRAL_NOTIF == 0.80 and UMBRAL_LISTA == 0.65
     # score exacto 0.65 debe listar (regla >=)
     assert 0.65 >= UMBRAL_LISTA

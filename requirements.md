@@ -39,13 +39,13 @@ Cuando una mascota se pierde, los avisos quedan dispersos en redes sociales y pr
 ## 5. Casos de uso principales
 
 ### CU-01 — Registrar aviso `lost`
-Actor: dueño. Flujo: sube foto + descripción + ubicación + fechas + contacto opcional → Ingestor normaliza → Vision Analyst extrae atributos y embedding → se persiste → Matcher lo compara contra corpus `found` activos → se muestran coincidencias >=65% y se notifica si >=85%.
+Actor: dueño. Flujo: sube foto + descripción + ubicación + fechas + contacto opcional → Ingestor normaliza → Vision Analyst extrae atributos y embedding → se persiste → Matcher lo compara contra corpus `found` activos → se muestran coincidencias >=65% y se notifica si >=80%.
 
 ### CU-02 — Registrar aviso `found`
 Actor: persona que encuentra / protectora. Flujo simétrico a CU-01, comparando contra corpus `lost` activos.
 
 ### CU-03 — Buscar coincidencias sin publicar (búsqueda libre)
-Actor: dueño / evaluador. Flujo: sube foto + elige zona (dirección con auto-zoom, clic en mapa con autocompletado, o ajuste manual) + describe animal (color, tamaño, raza, collar, marcas, texto) → Matcher cruza contra avistamientos activos sin necesidad de aviso publicado → ranking ≥65% con desglose. Opcional: casilla "Guardar como aviso de perdido" (entra en Perdidos y en cruces futuros; si supera 85% genera alerta). Las alertas nacen del cruce de datos: al publicar (ambos sentidos) y al guardar una búsqueda, nunca de la mera visualización.
+Actor: dueño / evaluador. Flujo: sube foto + elige zona (dirección con auto-zoom, clic en mapa con autocompletado, o ajuste manual) + describe animal (color, tamaño, raza, collar, marcas, texto) → Matcher cruza contra avistamientos activos sin necesidad de aviso publicado → ranking ≥65% con desglose. Opcional: casilla "Guardar como aviso de perdido" (entra en Perdidos y en cruces futuros; si supera 80% genera alerta). Las alertas nacen del cruce de datos: al publicar (ambos sentidos) y al guardar una búsqueda, nunca de la mera visualización.
 
 ### CU-04 — Revisar detalle de posible coincidencia
 Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos coincidentes/divergentes, y aviso legal de no-identidad. Decide contactar fuera del sistema.
@@ -102,18 +102,21 @@ Reglas derivadas:
 2. **Vision Analyst**: procesa la imagen y extrae especie, raza aproximada, color, manchas, collar, tamaño, y genera el embedding visual CLIP 512-dim. Tiene precedencia sobre atributos visuales (decisión 10).
 3. **Matcher**: compara un aviso contra el resto del corpus y calcula score (ver §8).
 4. **Geo**: calcula distancia haversine y aplica `max(0, 1 - distancia_km / 15)`, radio_máximo fijo 15 km.
-5. **Notifier**: si `score >= 85%`, registra en tabla `notifications` + log y muestra destacada en panel Streamlit. Sin Telegram real.
+5. **Notifier**: si `score >= 80%`, registra en tabla `notifications` + log y muestra destacada en panel Streamlit. Sin Telegram real.
 
 > Conflicto Ingestor vs Vision resuelto 23/09/2026: manda Vision para `color_primary`; texto usuario intacto en `description_text`.
 
-## 8. Motor de matching — fórmula y pesos cerrados (REQ-07, no cambiar)
+## 8. Motor de matching — fórmula y pesos (REQ-07)
 
 ```
 score_total = (0.40 × similitud_visual)
-            + (0.30 × proximidad_geográfica)
-            + (0.20 × similitud_texto)
-            + (0.10 × proximidad_temporal)
+            + (0.30 × similitud_texto)
+            + (0.20 × proximidad_temporal)
+            + (0.10 × proximidad_geográfica)
 ```
+
+v1.2 (24/09/2026, decisión del alumno S51): geo 0.30→0.10, texto 0.20→0.30,
+temporal 0.10→0.20. Motivo: la ubicación lejana penalizaba demasiado.
 
 - `similitud_visual`: similitud coseno entre embeddings CLIP `openai/clip-vit-base-patch32` 512-dim (0-1). Sin torch (Cloud), query y candidatos se comparan en histograma de color: lo que importa es que ambos lados usen el MISMO espacio (S49; mezclarlos da ~0.09 y vacía el ranking).
 - `proximidad_geográfica`: max(0, 1 - distancia_km / 15), radio_máximo fijo = 15 km.
@@ -122,10 +125,12 @@ score_total = (0.40 × similitud_visual)
 
 Restricciones: los 4 pesos suman 1.0. No se reponderan sin nueva spec.
 
-## 9. Umbrales de notificación (REQ-08, decisión cerrada 23/09/2026, `>=`)
+## 9. Umbrales de notificación (REQ-08, `>=`)
 
-- Score >= 85%: notificación automática (panel + log) + se muestra como "posible coincidencia" destacada.
-- Score 65-84.99%: aparece en el listado, sin notificación.
+v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
+
+- Score >= 80%: notificación automática (panel + log) + se muestra como "posible coincidencia" destacada.
+- Score 65-79.99%: aparece en el listado, sin notificación.
 - Score < 65%: no se muestra como coincidencia, pero queda indexado.
 
 ## 10. Requisitos no funcionales (REQ-09)

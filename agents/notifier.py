@@ -1,7 +1,7 @@
 """Agente Notifier — REQ-06.5 + REQ-08.
 
 MVP: panel/tabla Streamlit + log + tabla notifications. Sin Telegram
-(decisión 9). Umbral con >= 0.85 (decisión 6).
+(decisión 9). Umbral con >= 0.80 (decisión 6, v1.2 S51).
 Sin duplicados: un par (aviso, candidato) genera UNA fila; si el score
 cambia se actualiza, si es idéntico se ignora.
 """

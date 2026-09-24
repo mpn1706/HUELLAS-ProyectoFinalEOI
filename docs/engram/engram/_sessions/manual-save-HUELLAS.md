@@ -19,3 +19,4 @@ tags:
 - [[huellas-s48-buscar-libre-alerta-publicar-71]]
 - [[huellas-s49-bug-cloud-mismo-espacio-visual-72]]
 - [[huellas-s50-resultados-persistentes-sesion-73]]
+- [[huellas-s51-pesos-v1-2-umbral-80-ui-buscar-75]]

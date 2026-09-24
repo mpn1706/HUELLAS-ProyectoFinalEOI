@@ -11,7 +11,7 @@ import streamlit as st
 from agents import admin as admmod
 from agents import db as dbmod
 from agents.ingestor import effective_date, normalize_aviso
-from agents.matcher import explain
+from agents.matcher import UMBRAL_NOTIF, explain
 from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
@@ -320,7 +320,7 @@ def retirar_alerta_demo(con) -> int:
     """Elimina la fila demo incorrecta (lost_001 → found_001, 0.963).
 
     El alumno confirmó que no es el mismo gato: la demo se retira y
-    Alertas solo mostrará notificaciones reales ≥85%. Se deja traza en
+    Alertas solo mostrará notificaciones reales ≥80%. Se deja traza en
     el log. Trazable a REQ-08.
     """
     try:
@@ -342,7 +342,7 @@ def retirar_alerta_demo(con) -> int:
 def pin_color(a: dict) -> str:
     """Verde = encontrados · azul = perdidos activos (el query va en rojo).
 
-    Las destacadas ≥85% se anuncian en el popup, sin cambiar el color.
+    Las destacadas ≥80% se anuncian en el popup, sin cambiar el color.
     """
     return "green" if a.get("type") == "found" else "blue"
 
@@ -398,7 +398,7 @@ def popup_html(c: dict, marca: str = "", dist=None) -> str:
             f"{animal_tag(c)}<br>{c['location'].get('address_text', '')}{dd}")
     """Verde = encontrados · azul = perdidos activos (el query va en rojo).
 
-    Las destacadas ≥85% se anuncian en el popup, sin cambiar el color.
+    Las destacadas ≥80% se anuncian en el popup, sin cambiar el color.
     """
     return "green" if a.get("type") == "found" else "blue"
 
@@ -426,7 +426,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
     Roja = tu mascota · azules = perdidos activos · verdes = encontrados.
     Los avisos con la misma ubicación se agrupan (círculo con el nº);
     pulsa para desplegarlos. Cada chincheta lleva foto + datos en el popup
-    y marca DESTACADA si ≥85%. Si folium no está, aviso sin romper.
+    y marca DESTACADA si ≥80%. Si folium no está, aviso sin romper.
     """
     try:
         import folium
@@ -456,7 +456,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
             for it in items:
                 c = it.get("candidato", it)
                 score = it.get("score")
-                marca = " · DESTACADA" if (score is not None and score >= 0.85) else ""
+                marca = " · DESTACADA" if (score is not None and score >= UMBRAL_NOTIF) else ""
                 if score is not None:
                     marca += f" · {score*100:.0f}%"
                 etiqueta = f"{c['id']}" + (f" {score*100:.0f}%" if score is not None else "")
@@ -557,34 +557,36 @@ m1, m2, m3 = st.columns(3)
 with m1:
     st.button(f"PERDIDOS ACTIVOS ({n_lost})", key="nav_perdidos",
               use_container_width=True, on_click=nav_to, args=("perdidos",),
-              help="Ir a perdidos activos")
+              help="Muestra los avisos de mascotas perdidas activos, con filtros por animal, color y tamaño.")
 with m2:
     st.button(f"AVISTAMIENTOS ({n_found})", key="nav_encontrados",
               use_container_width=True, on_click=nav_to, args=("encontrados",),
-              help="Ir a avistamientos")
+              help="Muestra los avistamientos: animales encontrados pendientes de reunir con su dueño.")
 with m3:
     st.button(f"ALERTAS ({n_notif})", key="nav_alertas",
               use_container_width=True, on_click=nav_to, args=("alertas",),
-              help="Ir a alertas")
+              help="Posibles coincidencias destacadas con un 80 % o más. Se generan solas al cruzar avisos.")
 # ── Justo debajo: PUBLICAR + BUSCAR, centrados y rojos ─────────────────
 _, b1, b2, _ = st.columns([1, 2, 2, 1])
 with b1:
     st.button("Publicar aviso", key="top_publicar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("publicar",))
+              use_container_width=True, on_click=nav_to, args=("publicar",),
+              help="Publica un aviso de perdido o avistamiento. Al publicar se cruza solo y avisa si supera el 80 por ciento.")
 with b2:
     st.button("Buscar a mi mascota", key="top_buscar", type="primary",
-              use_container_width=True, on_click=nav_to, args=("buscar",))
+              use_container_width=True, on_click=nav_to, args=("buscar",),
+              help="Permite realizar una búsqueda de coincidencias entre tu mascota perdida y los avistamientos antes de publicar un aviso.")
 
 # ── Barra lateral ─────────────────────────────────────────────────────
 with st.sidebar:
     st.subheader("Funcionamiento web")
     with st.expander("Cómo puntúa (fórmula cerrada)"):
-        st.markdown("**0.40·VISUAL + 0.30·GEO + 0.20·TEXTO + 0.10·TEMPORAL**")
+        st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
         u1, u2 = st.columns(2)
         with u1:
             st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
                         'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                        '≥85%<br>ALERTA</div>', unsafe_allow_html=True)
+                        '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
         with u2:
             st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
                         'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
@@ -757,8 +759,6 @@ page = st.session_state.get("page", "buscar")
 
 # ── Página: Buscar ────────────────────────────────────────────────────
 if page == "buscar":
-    st.caption("Busca sin publicar: cruza tu foto, zona y descripción con los avistamientos. "
-               "Si quieres, guárdala como aviso al lanzar.")
     st.subheader("1. Foto actual")
     foto_b = st.file_uploader("Sube una foto de tu mascota (pesa el 40%)",
                               type=["jpg", "jpeg", "png"], key="b_foto")
@@ -779,17 +779,45 @@ if page == "buscar":
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
-        st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta):")
+        st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta). "
+                   "Verdes: avistamientos · azules: perdidos · roja: tu zona.")
         try:
             import folium
+            from folium.plugins import MarkerCluster
             from streamlit_folium import st_folium
 
-            fmap = folium.Map(location=[st.session_state.q_lat, st.session_state.q_lon], zoom_start=14)
-            folium.Marker([st.session_state.q_lat, st.session_state.q_lon],
-                          icon=folium.Icon(color="red")).add_to(fmap)
-            out = st_folium(fmap, key="bus_map",
-                            center=(st.session_state.q_lat, st.session_state.q_lon),
-                            zoom=14, width=900, height=380)
+            c_map, c_leg = st.columns([5, 1])
+            with c_map:
+                fmap = folium.Map(location=[st.session_state.q_lat, st.session_state.q_lon],
+                                  zoom_start=14)
+                folium.Marker([st.session_state.q_lat, st.session_state.q_lon],
+                              tooltip="TU ZONA",
+                              popup=("TU ZONA · "
+                                     f"{st.session_state.get('q_addr_in', '')}"),
+                              icon=folium.Icon(color="red")).add_to(fmap)
+                cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
+                for o in (dbmod.get_aviso(con, r["id"]) for r in
+                          con.execute("SELECT id FROM avisos WHERE status='active'"
+                                      " AND type='lost'").fetchall()):
+                    if not o:
+                        continue
+                    folium.Marker(
+                        [o["location"]["lat"], o["location"]["lng"]],
+                        tooltip=f"PERDIDO {o['id']}",
+                        popup=folium.Popup(popup_html(o), max_width=260),
+                        icon=folium.Icon(color="blue")).add_to(cl_lost)
+                cl_found = MarkerCluster(name="Avistamientos").add_to(fmap)
+                for c in dbmod.get_active_opuestos(con, "lost"):
+                    folium.Marker(
+                        [c["location"]["lat"], c["location"]["lng"]],
+                        tooltip=c["id"],
+                        popup=folium.Popup(popup_html(c), max_width=260),
+                        icon=folium.Icon(color="green")).add_to(cl_found)
+                out = st_folium(fmap, key="cerca_map",
+                                center=(st.session_state.q_lat, st.session_state.q_lon),
+                                zoom=14, width=900, height=380)
+            with c_leg:
+                leyenda_mapa()
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
                 nlng = round(out["last_clicked"]["lng"], 4)
@@ -805,18 +833,6 @@ if page == "buscar":
         with st.expander("Ajuste manual de coordenadas"):
             st.number_input("Latitud", format="%.4f", key="q_lat")
             st.number_input("Longitud", format="%.4f", key="q_lon")
-
-        st.subheader("Avistados cerca de tu zona")
-        st.caption("Chinchetas verdes: avistamientos · azules: perdidos · roja: tu zona.")
-        pseudo = {"id": "TU-ZONA", "type": "lost", "animal": "dog", "color_primary": "",
-                  "size": "medium",
-                  "location": {"lat": st.session_state.q_lat, "lng": st.session_state.q_lon,
-                               "address_text": st.session_state.get("q_addr_in", "")},
-                  "image_url": ""}
-        _lost_ctx = [dbmod.get_aviso(con, r["id"]) for r in
-                     con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
-        render_mapa_avistados(pseudo, dbmod.get_active_opuestos(con, "lost"), key="cerca_map",
-                              otros_lost=[a for a in _lost_ctx if a])
 
     st.subheader("3. Descripción")
     d1, d2 = st.columns(2)
@@ -837,7 +853,8 @@ if page == "buscar":
     st.subheader("4. Lanza la búsqueda")
     f1, f2 = st.columns(2)
     with f1:
-        umbral_vista = st.slider("Mostrar desde (%)", 50, 100, 65,
+        umbral_vista = st.slider("Mostrar a partir de este porcentaje de coincidencia", 50, 100, 65,
+                                 format="%d %%",
                                  help="Solo filtra lo que se muestra, no cambia el score.")
     with f2:
         topn = st.slider("Máx. resultados", 3, 15, 8)
@@ -899,7 +916,7 @@ if page == "buscar":
             st.rerun()
         k1, k2 = st.columns(2)
         with k1:
-            stat_box(sum(1 for m in matches if m["notifica"]), "Destacadas ≥85%", mini=True)
+            stat_box(sum(1 for m in matches if m["notifica"]), "Destacadas ≥80%", mini=True)
         with k2:
             stat_box(len(matches), "En lista ≥65%", mini=True)
         visibles = [m for m in matches if m["score"] * 100 >= umbral_vista][:topn]
@@ -917,20 +934,20 @@ if page == "buscar":
                 with r2:
                     show_image(c["image_url"], caption=f"Avistamiento · {c['id']}")
                     st.write(c["description_text"])
-                with st.expander("Por qué este resultado"):
-                    s1, s2, s3, s4 = st.columns(4)
-                    with s1:
-                        stat_box(f"{m['visual']:.2f}", "Visual", mini=True)
-                    with s2:
-                        stat_box(f"{m['geo']:.2f}", "Geo", mini=True)
-                    with s3:
-                        stat_box(f"{m['texto']:.2f}", "Texto", mini=True)
-                    with s4:
-                        stat_box(f"{m['temporal']:.2f}", "Tiempo", mini=True)
-                    st.code(explain(m))
+                    with st.expander("Por qué este resultado"):
+                        s1, s2, s3, s4 = st.columns(4)
+                        with s1:
+                            stat_box(f"{m['visual']:.2f}", "Visual", mini=True)
+                        with s2:
+                            stat_box(f"{m['texto']:.2f}", "Texto", mini=True)
+                        with s3:
+                            stat_box(f"{m['temporal']:.2f}", "Tiempo", mini=True)
+                        with s4:
+                            stat_box(f"{m['geo']:.2f}", "Geo", mini=True)
+                        st.code(explain(m))
         if visibles:
             st.subheader("Mapa de candidatos")
-            st.caption("Verdes: encontrados (DESTACADA si ≥85%) · roja: tu mascota.")
+            st.caption("Verdes: encontrados (DESTACADA si ≥80%) · roja: tu mascota.")
             render_mapa_avistados(q, visibles, key="res_map")
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
@@ -1063,9 +1080,9 @@ if page == "publicar":
                                    semantic_similarity)
                 auto = notificar(con, av["id"], ms_auto)
                 if auto:
-                    st.success(f"Cruce automático: {len(auto)} alerta(s) ≥85% (ver ALERTAS).")
+                    st.success(f"Cruce automático: {len(auto)} alerta(s) ≥80% (ver ALERTAS).")
                 else:
-                    st.info("Cruce automático: sin coincidencias ≥85% por ahora. "
+                    st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
                             "Si aparece el par contrario, se avisará solo.")
             except Exception as e:
                 st.caption(f"Cruce automático no disponible ({e}).")
@@ -1074,10 +1091,10 @@ if page == "publicar":
 
 # ── Página: Alertas ───────────────────────────────────────────────────
 if page == "alertas":
-    st.subheader("Alertas automáticas (score ≥85%)")
+    st.subheader("Alertas automáticas (score ≥80%)")
     rows = con.execute("SELECT * FROM notifications ORDER BY id DESC LIMIT 50").fetchall()
     if not rows:
-        st.info("Aún no hay alertas. Lanza una búsqueda: si algún candidato supera el 85%, "
+        st.info("Aún no hay alertas. Lanza una búsqueda: si algún candidato supera el 80%, "
                 "aparecerá aquí como posible coincidencia destacada.")
     else:
         stat_box(len(rows), "Total alertas")

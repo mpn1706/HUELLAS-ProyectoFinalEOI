@@ -27,7 +27,7 @@ Elección justificada por restricciones: 2 semanas, evaluación local <10 min, c
    v
 [Ranking score_total + sub-scores]
    |
-   ├─ >=85% --> [5. Notifier] --> panel Streamlit + log + tabla notifications
+   ├─ >=80% --> [5. Notifier] --> panel Streamlit + log + tabla notifications
    ├─ 65-84.99% --> listado normal
    └─ <65% --> solo indexado
    |
@@ -100,7 +100,7 @@ Tabla `avisos` espejo 1:1 del esquema REQ-05:
 1. **Ingestor (`agents/ingestor.py`)**: valida tipos, genera UUID, normaliza strings (lower/trim), convierte ubicación a float, parsea ISO8601, guarda con `image_embedding=NULL`, `breed_guess=NULL`, `status=active`. Preserva `description_text` intacto. Valida `other`: exige `color_primary`, `size`, `description_text`. No llama a visión.
 2. **Vision Analyst (`agents/vision.py`)**: input `id`; carga imagen local `data/seed/images/`; devuelve `{animal, breed_guess (NULL si other), color_primary/secondary, markings, size, has_collar, collar_description, image_embedding CLIP 512}`; hace UPDATE con precedencia sobre atributos visuales.
 3. **Geo (`agents/geo.py`)**: `haversine_km(lat1,lng1,lat2,lng2)` + `proximidad = max(0, 1 - km/15)`. Constante `RADIO_MAX_KM=15`.
-4. **Matcher (`agents/matcher.py`)**: para `aviso_q` contra candidatos opuestos activos: `visual 0.40 + geo 0.30 + texto (0.70*estruct+0.30*semant) 0.20 + temporal max(0,1-dias/30) 0.10`, ordena desc, aplica `>=85 / >=65`. Expone `explain(match)` con 4 sub-scores para UI.
+4. **Matcher (`agents/matcher.py`)**: para `aviso_q` contra candidatos opuestos activos: `visual 0.40 + texto (0.70*estruct+0.30*semant) 0.30 + temporal max(0,1-dias/30) 0.20 + geo 0.10`, ordena desc, aplica `>=85 / >=65`. Expone `explain(match)` con 4 sub-scores para UI.
 5. **Notifier (`agents/notifier.py`)**: si `score>=85`, inserta en `notifications` + escribe log + marca panel. Sin Telegram.
 
 Diagrama secuencia CU-01/CU-02:
