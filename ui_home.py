@@ -111,6 +111,46 @@ def build_crossing_html(n: int) -> str:
     )
 
 
+def _pct_score(score) -> int:
+    """Porcentaje entero 0-100 desde un score 0-1 (tolerante)."""
+    try:
+        return int(round(max(0.0, min(1.0, float(score))) * 100))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _ring_block(pct: int) -> tuple:
+    """Bloque anillo+dígitos con keyframes FIJOS. Retorna (estilo, cuerpo)."""
+    if pct <= 0:
+        tira = ('<span class="huellas-strip"><span class="huellas-track">'
+                '<span>0</span></span></span><span class="huellas-pctsign"> %</span>')
+        return "", tira
+    digitos = "".join(f"<span>{i}</span>" for i in range(pct + 1))
+    viaje = f"{pct * 1.4:.1f}"
+    estilo = (
+        "<style>"
+        f"@keyframes huellas-ringfill-{pct} "
+        f"{{ from {{ stroke-dashoffset:100; }} to {{ stroke-dashoffset:{100 - pct}; }} }}"
+        f"@keyframes huellas-strip-{pct} "
+        f"{{ from {{ transform:translateY(0); }} to {{ transform:translateY(-{viaje}em); }} }}"
+        "</style>"
+    )
+    tira = (f'<span class="huellas-strip"><span class="huellas-track" '
+            f'style="animation:huellas-strip-{pct} 1.6s steps({pct}) .25s both">'
+            f'{digitos}</span></span><span class="huellas-pctsign"> %</span>')
+    cuerpo = (
+        '<div class="huellas-ringwrap">'
+        '<svg viewBox="0 0 120 120" class="huellas-ring" aria-hidden="true">'
+        '<circle cx="60" cy="60" r="52" class="huellas-ring-bg"></circle>'
+        '<circle cx="60" cy="60" r="52" pathLength="100" '
+        f'class="huellas-ring-fg huellas-ringfill" '
+        f'style="animation:huellas-ringfill-{pct} 1.6s ease-out .25s both"></circle>'
+        '</svg>'
+        f'<div class="huellas-ring-num">{tira}</div></div>'
+    )
+    return estilo, cuerpo
+
+
 def build_match_card_html(cand_id: str, score: float) -> str:
     """Tarjeta de coincidencia con anillo y dígitos que van de 0 al % real.
 
@@ -118,46 +158,187 @@ def build_match_card_html(cand_id: str, score: float) -> str:
     (anillo `stroke-dashoffset` 100→100-pct; tira de dígitos con `steps(pct)`).
     Sin animación, queda el `%` final en la línea del id (visible y correcto).
     """
-    try:
-        pct = int(round(max(0.0, min(1.0, float(score))) * 100))
-    except (TypeError, ValueError):
-        pct = 0
+    pct = _pct_score(score)
     cid = _html.escape(str(cand_id), quote=True)
-    if pct <= 0:
-        tira = ('<span class="huellas-strip"><span class="huellas-track">'
-                '<span>0</span></span></span><span class="huellas-pctsign"> %</span>')
-        estilo = ''
-    else:
-        digitos = "".join(f"<span>{i}</span>" for i in range(pct + 1))
-        viaje = f"{pct * 1.4:.1f}"
-        estilo = (
-            "<style>"
-            f"@keyframes huellas-ringfill-{pct} "
-            f"{{ from {{ stroke-dashoffset:100; }} to {{ stroke-dashoffset:{100 - pct}; }} }}"
-            f"@keyframes huellas-strip-{pct} "
-            f"{{ from {{ transform:translateY(0); }} to {{ transform:translateY(-{viaje}em); }} }}"
-            "</style>"
-        )
-        tira = (f'<span class="huellas-strip"><span class="huellas-track" '
-                f'style="animation:huellas-strip-{pct} 1.6s steps({pct}) .25s both">'
-                f'{digitos}</span></span><span class="huellas-pctsign"> %</span>')
+    estilo, anillo = _ring_block(pct)
     return (
         f"{estilo}"
         '<div class="huellas-match-card">'
         '<div class="huellas-match-t">¡Posible coincidencia!</div>'
-        '<div class="huellas-ringwrap">'
-        '<svg viewBox="0 0 120 120" class="huellas-ring" aria-hidden="true">'
-        '<circle cx="60" cy="60" r="52" class="huellas-ring-bg"></circle>'
-        '<circle cx="60" cy="60" r="52" pathLength="100" '
-        f'class="huellas-ring-fg huellas-ringfill"'
-        + (f' style="animation:huellas-ringfill-{pct} 1.6s ease-out .25s both"'
-           if pct > 0 else '')
-        + '></circle>'
-        '</svg>'
-        f'<div class="huellas-ring-num">{tira}</div></div>'
+        f"{anillo}"
         f'<div class="huellas-match-id"><code>{cid}</code> · <b>{pct} %</b></div>'
         '</div>'
     )
+
+
+def build_result_card_html(cand_id: str, score: float, dist_km, titulo: str,
+                           idx: int = 0, top: bool = False) -> str:
+    """Tarjeta de resultado de Buscar: anillo que cuenta + envoltorio en cascada.
+
+    `idx` escalona la entrada 80 ms (`animation-delay` inline). `top` marca la
+    mejor coincidencia (borde rojo + pulso). Sin contacto por construcción.
+    """
+    pct = _pct_score(score)
+    cid = _html.escape(str(cand_id), quote=True)
+    tit = _html.escape(str(titulo), quote=False)
+    try:
+        dist = f"{float(dist_km):.2f} km"
+    except (TypeError, ValueError):
+        dist = "—"
+    estilo, anillo = _ring_block(pct)
+    cls = "huellas-match-card huellas-res-top" if top else "huellas-match-card"
+    retraso = max(0, int(idx)) * 0.08
+    return (
+        f"{estilo}"
+        f'<div class="huellas-res" style="animation-delay:{retraso:.2f}s">'
+        f'<div class="{cls}">'
+        f'<div class="huellas-match-t">{tit}</div>'
+        f"{anillo}"
+        f'<div class="huellas-match-id"><code>{cid}</code> · {dist} · '
+        f'<b>{pct} %</b></div>'
+        '</div></div>'
+    )
+
+
+def build_bars_html(uid, visual: float = 0, zona: float = 0,
+                    texto: float = 0, fecha: float = 0) -> str:
+    """4 barras (Visual/Zona/Texto/Fecha) que se rellenan en 600 ms.
+
+    Keyframes con valores FIJOS por barra (`huellas-bar-<uid>-<k>`).
+    """
+    uid = "".join(c if c.isalnum() else "_" for c in str(uid)) or "x"
+    pares = [("Visual", visual), ("Zona", zona), ("Texto", texto), ("Fecha", fecha)]
+    estilos = ["<style>"]
+    filas = []
+    for k, (etiq, v) in enumerate(pares):
+        pc = _pct_score(v)
+        estilos.append(f"@keyframes huellas-bar-{uid}-{k} "
+                       f"{{ from {{ width:0; }} to {{ width:{pc}%; }} }}")
+        filas.append(
+            f'<div class="huellas-bar-row"><span>{etiq}</span>'
+            f'<div class="huellas-bar"><div class="huellas-barfill" '
+            f'style="animation:huellas-bar-{uid}-{k} .6s ease-out .15s both">'
+            '</div></div>'
+            f"<b>{pc} %</b></div>")
+    estilos.append("</style>")
+    return "".join(estilos) + '<div class="huellas-bars">' + "".join(filas) + "</div>"
+
+
+def build_radar_html() -> str:
+    """Radar de búsqueda: anillos + barrido giratorio + pings (solo CSS)."""
+    return (
+        '<div class="huellas-radarwrap">'
+        '<div class="huellas-radar">'
+        '<span class="huellas-ping p1"></span>'
+        '<span class="huellas-ping p2"></span>'
+        '</div><div class="huellas-radar-t">Buscando coincidencias…</div></div>'
+    )
+
+
+def build_foto_scan_html(data_uri: str, alt: str = "foto",
+                         etiqueta=None, esquinas: bool = False) -> str:
+    """Miniatura con línea de escaneo; esquinas de encuadre + etiqueta opcionales."""
+    uri_esc = _html.escape(str(data_uri or ""), quote=True)
+    alt_esc = _html.escape(str(alt or "foto"), quote=False)
+    extra = ('<i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i>'
+             if esquinas else "")
+    etiqueta_html = ""
+    if etiqueta:
+        et_esc = _html.escape(str(etiqueta), quote=False)
+        etiqueta_html = f'<div><span class="huellas-analizada">{et_esc}</span></div>'
+    return (
+        f'<div class="huellas-scan"><img src="{uri_esc}" alt="{alt_esc}">{extra}'
+        '<div class="huellas-scanline"></div></div>'
+        f'{etiqueta_html}'
+    )
+
+
+def faltantes_buscar(lado=None, foto_ok: bool = False, animal="",
+                     size="", color="", desc="") -> list:
+    """Campos que faltan en Buscar (shake + aviso). Pura y testeada."""
+    faltan = []
+    if not lado:
+        faltan.append("canal")
+    if not foto_ok:
+        faltan.append("foto")
+    if not animal:
+        faltan.append("animal")
+    if not size:
+        faltan.append("tamaño")
+    if not (color or "").strip():
+        faltan.append("color principal")
+    if not (desc or "").strip():
+        faltan.append("descripción")
+    return faltan
+
+
+def _eff_dt(iso_last, iso_rep):
+    """Fecha efectiva del aviso (last_seen si existe, si no reported)."""
+    from datetime import datetime
+
+    for cand in (iso_last, iso_rep):
+        if cand:
+            try:
+                return datetime.fromisoformat(str(cand))
+            except ValueError:
+                continue
+    return None
+
+
+def dias_perdido(iso_last, iso_rep, hoy=None) -> int:
+    """Días enteros desde la fecha efectiva (0 si futura o sin fecha)."""
+    from datetime import date
+
+    hoy = hoy or date.today()
+    eff = _eff_dt(iso_last, iso_rep)
+    if eff is None:
+        return 0
+    return max(0, (hoy - eff.date()).days)
+
+
+def es_nuevo(iso_last, iso_rep, ahora=None) -> bool:
+    """True si el aviso tiene menos de 48 h (y no es futuro)."""
+    from datetime import datetime
+
+    ahora = ahora or datetime.now().astimezone()
+    eff = _eff_dt(iso_last, iso_rep)
+    if eff is None:
+        return False
+    if eff.tzinfo is None:
+        eff = eff.replace(tzinfo=ahora.tzinfo)
+    return 0 <= (ahora - eff).total_seconds() < 48 * 3600
+
+
+def chip_dias_perdido(n: int) -> str:
+    """Chip 'N días perdido' con color de urgencia (verde/ámbar/rojo)."""
+    n = max(0, int(n))
+    clase = "verde" if n <= 2 else ("ambar" if n <= 6 else "rojo")
+    if n == 0:
+        txt = "Perdido hoy"
+    elif n == 1:
+        txt = "1 día perdido"
+    else:
+        txt = f"{n} días perdido"
+    return f'<span class="huellas-chip {clase}">{txt}</span>'
+
+
+def chip_visto(n: int) -> str:
+    """Chip neutro 'Visto hace N días' para avistamientos."""
+    n = max(0, int(n))
+    txt = "Visto hoy" if n == 0 else (f"Visto hace {n} día" if n == 1
+                                      else f"Visto hace {n} días")
+    return f'<span class="huellas-chip neutro">{txt}</span>'
+
+
+def nuevo_html() -> str:
+    """Etiqueta 'Nuevo' con punto pulsante."""
+    return '<span class="huellas-nuevo"><span class="huellas-dot"></span>Nuevo</span>'
+
+
+def contacto_html(info: str) -> str:
+    """Línea de contacto escapada con despliegue de altura (300 ms)."""
+    txt = _html.escape(str(info or "Sin contacto registrado."), quote=False)
+    return f'<div class="huellas-contacto">- Contacto: {txt}</div>'
 
 
 def build_pen_html() -> str:

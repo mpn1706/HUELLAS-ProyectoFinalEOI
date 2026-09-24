@@ -416,6 +416,21 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.17: `requirements.md` §20 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 51/51, smoke 9 páginas OK, demo_check E2E OK.
 
+## S84 — 25/09/2026 — Buscar con vida + Perdidos/Avistamientos v1.18 (Muse Spark)
+- REQ-UI-26/27: foto con esquinas + "Foto lista"; círculo 2 km + chip de punto
+  (pin con rebote, rotación incluida en keyframes, + anillo pulsante).
+- REQ-UI-28: radar con barrido/pings (mín. 1,5 s) + shake con `faltantes_buscar()`.
+- REQ-UI-29/30: resultados en cascada 80 ms (envoltorio con retardo inline) + anillo
+  y 4 barras fijas + top con borde rojo y pulso; sin resultados → "Guardar como aviso"
+  con rebote.
+- REQ-UI-31..34: contacto bajo demanda (escapado, 300 ms), chips de urgencia/neutros
+  y "Nuevo" (`dias_perdido()`/`es_nuevo()` puros).
+- Verificado en Edge headless con el CSS real: barra 0.71, spin activo, delay 0.08s,
+  borde top rojo; captura conforme. Playwright desinstalado tras verificar.
+- Specs v1.18: `requirements.md` §21 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 58/58 (nuevo `tests/test_buscar_ui.py`), smoke 9 páginas OK,
+  demo_check E2E OK.
+
 ## S82 — 25/09/2026 — Boli alto y translúcido (Muse Spark)
 - Boli en formato alto (`min-height:240px`, SVG 300×150 con trazos repartidos) y fondo
   translúcido (`rgba(255,255,255,0.45)`, se ve el patrón de la web).

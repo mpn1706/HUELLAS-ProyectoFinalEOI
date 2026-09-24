@@ -17,13 +17,24 @@ from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
 from ui_home import (
+    build_bars_html,
     build_carousel_html,
     build_check_html,
     build_crossing_html,
+    build_foto_scan_html,
     build_match_card_html,
     build_pen_html,
+    build_radar_html,
+    build_result_card_html,
+    chip_dias_perdido,
+    chip_visto,
+    contacto_html,
+    dias_perdido,
+    es_nuevo,
+    faltantes_buscar,
     faltantes_publicar,
     make_carousel_thumb,
+    nuevo_html,
     select_carousel_items,
 )
 
@@ -339,6 +350,10 @@ SHAKE_CONFIRM_STYLE = """<style>
 div[class*="st-key-confirm_pub"] button { animation:huellas-shake .4s ease 1; }
 </style>"""
 
+SHAKE_BUSCAR_STYLE = """<style>
+div[class*="st-key-b_buscar"] button { animation:huellas-shake .4s ease 1; }
+</style>"""
+
 FOTO_PUB_STYLE = """<style>
 /* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca,
    con altura mínima para dar aire (compensa la huella y el caption retirados). */
@@ -481,6 +496,39 @@ def titulo_perimetro(texto: str):
         f'{_html.escape(texto)}'
         f'<span class="huellas-perimetro-paw">{PAW_ROJA_SVG}</span></span></div>',
         unsafe_allow_html=True)
+
+
+def linea_chips_perdido(a: dict):
+    """Chip de días perdido (urgencia) + Nuevo si <48 h."""
+    piezas = [chip_dias_perdido(dias_perdido(a.get("date_last_seen"),
+                                             a.get("date_reported")))]
+    if es_nuevo(a.get("date_last_seen"), a.get("date_reported")):
+        piezas.append(nuevo_html())
+    st.markdown(" ".join(piezas), unsafe_allow_html=True)
+
+
+def linea_chips_avist(a: dict):
+    """Chip neutro 'Visto hace N días' + Nuevo si <48 h."""
+    piezas = [chip_visto(dias_perdido(a.get("date_last_seen"),
+                                      a.get("date_reported")))]
+    if es_nuevo(a.get("date_last_seen"), a.get("date_reported")):
+        piezas.append(nuevo_html())
+    st.markdown(" ".join(piezas), unsafe_allow_html=True)
+
+
+def bloque_contacto(a: dict):
+    """Contacto oculto: botón que lo despliega con transición (nunca visible)."""
+    vc = st.session_state.get("ver_contacto") or {}
+    if vc.get(a["id"]):
+        st.markdown(contacto_html(a.get("contact_info")), unsafe_allow_html=True)
+        if st.button("Ocultar contacto", key=f"vc_no_{a['id']}"):
+            vc.pop(a["id"], None)
+            st.session_state.ver_contacto = vc
+            st.rerun()
+    elif st.button("Ver contacto", key=f"vc_si_{a['id']}"):
+        vc[a["id"]] = True
+        st.session_state.ver_contacto = vc
+        st.rerun()
 
 
 def aplicar_filtros(lista: list, pref: str) -> list:
@@ -1261,6 +1309,95 @@ div[class*="st-key-confirm_pub"] button { position:relative; }
   max-width:100%;
   height:auto;
 }
+/* Esquinas de encuadre sobre la miniatura (Buscar). */
+.huellas-scan i { position:absolute; width:22px; height:22px; border:3px solid #E30613; }
+.huellas-scan .c1 { top:6px; left:6px; border-right:none; border-bottom:none; }
+.huellas-scan .c2 { top:6px; right:6px; border-left:none; border-bottom:none; }
+.huellas-scan .c3 { bottom:6px; left:6px; border-right:none; border-top:none; }
+.huellas-scan .c4 { bottom:6px; right:6px; border-left:none; border-top:none; }
+/* Botón Buscar: base neutra (el shake se inyecta solo al fallar). */
+div[class*="st-key-b_buscar"] button { position:relative; }
+/* Radar mientras se procesa la búsqueda. */
+.huellas-radarwrap { text-align:center; background:#FFFFFF;
+  border:2px solid #23201B; border-radius:12px; padding:1.2rem; }
+.huellas-radar { position:relative; width:120px; height:120px; margin:0 auto;
+  border-radius:50%; border:2px solid #23201B; overflow:hidden;
+  background:repeating-radial-gradient(circle, rgba(35,32,27,.28) 0 2px, transparent 2px 20px); }
+.huellas-radar::before { content:""; position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(227,6,19,.9), transparent 32%);
+  animation:huellas-spin 1.5s linear infinite; }
+.huellas-radar::after { content:""; position:absolute; left:50%; top:50%;
+  width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:#23201B; }
+.huellas-ping { position:absolute; width:10px; height:10px; border-radius:50%;
+  background:#E30613; animation:huellas-ping 1.5s ease-out infinite; }
+.huellas-ping.p1 { left:30%; top:28%; }
+.huellas-ping.p2 { left:62%; top:60%; animation-delay:.5s; }
+@keyframes huellas-spin { to { transform:rotate(360deg); } }
+@keyframes huellas-ping {
+  0% { transform:scale(.4); opacity:1; }
+  70% { transform:scale(1.5); opacity:.9; }
+  100% { transform:scale(2.2); opacity:0; }
+}
+.huellas-radar-t { margin-top:.7rem; font-weight:800; color:#23201B; }
+/* Resultados: envoltorio en cascada (retardo inline 80 ms) + top destacado. */
+.huellas-res { animation:huellas-cardin .5s ease-out both; }
+.huellas-res-top { border-color:#E30613; position:relative; }
+.huellas-res-top::after { content:""; position:absolute; inset:-2px;
+  border:2px solid #E30613; border-radius:14px;
+  animation:huellas-ring 2s ease-out infinite; pointer-events:none; }
+/* Barras Visual/Zona/Texto/Fecha (relleno 600 ms, keyframes fijos por barra). */
+.huellas-bars { margin-top:.5rem; }
+.huellas-bar-row { display:flex; align-items:center; gap:.5rem; margin:.25rem 0;
+  font-size:.8rem; }
+.huellas-bar-row > span { width:64px; flex:none; font-weight:700; color:#23201B; }
+.huellas-bar { flex:1; height:10px; background:#EFE9DC; border-radius:6px; overflow:hidden; }
+.huellas-barfill { height:100%; background:#E30613; border-radius:6px; width:0; }
+.huellas-bar-row > b { width:48px; flex:none; text-align:right; color:#23201B; }
+/* Confirmación de punto en el mapa: chincheta que cae + anillo pulsante. */
+.huellas-pinok { display:flex; align-items:center; gap:.6rem; background:#FFFFFF;
+  border:2px solid #23201B; border-radius:10px; padding:.5rem .8rem;
+  font-weight:800; color:#23201B; margin-top:.5rem;
+  animation:huellas-cardin .4s ease-out both; }
+.huellas-pinwrap { position:relative; width:24px; height:24px; flex:none; }
+.huellas-pindrop { position:absolute; left:5px; top:2px; width:14px; height:14px;
+  background:#E30613; border-radius:50% 50% 50% 0;
+  animation:huellas-drop .5s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes huellas-drop {
+  from { transform:translateY(-26px) rotate(-45deg); opacity:0; }
+  60% { transform:translateY(3px) rotate(-45deg); opacity:1; }
+  80% { transform:translateY(-2px) rotate(-45deg); }
+  to { transform:translateY(0) rotate(-45deg); opacity:1; }
+}
+.huellas-pinring { position:absolute; inset:-5px; border:2px solid #E30613;
+  border-radius:50%; animation:huellas-ring 1.8s ease-out infinite;
+  pointer-events:none; }
+/* Chips de días + etiqueta Nuevo + contacto desplegable. */
+.huellas-chip { display:inline-block; font-size:.75rem; font-weight:800;
+  padding:.2rem .7rem; border-radius:12px; margin:.15rem .25rem .15rem 0; }
+.huellas-chip.verde { background:#35AC46; color:#FFFFFF; }
+.huellas-chip.ambar { background:#E8A100; color:#23201B; }
+.huellas-chip.rojo { background:#E30613; color:#FFFFFF; }
+.huellas-chip.neutro { background:#23201B; color:#F5F1EA; }
+.huellas-nuevo { display:inline-block; font-size:.75rem; font-weight:800;
+  color:#23201B; margin-left:.4rem; white-space:nowrap; }
+.huellas-dot { display:inline-block; width:9px; height:9px; border-radius:50%;
+  background:#E30613; margin-right:.35rem;
+  animation:huellas-dot 1.2s ease-in-out infinite; }
+@keyframes huellas-dot {
+  0%,100% { transform:scale(1); opacity:1; }
+  50% { transform:scale(1.5); opacity:.55; }
+}
+.huellas-contacto { overflow:hidden; animation:huellas-expand .3s ease-out both; }
+@keyframes huellas-expand {
+  from { max-height:0; opacity:0; }
+  to { max-height:120px; opacity:1; }
+}
+/* Guardar como aviso: rebote suave continuo. */
+div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out infinite; }
+@keyframes huellas-bob {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-4px); }
+}
 /* Check verde que se dibuja solo (sin coincidencias). */
 .huellas-okcheck { text-align:center; margin:.6rem 0; }
 .huellas-okcheck svg { width:64px; height:64px; fill:none; stroke:#35AC46;
@@ -1281,10 +1418,14 @@ div[class*="st-key-confirm_pub"] button { position:relative; }
     > div[data-testid="stVerticalBlock"] > div,
   .huellas-float-paw, .huellas-scanline, .huellas-analizada,
   .huellas-dots span, .huellas-match-card, .huellas-strip, .huellas-ringfill,
-  .huellas-trazo, .huellas-boli,
+  .huellas-trazo, .huellas-boli, .huellas-radar::before, .huellas-ping,
+  .huellas-res, .huellas-res-top::after, .huellas-pindrop, .huellas-pinring,
+  .huellas-dot, .huellas-pinok,
+  div[class*="st-key-ir_publicar"] button,
   .huellas-okcheck circle, .huellas-okcheck path,
   div[class*="st-key-confirm_pub"] button,
-  div[class*="st-key-confirm_pub"] button::after { animation:none !important; }
+  div[class*="st-key-confirm_pub"] button::after,
+  div[class*="st-key-b_buscar"] button { animation:none !important; }
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
   .huellas-trazo { stroke-dashoffset:0 !important; }
@@ -1765,7 +1906,14 @@ if page == "buscar":
     foto_b = st.file_uploader("Sube una foto de tu mascota *",
                               type=["jpg", "jpeg", "png"], key="b_foto")
     if foto_b:
-        vista_previa(foto_b, caption="Vista previa de tu foto")
+        import base64 as _b64
+
+        _raw = foto_b.getvalue()
+        _mime = "image/png" if _raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
+        _uri = f"data:{_mime};base64," + _b64.b64encode(_raw).decode()
+        st.markdown(build_foto_scan_html(
+            _uri, getattr(foto_b, "name", "tu foto"), "Foto lista", esquinas=True),
+            unsafe_allow_html=True)
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
 
@@ -1795,6 +1943,10 @@ if page == "buscar":
                           popup=("TU ZONA · "
                                  f"{st.session_state.get('q_addr_in', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
+            # Radio de búsqueda: círculo de 2 km alrededor de tu zona.
+            folium.Circle([st.session_state.q_lat, st.session_state.q_lon],
+                          radius=2000, color="#E30613", weight=2,
+                          fill=True, fill_opacity=0.06).add_to(fmap)
             # El mapa de zona es de referencia: muestra AMBOS lados (perdidos en
             # azul y avistamientos en verde). El cruce sí va solo contra el canal.
             cl_perd = MarkerCluster(name="Perdidos").add_to(fmap)
@@ -1820,10 +1972,20 @@ if page == "buscar":
                 nlng = round(out["last_clicked"]["lng"], 4)
                 if (nlat, nlng) != (st.session_state.q_lat, st.session_state.q_lon):
                     st.session_state.q_lat, st.session_state.q_lon = nlat, nlng
+                    st.session_state.q_pin_nuevo = True
                     rev = reverse_geocode_nominatim(nlat, nlng)
                     if rev:
                         st.session_state.q_addr_in = rev[:120]
                     st.rerun()
+            if st.session_state.pop("q_pin_nuevo", False):
+                # La chincheta "cae" con rebote + anillo pulsante del radio.
+                st.markdown(
+                    '<div class="huellas-pinok"><span class="huellas-pinwrap">'
+                    '<span class="huellas-pinring"></span>'
+                    '<span class="huellas-pindrop"></span></span>'
+                    f"Punto fijado: {st.session_state.q_lat}, "
+                    f"{st.session_state.q_lon} · radio 2 km</div>",
+                    unsafe_allow_html=True)
         except Exception as e:
             st.caption(f"Mapa no disponible ({e}). Usa el ajuste manual.")
         st.write(f"- Punto seleccionado: {st.session_state.q_lat}, {st.session_state.q_lon}")
@@ -1860,38 +2022,54 @@ if page == "buscar":
                                  format="%d %%")
     with f2:
         topn = st.slider("Máx. resultados", 3, 15, 8)
-    if st.button("Buscar coincidencias", type="primary"):
-        if not foto_b:
-            st.warning("Sube una foto para buscar: sin imagen no hay comparativa visual.")
-        elif lado is None or not b_animal or not b_size:
-            st.warning("Elige canal, animal y tamaño para buscar.")
-        elif not (b_color or "").strip() or not (b_desc or "").strip():
-            st.warning("Indica al menos color principal y descripción para buscar.")
+    _b_n = st.session_state.get("b_shake_n", 0)
+    if st.session_state.pop("b_shake_pending", False):
+        st.markdown(SHAKE_BUSCAR_STYLE, unsafe_allow_html=True)
+    if st.session_state.get("b_faltan"):
+        st.warning("Te falta: " + ", ".join(st.session_state.pop("b_faltan")) + ".")
+    if st.button("Buscar coincidencias", type="primary", key=f"b_buscar_{_b_n}"):
+        _bf = faltantes_buscar(lado, bool(foto_b), b_animal, b_size, b_color, b_desc)
+        if _bf:
+            st.session_state.b_shake_n = _b_n + 1
+            st.session_state.b_shake_pending = True
+            st.session_state.b_faltan = _bf
+            st.rerun()
         else:
             from datetime import datetime as _dt
+            import time as _tb
 
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
             qpath = "data/uploads/_busqueda.jpg"
             Path(qpath).write_bytes(foto_b.getbuffer())
             from agents.vision import embed_candidato, embedida_con_espacio
 
-            q_emb, espacio = embedida_con_espacio(qpath)
-            q = normalize_aviso({
-                "type": qtype, "animal": b_animal,
-                "breed_guess": (b_breed.strip() or None) if b_animal != "other" else None,
-                "color_primary": b_color.strip().lower(), "size": b_size,
-                "has_collar": bool(b_collar), "markings": b_marks,
-                "description_text": b_desc.strip(),
-                "location": {"lat": float(st.session_state.q_lat),
-                             "lng": float(st.session_state.q_lon),
-                             "address_text": st.session_state.get("q_addr_in", "")},
-                "date_reported": _dt.now().astimezone().isoformat(),
-                "image_url": qpath, "contact_info": "", "status": "active"})
-            q["image_embedding"] = q_emb
-            cands = dbmod.get_active_opuestos(con, qtype)
-            matches = retrieve(q, cands,
-                               lambda a, _e=espacio: embed_candidato(a, _e),
-                               semantic_similarity)
+            radar_box = st.empty()
+            with radar_box.container():
+                st.markdown(build_radar_html(), unsafe_allow_html=True)
+            _t0 = _tb.time()
+            try:
+                q_emb, espacio = embedida_con_espacio(qpath)
+                q = normalize_aviso({
+                    "type": qtype, "animal": b_animal,
+                    "breed_guess": (b_breed.strip() or None) if b_animal != "other" else None,
+                    "color_primary": b_color.strip().lower(), "size": b_size,
+                    "has_collar": bool(b_collar), "markings": b_marks,
+                    "description_text": b_desc.strip(),
+                    "location": {"lat": float(st.session_state.q_lat),
+                                 "lng": float(st.session_state.q_lon),
+                                 "address_text": st.session_state.get("q_addr_in", "")},
+                    "date_reported": _dt.now().astimezone().isoformat(),
+                    "image_url": qpath, "contact_info": "", "status": "active"})
+                q["image_embedding"] = q_emb
+                cands = dbmod.get_active_opuestos(con, qtype)
+                matches = retrieve(q, cands,
+                                   lambda a, _e=espacio: embed_candidato(a, _e),
+                                   semantic_similarity)
+            finally:
+                _dtb = _tb.time() - _t0
+                if _dtb < 1.5:
+                    _tb.sleep(1.5 - _dtb)
+                radar_box.empty()
             # Preliminar y transitoria: se guarda en sesión para no replegarse,
             # pero no persiste ni escribe alertas (eso nace al publicar).
             st.session_state.b_search = {"q": q, "matches": matches}
@@ -1912,12 +2090,16 @@ if page == "buscar":
         visibles = [m for m in matches if m["score"] * 100 >= umbral_vista][:topn]
         if not visibles:
             st.info("Sin candidatos con ese filtro. Baja el umbral de vista o espera nuevos avisos.")
-        for m in visibles:
+        for idx, m in enumerate(visibles):
             c = m["candidato"]
             badge = "POSIBLE COINCIDENCIA DESTACADA" if m["notifica"] else "Posible coincidencia"
             with st.container(border=True):
-                st.markdown(f"**{badge}** · `{c['id']}` · **{m['score']*100:.1f}%** · {m['dist_km']} km")
-                st.progress(min(max(m["score"], 0.0), 1.0))
+                st.markdown(build_result_card_html(
+                    c["id"], m["score"], m["dist_km"], badge, idx, top=(idx == 0)),
+                    unsafe_allow_html=True)
+                st.markdown(build_bars_html(c["id"], m["visual"], m["geo"],
+                                            m["texto"], m["temporal"]),
+                            unsafe_allow_html=True)
                 r1, r2 = st.columns(2)
                 with r1:
                     show_image(q["image_url"], caption="Tu foto")
@@ -1952,10 +2134,14 @@ if page == "buscar":
                           use_container_width=True, on_click=ir_a_caso,
                           args=(top["candidato_id"], (_tc or {}).get("type", "found")))
         st.divider()
-        st.subheader("¿No es ninguno? Publícalo")
-        st.caption("Hayas encontrado o no coincidencia, desde aquí publicas el aviso "
-                   "(de perdido o de avistamiento, lo decides allí).")
-        st.button("Publicar aviso", key="ir_publicar", type="primary",
+        if visibles:
+            st.subheader("¿No es ninguno? Publícalo")
+            st.caption("Hayas encontrado o no coincidencia, desde aquí publicas el aviso "
+                       "(de perdido o de avistamiento, lo decides allí).")
+        else:
+            st.subheader("Sin coincidencias por ahora")
+            st.caption("Guarda tu aviso y te avisaremos si aparece algo compatible.")
+        st.button("Guardar como aviso", key="ir_publicar", type="primary",
                   use_container_width=True, on_click=ir_a_publicar_con, args=(q, lado))
 
 # ── Página: Perdidos activos ──────────────────────────────────────────
@@ -1979,12 +2165,12 @@ if page == "perdidos":
                     show_image(a["image_url"], caption=f"Foto · {a['id']}")
                 with c2:
                     st.markdown(f"### {animal_tag(a)}")
+                    linea_chips_perdido(a)
                     st.write(a["description_text"])
                     st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
                     st.write(f"- Visto: {effective_date(a).date()}")
                     st.write(f"- {a['location'].get('address_text', '')}")
-                    if a.get("contact_info"):
-                        st.write(f"- Contacto: {a['contact_info']}")
+                    bloque_contacto(a)
 
 # ── Página: Encontrados ───────────────────────────────────────────────
 if page == "encontrados":
@@ -2005,12 +2191,12 @@ if page == "encontrados":
                     show_image(a["image_url"], caption=f"Foto · {a['id']}")
                 with c2:
                     st.markdown(f"### {animal_tag(a)}")
+                    linea_chips_avist(a)
                     st.write(a["description_text"])
                     st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
                     st.write(f"- Visto: {effective_date(a).date()}")
                     st.write(f"- {a['location'].get('address_text', '')}")
-                    if a.get("contact_info"):
-                        st.write(f"- Contacto: {a['contact_info']}")
+                    bloque_contacto(a)
 
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":

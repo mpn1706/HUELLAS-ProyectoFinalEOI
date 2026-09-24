@@ -307,6 +307,31 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   `sugerir_direcciones()` y `short_addr()`; Ubicación exacta vuelve a botón de
   geocodificado + clic en mapa + ajuste manual.
 
+## 21. Buscar con vida + Perdidos/Avistamientos (v1.18 25/09/2026, solo UI)
+
+- REQ-UI-26 — Foto en Buscar: miniatura con línea de escaneo + esquinas de encuadre
+  (`build_foto_scan_html()` con `esquinas=True`) y etiqueta "Foto lista".
+- REQ-UI-27 — Mapa de Buscar: círculo rojo de 2 km (radio de búsqueda) alrededor de tu
+  zona + chip de confirmación al elegir punto (chincheta que cae con rebote y anillo
+  pulsante, una sola vez por clic).
+- REQ-UI-28 — Botón "Buscar coincidencias": radar (anillos + barrido giratorio + pings,
+  mínimo 1,5 s real) mientras procesa; si faltan campos, shake 400 ms + lista
+  (`faltantes_buscar()` pura, remontaje `b_buscar_{n}`).
+- REQ-UI-29 — Resultados en cascada (envoltorio `.huellas-res`, 80 ms por tarjeta):
+  anillo que cuenta hasta el % real + 4 barras (Visual/Zona/Texto/Fecha, relleno
+  600 ms con keyframes fijos `huellas-bar-<uid>-<k>`); la mejor, con borde rojo y
+  pulso suave (`.huellas-res-top`). Fotos y desglose intactos debajo.
+- REQ-UI-30 — Sin resultados: "Sin coincidencias por ahora" + "Guardar como aviso"
+  (mismo prefill) con rebote suave continuo.
+- REQ-UI-31 — Contacto oculto en Perdidos y Avistamientos: botón "Ver contacto" que lo
+  despliega con transición de altura 300 ms (`bloque_contacto()` + `contacto_html()`
+  escapado); nunca visible por defecto.
+- REQ-UI-32 — Chip "N días perdido" con urgencia (verde ≤2, ámbar 3-6, rojo ≥7) desde
+  la fecha efectiva.
+- REQ-UI-33 — Etiqueta "Nuevo" con punto pulsante (<48 h).
+- REQ-UI-34 — Avistamientos: mismo contacto bajo demanda y "Nuevo"; chip neutro
+  "Visto hace N días" en vez del de urgencia.
+
 ## 20. Boli en el hueco + imagen admin contenida (v1.17 25/09/2026, solo UI)
 
 - REQ-UI-24 — Al subir foto en Publicar, la columna izquierda crece y deja hueco abajo
