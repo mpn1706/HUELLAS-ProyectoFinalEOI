@@ -546,6 +546,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.30: `requirements.md` §33 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 63/63, smoke 9 páginas OK, demo_check E2E OK.
 
+## S99 — 25/09/2026 — Limpieza total por época v1.31 (Muse Spark)
+- Causa del limpiar roto: en navegador real el frontal restaura valores borrados
+  (AppTest no lo reproduce); solo rotar claves lo evita. Época en Publicar
+  (15 claves + prefill) y Reencuentro (4 claves).
+- Specs v1.31: `requirements.md` §34 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 63/63, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

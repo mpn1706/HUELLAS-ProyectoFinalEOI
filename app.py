@@ -2466,83 +2466,86 @@ if page == "encontrados":
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
     titulo_barrido("Publica un aviso de perdido o avistamiento")
+    # Los widgets se borran rotando la época (el navegador restaura valores
+    # aunque se vacíe su clave: solo una clave nueva garantiza un campo limpio).
+    _pe = st.session_state.get("pub_epoch", 0)
     pre = st.session_state.get("pub_prefill") or {}
     if pre and not st.session_state.get("pub_init"):
-        st.session_state.pub_tipo = pre.get("tipo", "lost")
-        st.session_state.pub_animal = pre.get("animal", "dog")
-        st.session_state.pub_desc = pre.get("desc", "")
-        st.session_state.pub_color = pre.get("color", "")
-        st.session_state.pub_size = pre.get("size", "medium")
-        st.session_state.pub_collar = bool(pre.get("collar", False))
-        st.session_state.reg_lat = float(pre.get("lat", 36.6826))
-        st.session_state.reg_lon = float(pre.get("lng", -6.1376))
-        st.session_state.addr_in = pre.get("addr", "Centro, Jerez")
+        st.session_state[f"pub_tipo_{_pe}"] = pre.get("tipo", "lost")
+        st.session_state[f"pub_animal_{_pe}"] = pre.get("animal", "dog")
+        st.session_state[f"pub_desc_{_pe}"] = pre.get("desc", "")
+        st.session_state[f"pub_color_{_pe}"] = pre.get("color", "")
+        st.session_state[f"pub_size_{_pe}"] = pre.get("size", "medium")
+        st.session_state[f"pub_collar_{_pe}"] = bool(pre.get("collar", False))
+        st.session_state[f"reg_lat_{_pe}"] = float(pre.get("lat", 36.6826))
+        st.session_state[f"reg_lon_{_pe}"] = float(pre.get("lng", -6.1376))
+        st.session_state[f"addr_in_{_pe}"] = pre.get("addr", "Centro, Jerez")
         st.session_state.pub_init = True
         st.info("Datos traídos de tu búsqueda: revísalos y confirma.")
     if pre:
         if st.button("Empezar de cero", key="pub_limpiar"):
-            for _k in ("pub_prefill", "pub_init", "pub_tipo", "pub_animal", "pub_desc",
-                       "pub_color", "pub_size", "pub_collar", "reg_lat", "reg_lon",
-                       "addr_in"):
-                st.session_state.pop(_k, None)
-            st.session_state.pub_foto_n = st.session_state.get("pub_foto_n", 0) + 1
+            st.session_state.pop("pub_prefill", None)
+            st.session_state.pop("pub_init", None)
+            st.session_state.pub_epoch = _pe + 1
             st.rerun()
-    if "pub_collar" not in st.session_state:
-        st.session_state.pub_collar = False
+    if f"pub_collar_{_pe}" not in st.session_state:
+        st.session_state[f"pub_collar_{_pe}"] = False
     with st.container(border=True):
         r1, r2 = st.columns([1, 1])
         with r1:
-            tipo = st.selectbox("Tipo de aviso *", ["lost", "found"], key="pub_tipo",
+            tipo = st.selectbox("Tipo de aviso *", ["lost", "found"], key=f"pub_tipo_{_pe}",
                                 index=None, placeholder="SELECCIONAR",
                                 format_func=lambda t: ("Mascota perdida" if t == "lost"
                                                        else "Animal encontrado" if t == "found"
                                                        else "SELECCIONAR"))
-            animal = st.selectbox("Animal *", ["dog", "cat", "other"], key="pub_animal",
+            animal = st.selectbox("Animal *", ["dog", "cat", "other"], key=f"pub_animal_{_pe}",
                                   index=None, placeholder="SELECCIONAR",
                                   format_func=lambda a: {"dog": "Perro", "cat": "Gato",
                                                          "other": "Otro"}.get(a, "SELECCIONAR"))
             st.markdown(FOTO_PUB_STYLE, unsafe_allow_html=True)
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"],
-                                    key=f"pub_foto_{st.session_state.get('pub_foto_n', 0)}")
+                                    key=f"pub_foto_{_pe}")
             if foto:
                 vista_previa_scan(foto)
             elif pre.get("qpath") and Path(pre["qpath"]).exists():
                 st.image(imagen_cuadrada(pre["qpath"]), caption="Foto de tu búsqueda",
                          width=360)
-            comp = st.text_input("Comportamiento", "", key="c_comp",
+            comp = st.text_input("Comportamiento", "", key=f"c_comp_{_pe}",
                                  placeholder="Ej. sociable, se deja coger")
-            est = st.text_input("Estado del animal", "", key="c_est",
+            est = st.text_input("Estado del animal", "", key=f"c_est_{_pe}",
                                 placeholder="Ej. sano, bien alimentado")
-            paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar", "", key="c_paso",
+            paso = st.text_area("Cómo lo perdiste / qué hiciste tras avistar", "", key=f"c_paso_{_pe}",
                                 placeholder="Ej. se escapó en el parque y no volvió")
         with r2:
-            desc = st.text_area("Descripción libre *", "", key="pub_desc",
+            desc = st.text_area("Descripción libre *", "", key=f"pub_desc_{_pe}",
                                 placeholder="Describe al animal: color, marcas, collar…")
-            c1 = st.text_input("Color principal *", "", key="pub_color",
+            c1 = st.text_input("Color principal *", "", key=f"pub_color_{_pe}",
                                placeholder="Ej. marrón")
             size = st.selectbox("Tamaño *", ["small", "medium", "large"], key="pub_size",
                                 index=None, placeholder="SELECCIONAR",
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                        "large": "Grande"}.get(s, "SELECCIONAR"))
-            collar = st.checkbox("¿Lleva collar?", key="pub_collar")
+            collar = st.checkbox("¿Lleva collar?", key=f"pub_collar_{_pe}")
             st.markdown("**Contacto ***")
             st.caption("Obligatorio al menos uno: móvil, correo o red social.")
-            c_movil = st.text_input("Móvil", "", key="c_movil")
-            c_mail = st.text_input("Correo", "", key="c_mail")
-            c_rrss = st.text_input("Red social", "", key="c_rrss")
+            c_movil = st.text_input("Móvil", "", key=f"c_movil_{_pe}")
+            c_mail = st.text_input("Correo", "", key=f"c_mail_{_pe}")
+            c_rrss = st.text_input("Red social", "", key=f"c_rrss_{_pe}")
             if foto or (pre.get("qpath") and Path(pre["qpath"]).exists()):
                 # La foto alarga la columna izquierda: el boli rellena el hueco
                 # que queda abajo a la derecha. Solo aparece con foto, no antes.
                 st.markdown(build_pen_html(), unsafe_allow_html=True)
     st.subheader("Ubicación exacta")
     with st.container(border=True):
-        if "reg_lat" not in st.session_state:
-            st.session_state.reg_lat, st.session_state.reg_lon = 36.6826, -6.1376
-        addr_in = st.text_input("Calle, número y zona", value="Centro, Jerez", key="addr_in")
+        if f"reg_lat_{_pe}" not in st.session_state:
+            st.session_state[f"reg_lat_{_pe}"] = 36.6826
+            st.session_state[f"reg_lon_{_pe}"] = -6.1376
+        addr_in = st.text_input("Calle, número y zona", value="Centro, Jerez", key=f"addr_in_{_pe}")
         if st.button("Buscar dirección en el mapa"):
             res = geocode_nominatim(addr_in)
             if res:
-                st.session_state.reg_lat, st.session_state.reg_lon = round(res[0], 4), round(res[1], 4)
+                st.session_state[f"reg_lat_{_pe}"] = round(res[0], 4)
+                st.session_state[f"reg_lon_{_pe}"] = round(res[1], 4)
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
@@ -2551,11 +2554,12 @@ if page == "publicar":
             import folium
             from streamlit_folium import st_folium
 
-            fmap = folium.Map(location=[st.session_state.reg_lat, st.session_state.reg_lon], zoom_start=14)
-            folium.Marker([st.session_state.reg_lat, st.session_state.reg_lon],
+            fmap = folium.Map(location=[st.session_state[f"reg_lat_{_pe}"],
+                                        st.session_state[f"reg_lon_{_pe}"]], zoom_start=14)
+            folium.Marker([st.session_state[f"reg_lat_{_pe}"], st.session_state[f"reg_lon_{_pe}"]],
                           tooltip="TU PUNTO",
                           popup=("TU PUNTO · "
-                                 f"{st.session_state.get('addr_in', '')}"),
+                                 f"{st.session_state.get(f'addr_in_{_pe}', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
             from folium.plugins import MarkerCluster as _MC
             _cl_perd = _MC(name="Perdidos").add_to(fmap)
@@ -2573,18 +2577,20 @@ if page == "publicar":
                     popup=folium.Popup(popup_html(_c), max_width=260),
                     icon=folium.Icon(color=pin_color(_c))).add_to(_cl_av)
             out = st_folium(fmap, key=f"reg_map_{huella_mapa(con)}",
-                            center=(st.session_state.reg_lat, st.session_state.reg_lon),
+                            center=(st.session_state[f"reg_lat_{_pe}"],
+                                    st.session_state[f"reg_lon_{_pe}"]),
                             zoom=14, height=380, use_container_width=True)
             leyenda_mapa()
             if out and out.get("last_clicked"):
-                st.session_state.reg_lat = round(out["last_clicked"]["lat"], 4)
-                st.session_state.reg_lon = round(out["last_clicked"]["lng"], 4)
+                st.session_state[f"reg_lat_{_pe}"] = round(out["last_clicked"]["lat"], 4)
+                st.session_state[f"reg_lon_{_pe}"] = round(out["last_clicked"]["lng"], 4)
         except Exception as e:
             st.caption(f"Mapa no disponible ({e}). Usa el ajuste manual.")
-        st.write(f"- Punto seleccionado: {st.session_state.reg_lat}, {st.session_state.reg_lon}")
+        st.write(f"- Punto seleccionado: {st.session_state[f'reg_lat_{_pe}']}, "
+                 f"{st.session_state[f'reg_lon_{_pe}']}")
         with st.expander("Ajuste manual de coordenadas"):
-            st.number_input("Latitud", format="%.4f", key="reg_lat")
-            st.number_input("Longitud", format="%.4f", key="reg_lon")
+            st.number_input("Latitud", format="%.4f", key=f"reg_lat_{_pe}")
+            st.number_input("Longitud", format="%.4f", key=f"reg_lon_{_pe}")
     _shake_n = st.session_state.get("pub_shake_n", 0)
     if st.session_state.pop("pub_shake_pending", False):
         # El botón remonta con clave nueva: la sacudida suena una sola vez.
@@ -2603,9 +2609,9 @@ if page == "publicar":
             st.session_state.pub_faltan = _faltan
             st.rerun()
         try:
-            lat = float(st.session_state.get("reg_lat", 36.6826))
-            lng = float(st.session_state.get("reg_lon", -6.1376))
-            addr = st.session_state.get("addr_in", "Centro, Jerez")
+            lat = float(st.session_state.get(f"reg_lat_{_pe}", 36.6826))
+            lng = float(st.session_state.get(f"reg_lon_{_pe}", -6.1376))
+            addr = st.session_state.get(f"addr_in_{_pe}", "Centro, Jerez")
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
             pre_q = (st.session_state.get("pub_prefill") or {}).get("qpath", "")
             if foto:
@@ -2700,37 +2706,38 @@ if page == "reencuentro":
                  con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
     perd_opts = [a for a in perd_opts if a]
     found_opts = dbmod.get_active_opuestos(con, "lost")
+    _re_e = st.session_state.get("re_epoch", 0)
     with st.container(border=True):
         sel_lost = st.multiselect("Perdidos que se resuelven",
                                   [a["id"] for a in perd_opts],
                                   format_func=lambda i: next(
                                       (f"[{x['id']}] {animal_tag(x)}" for x in perd_opts
                                        if x["id"] == i), i),
-                                  key="re_lost", placeholder="Elige una opción")
+                                  key=f"re_lost_{_re_e}", placeholder="Elige una opción")
         sel_found = st.multiselect("Avistamientos que se resuelven",
                                    [a["id"] for a in found_opts],
                                    format_func=lambda i: next(
                                        (f"[{x['id']}] {animal_tag(x)}" for x in found_opts
                                         if x["id"] == i), i),
-                                   key="re_found", placeholder="Elige una opción")
+                                   key=f"re_found_{_re_e}", placeholder="Elige una opción")
         _prev_sel(sel_lost, perd_opts)
         _prev_sel(sel_found, found_opts)
-        nota = st.text_area("Cómo fue el reencuentro", "", key="re_nota",
+        nota = st.text_area("Cómo fue el reencuentro", "", key=f"re_nota_{_re_e}",
                             placeholder="Ej. apareció en el portal de casa")
         fotos_r = st.file_uploader("Fotos del reencuentro", type=["jpg", "jpeg", "png"],
                                    accept_multiple_files=True,
-                                   key=f"re_fotos_{st.session_state.get('re_fotos_n', 0)}")
+                                   key=f"re_fotos_{_re_e}")
         if fotos_r:
             _fp_cols = st.columns(min(3, len(fotos_r)))
             for _fc, _f in zip(_fp_cols, fotos_r[:3]):
                 with _fc:
                     st.image(_f, caption=getattr(_f, "name", "foto"), width=150)
     if st.button("Empezar de cero", key="re_limpiar"):
-        for _k in ("re_lost", "re_found", "re_nota", "re_shake_n",
-                   "re_shake_pending", "re_faltan"):
+        for _k in ("re_shake_n", "re_shake_pending", "re_faltan"):
             st.session_state.pop(_k, None)
-        # El uploader no se vacía borrando su clave (quirk Streamlit): se rota.
-        st.session_state.re_fotos_n = st.session_state.get("re_fotos_n", 0) + 1
+        # Los widgets se borran rotando la época (el navegador restaura valores
+        # aunque se vacíe su clave: solo una clave nueva garantiza limpieza).
+        st.session_state.re_epoch = _re_e + 1
         st.rerun()
     _re_n = st.session_state.get("re_shake_n", 0)
     if st.session_state.pop("re_shake_pending", False):
@@ -2763,9 +2770,7 @@ if page == "reencuentro":
                     guardadas.append(dest)
                 rid = dbmod.save_reencuentro(con, elegidos, guardadas, nota)
                 admmod.log_action(f"REENCUENTRO {rid} pendiente: {', '.join(elegidos)}")
-                for _k in ("re_lost", "re_found", "re_nota"):
-                    st.session_state.pop(_k, None)
-                st.session_state.re_fotos_n = st.session_state.get("re_fotos_n", 0) + 1
+                st.session_state.re_epoch = _re_e + 1
                 _dt = _tr.time() - _t0
                 if _dt < 1.5:
                     _tr.sleep(1.5 - _dt)

@@ -21,13 +21,14 @@ def _ir_reencuentro():
 def test_limpiar_vacia_formulario_y_rota_uploader():
     at = _ir_reencuentro()
     assert [f.key for f in at.file_uploader] == ["re_fotos_0"]
-    at.multiselect(key="re_lost").set_value(["lost_001"])
-    at.text_area(key="re_nota").set_value("THTHTHT")
+    at.multiselect(key="re_lost_0").set_value(["lost_001"])
+    at.text_area(key="re_nota_0").set_value("THTHTHT")
     at.run(timeout=60)
-    assert at.multiselect(key="re_lost").value == ["lost_001"]
+    assert at.multiselect(key="re_lost_0").value == ["lost_001"]
     at.button(key="re_limpiar").click()
     at.run(timeout=60)
     assert not at.exception, at.exception
-    assert at.multiselect(key="re_lost").value in (None, [])
-    assert (at.text_area(key="re_nota").value or "") == ""
+    # Época rotada: widgets nuevos con valores de fábrica.
     assert [f.key for f in at.file_uploader] == ["re_fotos_1"]
+    assert at.multiselect(key="re_lost_1").value in (None, [])
+    assert (at.text_area(key="re_nota_1").value or "") == ""

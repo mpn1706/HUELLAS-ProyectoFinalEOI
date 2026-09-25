@@ -390,7 +390,7 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-75 — Lluvia pareja en todo el ancho (reparto uniforme 2–98%).
 - REQ-UI-76 — Contadores con texto negro en negrita y más altos (96px).
 
-## 33. Mapas frescos, contadores chicos, lluvia densa y limpieza real (v1.30)
+## 33. Mapas frescos, contadores chicos, lluvia densa y limpieza real (v1.30 25/09/2026, solo UI)
 
 - REQ-UI-78 — Chinchetas siempre al día: claves de mapa con fingerprint
   (`huella_mapa()` con id+coords+estado); publicar/resolver/editar regenera.
@@ -398,6 +398,13 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-80 — Lluvia de 36 corazones con reparto uniforme (sin líneas).
 - REQ-UI-81 — "Empezar de cero" limpia TODO incluido el uploader (rotación de clave
   `re_fotos_{n}`/`pub_foto_{n}`: el borrado de clave no lo vacía) + test AppTest.
+
+## 34. Limpieza total por época (v1.31 25/09/2026, solo UI)
+
+- REQ-UI-82 — Los borrados de clave NO limpian widgets en navegador real (el frontal
+  restaura valores; en AppTest sí funcionaban): todos los campos de Publicar y
+  Reencuentro rotan con época (`pub_epoch`/`re_epoch`; el prefill escribe en la época
+  vigente). Test AppTest con claves rotadas.
 
 ## 32. Sin Datos demo (v1.29 25/09/2026, solo UI)
 
