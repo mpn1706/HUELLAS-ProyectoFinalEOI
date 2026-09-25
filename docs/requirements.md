@@ -2,7 +2,7 @@
 
 > Metodología: Spec-Driven Development (SDD).
 > Este documento es la fuente de verdad del MVP. Todo commit debe referenciar una sección (p.ej. `REQ-03`, `CU-02`).
-> Estado: v1.0 — decisiones cerradas 23/09/2026 (13/13). Stack: Streamlit + Python + SQLite, 100% local. Sin código aún.
+> Estado: v1.40 (25/09/2026) — spec viva: §8/§9 recogen los cambios de pesos y umbrales (S51, S108); los REQ-UI numerados van en orden cronológico y los posteriores prevalecen (reversiones explicadas en PROMPT-LOG.md). Decisiones cerradas v1.0: 23/09/2026 (13/13). Stack: Streamlit + Python + SQLite, 100% local.
 
 ## 1. Objetivo (REQ-01)
 
@@ -161,7 +161,7 @@ v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
 
 ## 12. Administración (REQ-11, añadido v1.1)
 
-- REQ-11.1: Un único administrador; acceso por contraseña (Secrets `ADMIN_PASSWORD` en Cloud, variable `HUELLAS_ADMIN_PASSWORD` o defecto documentado `huellas123` en local).
+- REQ-11.1: Un único administrador; acceso por contraseña configurada en Secrets `ADMIN_PASSWORD` (Cloud) o variable `HUELLAS_ADMIN_PASSWORD` (local, p. ej. `.streamlit/secrets.toml`). Sin contraseña configurada, la administración queda desactivada (v1.40 S113: se retiró el defecto local documentado por seguridad al ser repo público).
 - REQ-11.2: Puede listar con filtros, eliminar (borra aviso + notificaciones ligadas + foto subida, nunca seed) y resolver.
 - REQ-11.3: Toda acción se registra en `data/admin.log` con fecha.
 - REQ-11.4: El admin puede editar cualquier campo del aviso (con validación del esquema y log de campos cambiados).

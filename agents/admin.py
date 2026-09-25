@@ -9,10 +9,14 @@ from pathlib import Path
 
 from .db import _from_row, set_resolved
 
-DEFAULT_ADMIN_PASSWORD = "huellas123"  # MVP académico; en Cloud usar Secrets.
-
 
 def check_password(pw: str, expected: str) -> bool:
+    """Comparación segura (hmac). Sin contraseña configurada, nunca pasa.
+
+    La contraseña vive en Secrets `ADMIN_PASSWORD` (Cloud) o en la
+    variable `HUELLAS_ADMIN_PASSWORD` (local); sin ninguna de las dos,
+    la administración queda desactivada (expected vacío → acceso denegado).
+    """
     return bool(pw) and bool(expected) and hmac.compare_digest(str(pw), str(expected))
 
 

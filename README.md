@@ -1,7 +1,9 @@
-# MascotasLost&Found — HUELLAS
+# HUELLAS — Agente de Búsqueda y Comparativa Visual de Animales Perdidos
 
 Sistema de búsqueda y comparativa visual de animales perdidos/encontrados (Jerez de la Frontera).
 Proyecto final del curso de IA Generativa y Vibe Coding (EOI) — MVP funcional con metodología **Spec-Driven Development**.
+
+> **Demo en vivo: <https://huellas.streamlit.app>** (rama `main` de este repo).
 
 > El sistema **nunca afirma "es el mismo animal"**. Solo muestra **posibles coincidencias** con porcentaje y desglose de señales. Aviso legal único en el sidebar: *"Este análisis no promete una coincidencia inequívoca respecto al animal buscado. Una imagen no permite confirmar la identidad, verifique en persona."*
 
@@ -16,14 +18,14 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
 - **Automatización**: al registrar o buscar, si un candidato supera el 80% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos de más de 1 año" (`expire_old()`, sin cron).
-- **Administración** (sidebar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. Contraseña: Secrets `ADMIN_PASSWORD` en Cloud, o variable `HUELLAS_ADMIN_PASSWORD`, o defecto local `huellas123`.
+- **Administración** (sidebar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. La contraseña se configura en Secrets `ADMIN_PASSWORD` (Cloud) o en la variable `HUELLAS_ADMIN_PASSWORD` (local, p. ej. vía `.streamlit/secrets.toml`, que no viaja a git). **Sin contraseña configurada, la administración queda desactivada** (no existe contraseña por defecto en el código).
 - Las alertas no se duplican: un par (aviso, candidato) genera una sola fila (se actualiza si cambia el score).
 
 ## Fotos reales del seed
 
 1. Consigue JPG propias o de licencia libre (no valen fotos ajenas de redes), ≤800px y <500KB, nombradas por aviso (`found_001.jpg`…) en `data/seed/images/`, y apunta `image_url` en su JSON.
 2. `pip install torch --index-url https://download.pytorch.org/whl/cpu` + `pip install transformers pillow` (solo local).
-3. `python scripts/compute_embeddings.py` → genera `data/seed/embeddings.json` (vectores CLIP reales, viajan en git; Cloud los usa sin torch).
+3. `python scripts/compute_embeddings.py` → genera `data/seed/embeddings.json` (vectores CLIP reales, viajan en git).
 4. Commit de imágenes + JSONs + `embeddings.json`.
 - Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, todos activos), sin scraping (fuera de alcance por decisión de diseño).
 
@@ -39,7 +41,7 @@ Color/marcas se comparan sin tildes ni mayúsculas (Marrón=marron, Café=marró
 
 ## Stack
 
-Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + hash) para ejecutar sin GPU ni claves. Solo español.
+Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + histograma) para ejecutar sin GPU ni claves. Solo español.
 
 ## Cómo ejecutarlo (profesor, <10 min)
 
@@ -53,23 +55,31 @@ streamlit run app.py             # abre la app en el navegador
 Verificación extra:
 
 ```bash
-python -m pytest tests -q          # 13 tests (fórmula, umbrales, geo, ingestor)
+python -m pytest tests -q          # 81 tests (fórmula, umbrales, geo, ingestor, UI…)
 python scripts/eval_match.py       # ÉXITO-01/03 con vectores fijos
-python scripts/demo_check.py       # E2E: lost_001 → found_001 top-1 (96.3%)
+python scripts/demo_check.py       # E2E: lost_001 → found_011 top-1 ≥80% (alerta real)
+python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
 ```
 
 ## Despliegue
 
 - Local (evaluación oficial): `streamlit run app.py` — ver instrucciones arriba.
-- Nube: Streamlit Community Cloud sobre este repo, rama `main`, fichero `app.py`. La app **auto-carga el seed de Jerez** si la DB está vacía (el filesystem cloud es efímero y `data/huellas.db` no viaja en git): cero comandos tras el deploy. Se añadirá el enlace aquí al desplegar.
+- Nube: **<https://huellas.streamlit.app>** — Streamlit Community Cloud sobre este repo, rama `main`, fichero `app.py`. La app **auto-carga el seed de Jerez** si la DB está vacía (el filesystem cloud es efímero y `data/huellas.db` no viaja en git): cero comandos tras el deploy.
+
+### Limitaciones conocidas (importante para la demo en vivo)
+
+- **Visión en Cloud**: sin `torch`, la similitud visual usa un **histograma de color** (8×8×8) calculado en ambos lados (query y candidatos en el MISMO espacio, S49). `embeddings.json` (CLIP) solo se usa en local con `torch` instalado. Consecuencia: en Cloud la señal visual discrimina menos (misma paleta = score alto aunque sean animales distintos); en local con CLIP la comparación es mucho más fina.
+- **Datos efímeros en Cloud**: los avisos publicados en la demo desplegada se pierden al reiniciar/dormir la app (SQLite vive en el filesystem temporal). El corpus permanente es el seed. Para persistencia real haría falta una BD externa (p. ej. Supabase/Turso).
+- **Privacidad**: el contacto se muestra tras el desplegable "Ver contacto" (no en abierto); la ubicación se muestra a nivel de calle/zona.
+- **Administración en Cloud**: requiere configurar el secret `ADMIN_PASSWORD` en el panel de Secrets de la app; si no, el apartado queda desactivado.
 
 ## Estructura
 
 ```
-app.py  agents/{ingestor,vision,matcher,geo,notifier,db}.py
+app.py  agents/{ingestor,vision,matcher,geo,notifier,db,admin}.py
 rag/{embeddings,retrieval}.py  data/seed/{lost,found,images}/
-scripts/{make_seed,load_seed,eval_match,demo_check}.py  tests/
+scripts/{make_seed,load_seed,eval_match,demo_check,smoke_app}.py  tests/
 requirements.md  architecture.md  PROMPT-LOG.md
 ```
 
-Specs (`requirements.md` v1.0, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.
+Specs (`requirements.md` v1.40, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.

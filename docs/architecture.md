@@ -1,6 +1,6 @@
 # MascotasLost&Found — architecture.md
 
-> Fuente: `requirements.md` (§REQ-03 a §REQ-08, v1.0 23/09/2026).
+> Fuente: `requirements.md` (§REQ-03 a §REQ-08, v1.40 25/09/2026).
 > Stack **cerrado**: Streamlit + Python + SQLite, 100% local. CLIP 512-dim + MiniLM multilingüe. Radio 15 km. Umbrales `>=`.
 
 ## 1. Visión arquitectónica
@@ -121,9 +121,9 @@ sequenceDiagram
   V->>DB: UPDATE atributos+embedding
   A->>M: match(aviso_id)
   M->>DB: SELECT active opuestos
-  M->>M: score_total 0.4/0.3/0.2/0.1
+  M->>M: score_total 0.55/0.25/0.10/0.10
   M->>A: ranking + sub-scores
-  A->>N: notify si >=85
+  A->>N: notify si >=80 o visual>=95
   N->>DB: INSERT notification + log
   A->>U: lista + mapa + detalle "posible coincidencia"
 ```

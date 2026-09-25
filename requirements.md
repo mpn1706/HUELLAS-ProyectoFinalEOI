@@ -2,7 +2,7 @@
 
 > Metodología: Spec-Driven Development (SDD).
 > Este documento es la fuente de verdad del MVP. Todo commit debe referenciar una sección (p.ej. `REQ-03`, `CU-02`).
-> Estado: v1.0 — decisiones cerradas 23/09/2026 (13/13). Stack: Streamlit + Python + SQLite, 100% local. Sin código aún.
+> Estado: v1.40 (25/09/2026) — spec viva: §8/§9 recogen los cambios de pesos y umbrales (S51, S108); los REQ-UI numerados van en orden cronológico y los posteriores prevalecen (reversiones explicadas en PROMPT-LOG.md). Decisiones cerradas v1.0: 23/09/2026 (13/13). Stack: Streamlit + Python + SQLite, 100% local.
 
 ## 1. Objetivo (REQ-01)
 
@@ -103,21 +103,27 @@ Reglas derivadas:
 2. **Vision Analyst**: procesa la imagen y extrae especie, raza aproximada, color, manchas, collar, tamaño, y genera el embedding visual CLIP 512-dim. Tiene precedencia sobre atributos visuales (decisión 10).
 3. **Matcher**: compara un aviso contra el resto del corpus y calcula score (ver §8).
 4. **Geo**: calcula distancia haversine y aplica `max(0, 1 - distancia_km / 15)`, radio_máximo fijo 15 km.
-5. **Notifier**: si `score >= 80%`, registra en tabla `notifications` + log y muestra destacada en panel Streamlit. Sin Telegram real.
+5. **Notifier**: si `notifica` (`score >= 80%` o puerta `visual >= 95%`), registra en tabla `notifications` + log y muestra destacada en panel Streamlit. Sin Telegram real.
 
 > Conflicto Ingestor vs Vision resuelto 23/09/2026: manda Vision para `color_primary`; texto usuario intacto en `description_text`.
 
 ## 8. Motor de matching — fórmula y pesos (REQ-07)
 
 ```
-score_total = (0.40 × similitud_visual)
-            + (0.30 × similitud_texto)
-            + (0.20 × proximidad_temporal)
+score_total = (0.55 × similitud_visual)
+            + (0.25 × similitud_texto)
+            + (0.10 × proximidad_temporal)
             + (0.10 × proximidad_geográfica)
 ```
 
 v1.2 (24/09/2026, decisión del alumno S51): geo 0.30→0.10, texto 0.20→0.30,
 temporal 0.10→0.20. Motivo: la ubicación lejana penalizaba demasiado.
+
+v1.40 (25/09/2026, decisión del alumno S108): visual 0.40→0.55, texto 0.30→0.25,
+temporal 0.20→0.10, geo se queda en 0.10. Motivo: el visual manda más y
+fecha/zona (ruido en Buscar) pesan menos. Descartado 0.60 de visual: la demo
+E2E caía a 0.798 <0.80. Color/marcas se comparan normalizados (sin tildes,
+mayúsculas ni espacios extra, con alias mínimos: café/canela/chocolate→marrón).
 
 - `similitud_visual`: similitud coseno entre embeddings CLIP `openai/clip-vit-base-patch32` 512-dim (0-1). Sin torch (Cloud), query y candidatos se comparan en histograma de color: lo que importa es que ambos lados usen el MISMO espacio (S49; mezclarlos da ~0.09 y vacía el ranking).
 - `proximidad_geográfica`: max(0, 1 - distancia_km / 15), radio_máximo fijo = 15 km.
@@ -131,6 +137,7 @@ Restricciones: los 4 pesos suman 1.0. No se reponderan sin nueva spec.
 v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
 
 - Score >= 80%: notificación automática (panel + log) + se muestra como "posible coincidencia" destacada.
+- Puerta visual (v1.40 S108): visual >= 95% también notifica aunque el total no llegue (la misma foto siempre da 1.0; dos fotos distintas rara vez pasan de ~0.65 con histograma).
 - Score 65-79.99%: aparece en el listado, sin notificación.
 - Score < 65%: no se muestra como coincidencia, pero queda indexado.
 
@@ -154,7 +161,7 @@ v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
 
 ## 12. Administración (REQ-11, añadido v1.1)
 
-- REQ-11.1: Un único administrador; acceso por contraseña (Secrets `ADMIN_PASSWORD` en Cloud, variable `HUELLAS_ADMIN_PASSWORD` o defecto documentado `huellas123` en local).
+- REQ-11.1: Un único administrador; acceso por contraseña configurada en Secrets `ADMIN_PASSWORD` (Cloud) o variable `HUELLAS_ADMIN_PASSWORD` (local, p. ej. `.streamlit/secrets.toml`). Sin contraseña configurada, la administración queda desactivada (v1.40 S113: se retiró el defecto local documentado por seguridad al ser repo público).
 - REQ-11.2: Puede listar con filtros, eliminar (borra aviso + notificaciones ligadas + foto subida, nunca seed) y resolver.
 - REQ-11.3: Toda acción se registra en `data/admin.log` con fecha.
 - REQ-11.4: El admin puede editar cualquier campo del aviso (con validación del esquema y log de campos cambiados).

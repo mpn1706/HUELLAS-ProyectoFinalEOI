@@ -3,9 +3,15 @@ huellas.db
 data/huellas.db
 data/uploads/
 data/notifications.log
+data/admin.log
 __pycache__/
+.pytest_cache/
 *.pyc
 .venv/
 venv/
 .streamlit/secrets.toml
 models_cache/
+.engram/
+.env
+.env.*
+!.env.example

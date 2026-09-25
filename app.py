@@ -1419,6 +1419,12 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   display:flex; align-items:center; justify-content:center; align-self:stretch; }
 .huellas-scanrow .huellas-flecha { width:56px; flex:none; margin-right:.55rem; }
 .huellas-scanrow .huellas-analizada { font-size:1.05rem; padding:.55rem .9rem; }
+/* Móvil: la fila foto+insignia encoge sin desbordar el ancho del panel. */
+@media (max-width:480px) {
+  .huellas-scanrow .huellas-scan { flex-basis:150px; }
+  .huellas-scanrow .huellas-flecha { width:34px; }
+  .huellas-scanrow .huellas-analizada { font-size:.95rem; padding:.45rem .6rem; }
+}
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
    Reglas acotadas a .huellas-march: la tira de dígitos (.huellas-track
    suelta) usa display:block y no debe pisarlas. */
@@ -2060,9 +2066,14 @@ with st.sidebar:
                 except Exception:
                     pass
                 import os
-                return os.environ.get("HUELLAS_ADMIN_PASSWORD", admmod.DEFAULT_ADMIN_PASSWORD)
+                return os.environ.get("HUELLAS_ADMIN_PASSWORD", "")
 
-            if not st.session_state.get("admin_ok"):
+            if not _expected_pw():
+                st.caption("Administración desactivada en este despliegue: "
+                           "configura `ADMIN_PASSWORD` (Secrets de Cloud o "
+                           "`.streamlit/secrets.toml` local) o la variable "
+                           "`HUELLAS_ADMIN_PASSWORD`.")
+            elif not st.session_state.get("admin_ok"):
                 pw = st.text_input("Contraseña de administrador", type="password", key="admin_pw")
                 if st.button("Entrar"):
                     if admmod.check_password(pw, _expected_pw()):

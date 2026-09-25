@@ -661,3 +661,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Botón a la izquierda del título (columnas 1:30, hueco pequeño, centrado vertical) + compacto.
 - Alineación por prueba visual: barrido perfecto con 1px; viñetas en caja con clave propia `homebox_*` y `top:4px` (el padding se recentraba a la mitad; el diagnóstico temporal de 8px confirmó que el deploy llegaba).
 - Verificación: `test_titulo_home.py` 3/3.
+
+## S113 — 25/09/2026 — Auditoría final (Gemini/Claude/ChatGPT) + higiene (Muse Spark)
+- **Admin**: fuera `DEFAULT_ADMIN_PASSWORD` ("huellas123") del código, README y specs (REQ-11.1 v1.40); sin `ADMIN_PASSWORD` (Secrets) ni `HUELLAS_ADMIN_PASSWORD` (env), la administración queda desactivada con aviso. `.streamlit/secrets.toml` local creado (gitignored) para no perder el flujo local.
+- **requirements.txt**: versiones fijadas (numpy 2.5.3, pillow 12.3.0, scikit-learn 1.9.1, pytest 9.1.1; streamlit/folium ya estaban ==).
+- **.gitignore**: + `data/admin.log`, `.env*`, `.pytest_cache/`, `.engram/`.
+- **README**: título HUELLAS, enlace demo huellas.streamlit.app, 81 tests, demo_check actualizado (found_011 80.8%), sección "Limitaciones conocidas" (visión Cloud = histograma, datos efímeros en Cloud), fuera "Se añadirá el enlace" y contraseña.
+- **Specs**: cabecera "Estado v1.40" + guía de lectura (REQ-UI cronológicos, reversiones en PROMPT-LOG); `requirements.md` root sincronizado con docs/ (faltaban los pesos v1.40 del §8); mermaid architecture: 0.55/0.25/0.10/0.10 y "notify >=80 o visual>=95" (root+docs).
+- **Móvil**: media query ≤480px para la fila foto+insignia del escaneo.
+- Nota: `App.py` no existe como archivo distinto (NTFS case-insensitive; git solo lleva `app.py`). INFORME.md (del alumno) mantiene datos históricos — no se toca por decisión.
+- Verificación: pytest 81/81, smoke 9 páginas, demo_check E2E, eval_match OK.
