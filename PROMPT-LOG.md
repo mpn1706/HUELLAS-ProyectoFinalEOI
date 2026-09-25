@@ -656,3 +656,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S111 — 25/09/2026 — Botón rojo ⏪ a Inicio junto a títulos (Muse Spark)
 - `titulo_barrido`/`titulo_perimetro` (los 5 títulos de sección) llevan al lado botón rojo con icono rewind blanco (`:material/fast_rewind:`, clave `home_*`) que redirige a Inicio vía `nav_to`.
 - Verificación: `test_titulo_home.py` 2/2 (botón en las 5 páginas + navega) + smoke implícito.
+
+## S112 — 25/09/2026 — Botón inicio a la izquierda y pegado + ajuste fino (Muse Spark)
+- Botón a la izquierda del título (columnas 1:30, hueco pequeño, centrado vertical) + compacto.
+- Alineación por prueba visual: barrido perfecto con 1px; viñetas en caja con clave propia `homebox_*` y `top:4px` (el padding se recentraba a la mitad; el diagnóstico temporal de 8px confirmó que el deploy llegaba).
+- Verificación: `test_titulo_home.py` 3/3.
