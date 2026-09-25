@@ -1448,6 +1448,8 @@ div[class*="st-key-home_"] button p,
 div[class*="st-key-home_"] button span {
   color:#FFFFFF !important;
 }
+/* El glifo queda ~1px alto respecto a la mitad del texto: se baja el bloque. */
+div[class*="st-key-home_"] { padding-top:1px; }
 /* Segunda tira en sentido contrario: figuras espejadas (miran a la
    izquierda) y pista al revés (`0→-50%`). */
 .huellas-march.inv .huellas-track { animation-direction:reverse; }
