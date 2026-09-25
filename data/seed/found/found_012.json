@@ -1,0 +1,26 @@
+{
+  "id": "found_012",
+  "type": "found",
+  "animal": "dog",
+  "breed_guess": "mestizo",
+  "color_primary": "blanco",
+  "color_secondary": "crema",
+  "markings": [
+    "orejas erguidas"
+  ],
+  "size": "medium",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Perro blanco de orejas erguidas encontrado en Alameda Cristina. Mediano, sin collar, algo asustadizo pero bueno.",
+  "location": {
+    "lat": 36.6858,
+    "lng": -6.1363,
+    "address_text": "Alameda Cristina, San Miguel, Jerez de la Frontera"
+  },
+  "date_reported": "2026-09-23T15:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/found_012.jpg",
+  "image_embedding": null,
+  "contact_info": "640 228 417",
+  "status": "active"
+}

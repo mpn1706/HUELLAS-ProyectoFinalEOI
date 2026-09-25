@@ -1,0 +1,27 @@
+{
+  "id": "lost_007",
+  "type": "lost",
+  "animal": "cat",
+  "breed_guess": "siamés",
+  "color_primary": "marrón",
+  "color_secondary": "crema",
+  "markings": [
+    "cara oscura",
+    "cola oscura"
+  ],
+  "size": "small",
+  "has_collar": false,
+  "collar_description": null,
+  "description_text": "Gata siamesa perdida en San Miguel. Cuerpo color crema con cara, orejas y cola marrón oscuro. Ojos azules, muy dócil.",
+  "location": {
+    "lat": 36.6802,
+    "lng": -6.1398,
+    "address_text": "Calle Bizcocheros, San Miguel, Jerez de la Frontera"
+  },
+  "date_reported": "2026-09-24T10:00:00+02:00",
+  "date_last_seen": "2026-09-24T08:00:00+02:00",
+  "image_url": "data/seed/images/lost_007.jpg",
+  "image_embedding": null,
+  "contact_info": "julia.feria.4820@gmail.com",
+  "status": "active"
+}

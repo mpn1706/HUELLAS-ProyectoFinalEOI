@@ -28,23 +28,28 @@ def _zona(a: dict) -> str:
     return ((loc.get("address_text") or "").strip()) or "Jerez de la Frontera"
 
 
-def select_carousel_items(avisos: list, limit: int = MAX_ITEMS) -> list:
+def select_carousel_items(avisos: list, limit: int = MAX_ITEMS,
+                          extra: dict | None = None) -> list:
     """Filtra activos lost/found, ordena recientes y devuelve tarjetas seguras.
 
     Entrada: dicts de aviso (pueden traer `contact_info`, se IGNORA).
-    Salida: [{id, type, titulo, zona, image_path, etiqueta}] — sin contacto.
+    `extra`: {aviso_id: "revision"|"cerrado"} — esos avisos entran aunque estén
+    resueltos (siguen visibles en el carrusel) con segunda etiqueta.
+    Salida: [{id, type, titulo, zona, image_path, etiqueta, extra}] — sin contacto.
     """
     if limit <= 0:
         return []
+    extra = extra or {}
     activos = [a for a in (avisos or [])
                if isinstance(a, dict)
-               and a.get("status") == "active"
+               and (a.get("status") == "active" or a.get("id") in extra)
                and a.get("type") in ("lost", "found")
                and a.get("id")]
     activos.sort(key=lambda a: str(a.get("date_reported") or ""), reverse=True)
     out = []
     for a in activos[:limit]:
         tipo = a.get("type")
+        marca = extra.get(a.get("id"))
         out.append({
             "id": str(a.get("id")),
             "type": tipo,
@@ -52,6 +57,8 @@ def select_carousel_items(avisos: list, limit: int = MAX_ITEMS) -> list:
             "zona": _zona(a),
             "image_path": a.get("image_url") or "",
             "etiqueta": "Perdido" if tipo == "lost" else "Avistado",
+            "extra": ("En revisión" if marca == "revision"
+                      else "Caso cerrado" if marca == "cerrado" else None),
         })
     return out
 
@@ -571,6 +578,12 @@ def build_carousel_html(cards: list) -> str:
             inicial = _html.escape((titulo[:1] or "H").upper(), quote=False)
             foto = f'<div class="huellas-cd-ph" aria-hidden="true">{inicial}</div>'
         cls_et = "perd" if et.lower().startswith("perd") else "avis"
+        extra = _html.escape(str(c.get("extra") or ""), quote=False)
+        extra_html = ""
+        if extra == "En revisión":
+            extra_html = ' <span class="huellas-cd-et rev">En revisión</span>'
+        elif extra == "Caso cerrado":
+            extra_html = ' <span class="huellas-cd-et cerr">Caso cerrado</span>'
         piezas.append(
             # target=_self: misma pestaña si el navegador lo respeta (si no,
             # el enlace igual aterriza directo en el aviso en pestaña nueva).
@@ -578,7 +591,7 @@ def build_carousel_html(cards: list) -> str:
             f'<div class="huellas-cd"><div class="huellas-cd-img">{foto}</div>'
             f'<div class="huellas-cd-b"><div class="huellas-cd-t">{titulo}</div>'
             f'<div class="huellas-cd-z">{zona}</div>'
-            f'<span class="huellas-cd-et {cls_et}">{et}</span>'
+            f'<span class="huellas-cd-et {cls_et}">{et}</span>{extra_html}'
             '</div></div></a>'
         )
     pista = "".join(piezas)

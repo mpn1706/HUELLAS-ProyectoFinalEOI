@@ -493,6 +493,17 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.24: `requirements.md` §27 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 60/60, smoke 9 páginas OK, demo_check E2E OK.
 
+## S93 — 25/09/2026 — Admin fluida + reencuentros + 3 demo + carrusel v1.25 (Muse Spark)
+- REQ-UI-62/63: `show_image(fluido=True)` + guarda CSS; gestor con filtro por estado,
+  validar/rechazar/eliminar con confirmación (`delete_reencuentro()` + test + log).
+- REQ-UI-64: siamés→`lost_007` (colisión con `lost_006` resuelto, avisado al alumno),
+  `found_012/013`; SEED v8 + `embeddings.json` con 20 CLIP; conteos a 19 activos.
+- REQ-UI-65: `extra={id: revision|cerrado}` en carrusel (resueltos incluidos) con
+  segunda etiqueta ámbar/verde.
+- Aclarado lo "aleatorio": sin azar en código (seed intacto, CLIP, top-1 OK).
+- Specs v1.25: `requirements.md` §28 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 62/62, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

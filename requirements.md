@@ -383,6 +383,21 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-61 — La nota del reencuentro va justo bajo "Especie · color" (dentro de
   la tarjeta, en cursiva).
 
+## 28. Admin fluida + reencuentros + 3 demo + carrusel (v1.25 25/09/2026)
+
+- REQ-UI-62 — Fotos del admin fluidas (`use_container_width` + guarda CSS): se adaptan
+  al sidebar plegado o ampliado, sin desbordar.
+- REQ-UI-63 — Gestor de reencuentros en Administración: filtro por estado
+  (pendientes/validados/rechazados/todos), fotos + avisos + nota visibles, validar /
+  rechazar (pendientes) y eliminar con confirmación (`delete_reencuentro()`; los
+  avisos quedan intactos; todo en `admin.log`). REQ-11.5 extendido.
+- REQ-UI-64 — 3 animales demo para reencuentros (siamés `lost_007`, perros
+  `found_012/013` con fotos del alumno + SEED v8). OJO: `lost_006` ya existía
+  (gatito gris resuelto): el siamés es `lost_007` para no pisarlo.
+- REQ-UI-65 — Los avisos en reencuentros siguen en el carrusel con segunda etiqueta
+  (ámbar "En revisión" / verde "Caso cerrado", mismos colores), incluidos los
+  resueltos (`select_carousel_items(..., extra=...)`).
+
 ## 26. Reencuentros visibles + cerrados en fila (v1.23 25/09/2026, solo UI)
 
 - REQ-UI-56 — Vista previa de los avisos elegidos bajo cada multiselect (miniaturas;

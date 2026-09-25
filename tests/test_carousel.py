@@ -53,6 +53,23 @@ def test_html_no_incluye_contacto_ni_telefono():
     assert 'target="_self"' in out
 
 
+def test_extra_reencuentros_y_resueltos_visibles():
+    avisos = [_aviso(1), _aviso(2, tipo="found")]
+    avisos[0]["status"] = "resolved"
+    cards = select_carousel_items(avisos, extra={"t_01": "cerrado"})
+    assert [c["id"] for c in cards] == ["t_02", "t_01"] or \
+        {c["id"] for c in cards} == {"t_01", "t_02"}
+    por_id = {c["id"]: c for c in cards}
+    assert por_id["t_01"]["extra"] == "Caso cerrado"
+    assert por_id["t_02"]["extra"] is None
+    cards2 = select_carousel_items(avisos, extra={"t_02": "revision"})
+    assert {c["id"]: c["extra"] for c in cards2} == {"t_02": "En revisión"}
+    with_uri = [dict(c, img_uri="") for c in cards]
+    out = build_carousel_html(with_uri)
+    assert "Caso cerrado" in out and "huellas-cd-et cerr" in out
+    assert "610 204 518" not in out
+
+
 def test_html_vacio_invita_a_publicar():
     out = build_carousel_html([])
     assert "Publica el primero" in out

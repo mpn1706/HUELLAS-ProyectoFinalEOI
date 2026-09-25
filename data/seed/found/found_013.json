@@ -1,0 +1,26 @@
+{
+  "id": "found_013",
+  "type": "found",
+  "animal": "dog",
+  "breed_guess": "mestizo",
+  "color_primary": "marrón",
+  "color_secondary": "blanco",
+  "markings": [
+    "hocico blanco"
+  ],
+  "size": "medium",
+  "has_collar": true,
+  "collar_description": "collar oscuro",
+  "description_text": "Perro marrón de hocico blanco visto en la plaza del Mamelón. Mediano, con collar oscuro. Tranquilo.",
+  "location": {
+    "lat": 36.6829,
+    "lng": -6.1408,
+    "address_text": "Plaza del Mamelón, San Pedro, Jerez de la Frontera"
+  },
+  "date_reported": "2026-09-19T11:00:00+02:00",
+  "date_last_seen": null,
+  "image_url": "data/seed/images/found_013.jpg",
+  "image_embedding": null,
+  "contact_info": "pablo.cruz.7719@gmail.com",
+  "status": "active"
+}

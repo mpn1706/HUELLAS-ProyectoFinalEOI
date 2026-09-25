@@ -337,13 +337,23 @@ def vista_previa(foto, caption: str = "Vista previa", ancho: int = 360):
     st.image(img, caption=caption, width=min(ancho, img.width))
 
 
-def show_image(path: str, caption: str = "", width: int = 380):
-    """Muestra imagen si existe; si no, placeholder textual (rutas locales ausentes en Cloud)."""
+def show_image(path: str, caption: str = "", width: int = 380, fluido: bool = False):
+    """Muestra imagen si existe; si no, placeholder textual (rutas locales ausentes en Cloud).
+
+    `fluido=True` ocupa todo el ancho disponible (sidebar: se adapta plegado o no).
+    """
     if path and Path(path).exists():
         try:
-            st.image(imagen_cuadrada(path), caption=caption, width=width)
+            img = imagen_cuadrada(path)
+            if fluido:
+                st.image(img, caption=caption, use_container_width=True)
+            else:
+                st.image(img, caption=caption, width=width)
         except Exception:
-            st.image(path, caption=caption, width=width)
+            if fluido:
+                st.image(path, caption=caption, use_container_width=True)
+            else:
+                st.image(path, caption=caption, width=width)
     else:
         st.info("[ IMAGEN NO DISPONIBLE EN ESTE DESPLIEGUE ]" + (f" {caption}" if caption else ""))
 
@@ -1214,6 +1224,8 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-cd-et { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; }
 .huellas-cd-et.perd { background:#E30613; color:#FFFFFF; }
 .huellas-cd-et.avis { background:#23201B; color:#FFFFFF; }
+.huellas-cd-et.rev { background:#E8A100; color:#23201B; }
+.huellas-cd-et.cerr { background:#35AC46; color:#FFFFFF; }
 .huellas-vacio { background:#FFFFFF; border:1px solid #57503F; border-radius:10px; padding:1.2rem; text-align:center; }
 .huellas-vacio-t { font-weight:800; color:#23201B; margin:0 0 0.3rem; }
 .huellas-vacio-s { color:#57503F; margin:0; font-size:0.85rem; }
@@ -1621,14 +1633,19 @@ def carousel_thumb(path: str) -> str:
 
 
 def get_carousel_cards(con, limit: int = 12) -> list:
-    """Tarjetas seguras del carrusel (sin contacto por construcción)."""
+    """Tarjetas seguras del carrusel (sin contacto por construcción).
+
+    Los avisos en reencuentros siguen visibles con segunda etiqueta
+    (En revisión/Caso cerrado, mismos colores que en reencuentros).
+    """
     try:
         rows = con.execute(
             "SELECT id FROM avisos WHERE status='active' AND type IN ('lost','found')"
-            " ORDER BY date_reported DESC LIMIT ?", (int(limit),)).fetchall()
+            " ORDER BY date_reported DESC").fetchall()
     except Exception:
         return []
     avisos = []
+    vistos = set()
     for r in rows:
         try:
             a = dbmod.get_aviso(con, r["id"])
@@ -1636,11 +1653,31 @@ def get_carousel_cards(con, limit: int = 12) -> list:
             a = None
         if a:
             avisos.append(a)
+            vistos.add(a["id"])
+    extra = {}
+    try:
+        for rc in dbmod.list_reencuentros(con):
+            marca = ("revision" if rc["estado"] == "pendiente"
+                     else "cerrado" if rc["estado"] == "validada" else None)
+            if not marca:
+                continue
+            for aid in rc["aviso_ids"]:
+                extra.setdefault(aid, marca)
+                if aid not in vistos:
+                    try:
+                        a = dbmod.get_aviso(con, aid)
+                    except Exception:
+                        a = None
+                    if a and a.get("type") in ("lost", "found"):
+                        avisos.append(a)
+                        vistos.add(aid)
+    except Exception:
+        pass
     cards = []
-    for b in select_carousel_items(avisos, limit=limit):
+    for b in select_carousel_items(avisos, limit=limit, extra=extra):
         cards.append({
             "id": b["id"], "titulo": b["titulo"], "zona": b["zona"],
-            "etiqueta": b["etiqueta"],
+            "etiqueta": b["etiqueta"], "extra": b.get("extra"),
             "img_uri": carousel_thumb(b["image_path"] or ""),
         })
     return cards
@@ -1853,7 +1890,7 @@ with st.sidebar:
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_demo",))
     if st.session_state.get("side_demo", False):
-        if st.button("Cargar seed Jerez (16 avisos activos)", key="demo_seed",
+        if st.button("Cargar seed Jerez (19 avisos activos)", key="demo_seed",
                      use_container_width=True):
             import json as _json
 
@@ -1870,8 +1907,8 @@ with st.sidebar:
             _bf(con2)
             _sy(con2)
             retirar_alerta_demo(con2)
-            st.success(f"Seed cargada: 16 avisos activos "
-                       f"(5 perdidos + 11 avistamientos, +1 resuelto demo).")
+            st.success(f"Seed cargada: 19 avisos activos "
+                       f"(6 perdidos + 13 avistamientos, +1 resuelto demo).")
             st.rerun()
         if st.button("Expirar avisos >30 días", key="demo_expire",
                      use_container_width=True):
@@ -1924,7 +1961,7 @@ with st.sidebar:
                     st.rerun()
                 for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
                     with st.container(border=True):
-                        show_image(a["image_url"], caption=a["id"], width=220)
+                        show_image(a["image_url"], caption=a["id"], fluido=True)
                         st.markdown(f"### {animal_tag(a)}")
                         st.write(f"- Tipo: {TIPO_ES.get(a['type'], a['type'])}")
                         st.write(f"- Estado: {ESTADO_ES.get(a['status'], a['status'])}")
@@ -2024,34 +2061,60 @@ with st.sidebar:
                                 except Exception as e:
                                     st.error(f"Error: {e}")
                 loga = Path("data/admin.log")
-                pendientes = dbmod.list_reencuentros(con, "pendiente")
-                with st.expander(f"Reencuentros pendientes ({len(pendientes)})"):
-                    if not pendientes:
-                        st.caption("Nada pendiente de revisión.")
-                    for r in pendientes:
-                        st.markdown(f"**`{r['id']}`** · resuelve "
+                _re_est = st.selectbox(
+                    "Reencuentros por estado",
+                    ["pendiente", "validada", "rechazada", "todos"],
+                    key="adm_re_est",
+                    format_func=lambda s: {"pendiente": "Pendientes",
+                                           "validada": "Validados",
+                                           "rechazada": "Rechazados",
+                                           "todos": "Todos"}.get(s, s))
+                _reencs = (dbmod.list_reencuentros(con) if _re_est == "todos"
+                           else dbmod.list_reencuentros(con, _re_est))
+                with st.expander(f"Reencuentros ({len(_reencs)})"):
+                    if not _reencs:
+                        st.caption("Nada que mostrar con ese filtro.")
+                    for r in _reencs:
+                        st.markdown(f"**`{r['id']}`** [{r['estado']}] · resuelve "
                                     f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
                         if r["nota"]:
                             st.write(r["nota"])
                         for fp in r["fotos"][:2]:
-                            show_image(fp, caption="Prueba", width=220)
-                        c_ok, c_no = st.columns(2)
-                        with c_ok:
-                            if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}", type="primary"):
-                                for aid in r["aviso_ids"]:
-                                    admmod.resolve_aviso(con, aid)
-                                dbmod.set_reencuentro(con, r["id"], "validada")
-                                admmod.log_action(f"REENCUENTRO {r['id']} validado; "
-                                                  f"resueltos {', '.join(r['aviso_ids'])}")
-                                st.success("Caso cerrado.")
+                            show_image(fp, caption="Prueba", fluido=True)
+                        if r["estado"] == "pendiente":
+                            c_ok, c_no = st.columns(2)
+                            with c_ok:
+                                if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}",
+                                             type="primary"):
+                                    for aid in r["aviso_ids"]:
+                                        admmod.resolve_aviso(con, aid)
+                                    dbmod.set_reencuentro(con, r["id"], "validada")
+                                    admmod.log_action(
+                                        f"REENCUENTRO {r['id']} validado; "
+                                        f"resueltos {', '.join(r['aviso_ids'])}")
+                                    st.success("Caso cerrado.")
+                                    st.rerun()
+                            with c_no:
+                                if st.button("Rechazar", key=f"rv_no_{r['id']}"):
+                                    dbmod.set_reencuentro(con, r["id"], "rechazada")
+                                    admmod.log_action(
+                                        f"REENCUENTRO {r['id']} rechazado "
+                                        "(posible vandalismo); avisos intactos")
+                                    st.info("Rechazado: los avisos siguen activos.")
+                                    st.rerun()
+                        if st.session_state.get("confirm_renc") == r["id"]:
+                            if st.button("Confirmar eliminación", key=f"rc_{r['id']}",
+                                         type="primary"):
+                                dbmod.delete_reencuentro(con, r["id"])
+                                admmod.log_action(
+                                    f"REENCUENTRO {r['id']} eliminado "
+                                    f"(estaba {r['estado']}); avisos intactos")
+                                st.session_state.pop("confirm_renc", None)
+                                st.success(f"Reencuentro {r['id']} eliminado.")
                                 st.rerun()
-                        with c_no:
-                            if st.button("Rechazar", key=f"rv_no_{r['id']}"):
-                                dbmod.set_reencuentro(con, r["id"], "rechazada")
-                                admmod.log_action(f"REENCUENTRO {r['id']} rechazado "
-                                                  "(posible vandalismo); avisos intactos")
-                                st.info("Rechazado: los avisos siguen activos.")
-                                st.rerun()
+                        elif st.button("Eliminar", key=f"rd_{r['id']}"):
+                            st.session_state.confirm_renc = r["id"]
+                            st.rerun()
                 if loga.exists():
                     with st.expander("Ver registro de administración"):
                         st.code(loga.read_text(encoding="utf-8")[-2000:])

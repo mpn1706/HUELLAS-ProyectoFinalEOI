@@ -25,7 +25,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 2. `pip install torch --index-url https://download.pytorch.org/whl/cpu` + `pip install transformers pillow` (solo local).
 3. `python scripts/compute_embeddings.py` → genera `data/seed/embeddings.json` (vectores CLIP reales, viajan en git; Cloud los usa sin torch).
 4. Commit de imágenes + JSONs + `embeddings.json`.
-- Corpus demo propio de **16 avisos de Jerez con fotos reales** (6 lost + 10 found), sin scraping (fuera de alcance por decisión de diseño).
+- Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, 19 activos + 1 resuelto demo), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)
 
@@ -44,7 +44,7 @@ Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cer
 
 ```bash
 pip install -r requirements.txt
-python scripts/make_seed.py      # genera data/seed (16 avisos + imágenes)
+python scripts/make_seed.py      # genera data/seed (20 avisos + imágenes)
 python scripts/load_seed.py      # carga SQLite data/huellas.db
 streamlit run app.py             # abre la app en el navegador
 ```

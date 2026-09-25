@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
-SEED_VERSION = 7
+SEED_VERSION = 8
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
@@ -182,3 +182,10 @@ def set_reencuentro(con: sqlite3.Connection, rid: str, estado: str):
     assert estado in ("pendiente", "validada", "rechazada")
     con.execute("UPDATE reencuentros SET estado=? WHERE id=?", (estado, rid))
     con.commit()
+
+
+def delete_reencuentro(con: sqlite3.Connection, rid: str) -> int:
+    """Elimina un reencuentro (los avisos quedan intactos en su estado)."""
+    cur = con.execute("DELETE FROM reencuentros WHERE id=?", (rid,))
+    con.commit()
+    return cur.rowcount

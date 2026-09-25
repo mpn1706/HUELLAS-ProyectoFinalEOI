@@ -30,3 +30,11 @@ def test_rechazar_no_toca_avisos(tmp_path):
     rid = dbmod.save_reencuentro(con, ["lost_001"], [], "")
     dbmod.set_reencuentro(con, rid, "rechazada")
     assert dbmod.list_reencuentros(con, "rechazada")[0]["id"] == rid
+
+
+def test_eliminar_reencuentro(tmp_path):
+    con = _con(tmp_path)
+    rid = dbmod.save_reencuentro(con, ["lost_001"], [], "")
+    assert dbmod.delete_reencuentro(con, rid) == 1
+    assert dbmod.list_reencuentros(con) == []
+    assert dbmod.delete_reencuentro(con, "inexistente") == 0
