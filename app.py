@@ -1456,8 +1456,7 @@ div[class*="st-key-home"] button span {
    Las viñetas en caja llevan extra (clave homebox_*). OJO: con la columna
    centrada, el padding solo baja la mitad; aquí position+top (exacto). */
 div[class*="st-key-home_"] { padding-top:1px; }
-/* DIAGNÓSTICO TEMPORAL: 8px exagerados para comprobar si el deploy llega. */
-div[class*="st-key-homebox_"] { position:relative; top:8px; }
+div[class*="st-key-homebox_"] { position:relative; top:4px; }
 /* Segunda tira en sentido contrario: figuras espejadas (miran a la
    izquierda) y pista al revés (`0→-50%`). */
 .huellas-march.inv .huellas-track { animation-direction:reverse; }
