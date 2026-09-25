@@ -589,6 +589,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.35: `requirements.md` §38 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 64/64, smoke 9 páginas OK, demo_check E2E OK.
 
+## S104 — 25/09/2026 — MÁS en negro + pie en sidebar v1.36 (Muse Spark)
+- REQ-UI-95: revertido el experimento en claro (negro + blanco como secundarios).
+- REQ-UI-96: métricas/soporte a nivel de sidebar tras ADMINISTRACIÓN (el pie tras
+  login quedaba enterrado; el alumno lo quiere siempre visible).
+- Specs v1.36: `requirements.md` §39 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 64/64, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

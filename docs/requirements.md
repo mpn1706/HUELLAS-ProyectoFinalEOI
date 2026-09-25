@@ -437,6 +437,13 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-91 — Pie de admin tras divisor: avistamientos 7 días + urgentes ≥7 días,
   badge verde pulsante "Estado del Servicio: Activo (Jerez)" e Instagram/paypal.
 
+## 39. MÁS en negro + pie en sidebar (v1.36 25/09/2026, solo UI)
+
+- REQ-UI-95 — Protectoras/Tiempo como el resto de secundarios (botón negro, letras
+  blancas; fuera el experimento en claro).
+- REQ-UI-96 — Métricas/soporte en el sidebar tras ADMINISTRACIÓN (siempre visible,
+  no tras login): divisor + métricas + badge + redes/donar.
+
 ## 38. Contraste MÁS + puntúa vertical + pie visible (v1.35 25/09/2026, solo UI)
 
 - REQ-UI-92 — Protectoras/Tiempo en claro entero (cabecera en negro sobre blanco):
