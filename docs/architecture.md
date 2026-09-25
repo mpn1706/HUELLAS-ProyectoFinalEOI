@@ -135,17 +135,17 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..76, v1.28 25/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..77, v1.29 25/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
 
 ```
-[ Sidebar: 6 principales rojos + secundarios negros tabulados ]      [REQ-UI-02]
+[ Sidebar: 5 principales rojos + secundarios negros tabulados ]      [REQ-UI-02]
   INICIO (home, barra blanca + fondo oscuro si page=="inicio")
   FUNCIONALIDADES (apps, único abierto; negros indentados: Publicar + Búsqueda)
   PUNTUALIZACIONES WEB (warning → Cómo puntúa + Aviso legal)
-  DATOS DEMO (bar_chart → seed + expirar)
+  (sin DATOS DEMO desde v1.29)
   MÁS (+ add → Protectoras + Tiempo, negros indentados con sus iconos)
   ADMINISTRACIÓN (key → login + moderación + reencuentros)
         | session_state.page (rerun, conserva filtros; reabre FUNCIONALIDADES)
@@ -216,6 +216,7 @@ Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun
   par lado a lado, doble foto y 20 corazones.
 - v1.28: revisión sin doble borde; solo preview de subidas; lluvia uniforme;
   contadores negros en negrita y altos.
+- v1.29: fuera DATOS DEMO (demo siempre instaurada; sidebar de 5).
 - Accesibilidad/móvil: todo CSS, sin JS ni libs; `prefers-reduced-motion: reduce`
   apaga `trk/up/pulse/subrayado/latido/sweep/peri`; inicio con botones reales (no links).
 - Trazabilidad: `tests/test_carousel.py` (sin contacto, letterbox 300×208, counts con

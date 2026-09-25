@@ -167,14 +167,14 @@ No toca matching, agentes, RAG ni BD (solo UI en `app.py` + nuevo `ui_home.py` p
 - REQ-UI-01 — Pantalla Inicio por defecto: al abrir la app `session_state.page="inicio"`.
   Muestra hero + carrusel en movimiento + 3 contadores. El logo y el header quedan intactos.
   El hero no repite la ciudad (Jerez ya está en el header).
-- REQ-UI-02 — Barra lateral, 6 elementos en este orden (v1.6 24/09/2026):
+- REQ-UI-02 — Barra lateral, 5 elementos en este orden (v1.29 25/09/2026, antes 6):
   `INICIO` (botón rojo grande, icono casa Material, activo con barra blanca + fondo oscuro),
   `FUNCIONALIDADES` (plegable rojo, icono apps, único abierto por defecto: agrupa
   Publicar aviso + Búsqueda de coincidencias como botones secundarios negros
   tabulados a la derecha),
   `PUNTUALIZACIONES WEB` (plegable rojo, icono aviso: despliega Cómo puntúa + Aviso legal,
   ambos expanders cerrados hasta clicar, contenidos tabulados),
-  `DATOS DEMO` (plegable rojo, icono stats: seed + expirar como secundarios negros tabulados),
+  (sin `DATOS DEMO` desde v1.29: la demo siempre está cargada; limpiar = avisar),
   `MÁS` (plegable rojo con `+`: despliega Protectoras y Tiempo en Jerez, también
   secundarios negros tabulados, con sus iconos),
   `ADMINISTRACIÓN` (plegable rojo, icono llave: panel tabulado con login + moderación +
@@ -389,6 +389,12 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-74 — En el formulario solo vista previa de lo subido (fuera el par lateral).
 - REQ-UI-75 — Lluvia pareja en todo el ancho (reparto uniforme 2–98%).
 - REQ-UI-76 — Contadores con texto negro en negrita y más altos (96px).
+
+## 32. Sin Datos demo (v1.29 25/09/2026, solo UI)
+
+- REQ-UI-77 — Fuera `DATOS DEMO` del sidebar (botón + cargar seed + expirar) con su
+  CSS: la demo siempre está instaurada (auto-carga al arrancar); limpiar = avisar.
+  Sidebar de 5 elementos. Sin borrado a un clic: el wipe era irreversible.
 
 ## 30. Velo visible + reencuentro completo (v1.27 25/09/2026, solo UI)
 

@@ -1105,7 +1105,6 @@ def inject_ui_css(active_page: str) -> None:
 }
 [data-testid="stSidebar"] .st-key-tgl_func button,
 [data-testid="stSidebar"] .st-key-tgl_punt button,
-[data-testid="stSidebar"] .st-key-tgl_demo button,
 [data-testid="stSidebar"] .st-key-tgl_mas button,
 [data-testid="stSidebar"] .st-key-tgl_admin button {
   border-radius:6px !important;
@@ -1120,7 +1119,6 @@ def inject_ui_css(active_page: str) -> None:
 }
 [data-testid="stSidebar"] .st-key-tgl_func button:hover,
 [data-testid="stSidebar"] .st-key-tgl_punt button:hover,
-[data-testid="stSidebar"] .st-key-tgl_demo button:hover,
 [data-testid="stSidebar"] .st-key-tgl_mas button:hover,
 [data-testid="stSidebar"] .st-key-tgl_admin button:hover {
   transform:translateX(3px) !important;
@@ -1130,17 +1128,13 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-nav_publicar_side,
 [data-testid="stSidebar"] .st-key-nav_buscar_side,
 [data-testid="stSidebar"] .st-key-nav_protectoras,
-[data-testid="stSidebar"] .st-key-nav_tiempo,
-[data-testid="stSidebar"] .st-key-demo_seed,
-[data-testid="stSidebar"] .st-key-demo_expire {
+[data-testid="stSidebar"] .st-key-nav_tiempo {
   margin-left:1.25rem !important;
 }
 [data-testid="stSidebar"] .st-key-nav_publicar_side button,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button,
 [data-testid="stSidebar"] .st-key-nav_protectoras button,
-[data-testid="stSidebar"] .st-key-nav_tiempo button,
-[data-testid="stSidebar"] .st-key-demo_seed button,
-[data-testid="stSidebar"] .st-key-demo_expire button {
+[data-testid="stSidebar"] .st-key-nav_tiempo button {
   border-radius:6px !important;
   border-left:3px solid transparent !important;
   transition:transform .2s, background .2s !important;
@@ -1154,9 +1148,7 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-nav_publicar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button:hover,
 [data-testid="stSidebar"] .st-key-nav_protectoras button:hover,
-[data-testid="stSidebar"] .st-key-nav_tiempo button:hover,
-[data-testid="stSidebar"] .st-key-demo_seed button:hover,
-[data-testid="stSidebar"] .st-key-demo_expire button:hover {
+[data-testid="stSidebar"] .st-key-nav_tiempo button:hover {
   transform:translateX(3px) !important;
   background:#353026 !important;
 }
@@ -1911,34 +1903,6 @@ with st.sidebar:
             with st.expander("Aviso legal", expanded=False):
                 st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
                          "Una imagen no permite confirmar la identidad, verifique en persona.")
-    st.button("Datos demo", key="tgl_demo", icon=":material/bar_chart:",
-              use_container_width=True, type="tertiary",
-              on_click=_toggle, args=("side_demo",))
-    if st.session_state.get("side_demo", False):
-        if st.button("Cargar seed Jerez (20 avisos activos)", key="demo_seed",
-                     use_container_width=True):
-            import json as _json
-
-            con2 = get_con()
-            dbmod.wipe_all(con2)
-            total = 0
-            for folder in ("lost", "found"):
-                for fp in sorted(Path("data/seed", folder).glob("*.json")):
-                    dbmod.upsert_aviso(con2, normalize_aviso(_json.loads(fp.read_text(encoding="utf-8"))))
-                    total += 1
-            dbmod.set_seed_version(con2)
-            from agents.vision import backfill_embeddings as _bf, sync_seed_embeddings as _sy
-
-            _bf(con2)
-            _sy(con2)
-            retirar_alerta_demo(con2)
-            st.success(f"Seed cargada: 20 avisos activos "
-                       f"(7 perdidos + 13 avistamientos).")
-            st.rerun()
-        if st.button("Expirar avisos de más de 1 año", key="demo_expire",
-                     use_container_width=True):
-            n = dbmod.expire_old(get_con(), 365)
-            st.info(f"Avisos expirados: {n}")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_mas",))
