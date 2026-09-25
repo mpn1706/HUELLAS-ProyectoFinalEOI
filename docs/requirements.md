@@ -444,6 +444,13 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-96 — Métricas/soporte en el sidebar tras ADMINISTRACIÓN (siempre visible,
   no tras login): divisor + métricas + badge + redes/donar.
 
+## 40. Líneas alternas + pie centrado (v1.37 25/09/2026, solo UI)
+
+- REQ-UI-97 — Protectoras/Tiempo con líneas alternas blanco/rojo (`build_alt_list()`)
+  y enlaces legibles.
+- REQ-UI-98 — Pie centrado (métricas, badge, soporte), segundo divisor tras el badge
+  y un solo enlace de donación.
+
 ## 38. Contraste MÁS + puntúa vertical + pie visible (v1.35 25/09/2026, solo UI)
 
 - REQ-UI-92 — Protectoras/Tiempo en claro entero (cabecera en negro sobre blanco):

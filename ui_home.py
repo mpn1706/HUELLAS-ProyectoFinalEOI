@@ -505,6 +505,20 @@ def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
     )
 
 
+def build_alt_list(items: list) -> str:
+    """Lista con líneas alternas blanca/roja para fondo oscuro. Pura y testeada.
+
+    `items`: [(texto, negrita)]. Sin contacto por construcción.
+    """
+    out = ['<div class="huellas-alt">']
+    for i, (txt, bold) in enumerate(items or []):
+        col = "#FFFFFF" if i % 2 == 0 else "#E30613"
+        w = "800" if bold else "400"
+        out.append(f'<div style="color:{col};font-weight:{w}">'
+                   f'{_html.escape(str(txt), quote=False)}</div>')
+    return "".join(out) + "</div>"
+
+
 def build_pen_html() -> str:
     """Boli escribiendo trazos (relleno del hueco al subir foto). Solo CSS.
 

@@ -26,6 +26,7 @@ try:
 except Exception:
     pass
 from ui_home import (
+    build_alt_list,
     build_bars_html,
     build_carousel_html,
     badge_lateral_html,
@@ -1142,6 +1143,11 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-exp_mas2 {
   margin-left:1.25rem !important;
 }
+/* Enlaces legibles dentro de los desplegables oscuros. */
+[data-testid="stSidebar"] .st-key-exp_mas1 a,
+[data-testid="stSidebar"] .st-key-exp_mas2 a {
+  color:#E30613 !important;
+}
 
 [data-testid="stSidebar"] .st-key-nav_publicar_side button,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button,
@@ -1909,8 +1915,11 @@ with st.sidebar:
     if st.session_state.get("side_mas", False):
         with st.expander("Protectoras", key="exp_mas1"):
             for _p in PERRERAS:
-                st.markdown(f"**{_p['nombre']}**")
-                st.caption(f"{_p['direccion']} · {_p['contacto']}")
+                st.markdown(build_alt_list([
+                    (_p["nombre"], True),
+                    (_p["direccion"], False),
+                    (_p["contacto"], False),
+                ]), unsafe_allow_html=True)
         with st.expander("Tiempo en Jerez", key="exp_mas2"):
             try:
                 import streamlit.components.v1 as _comp
@@ -1919,9 +1928,12 @@ with st.sidebar:
                 _cur = _td.get("current") or {}
                 _w, _modo = estado_perro(_td)
                 _comp.html(perro_html(_modo, es_de_noche(_td)), height=150)
-                st.markdown(f"**{WMO_ES.get(_cur.get('weather_code', 0), '—')} · "
-                            f"{(_cur.get('temperature_2m') or 0):.0f}º · {_w}**")
-                st.caption(f"Viento {(_cur.get('wind_speed_10m') or 0):.0f} km/h · Jerez")
+                st.markdown(build_alt_list([
+                    (f"{WMO_ES.get(_cur.get('weather_code', 0), '—')} · "
+                     f"{(_cur.get('temperature_2m') or 0):.0f}º · {_w}", True),
+                    (f"Viento {(_cur.get('wind_speed_10m') or 0):.0f} km/h · Jerez",
+                     False),
+                ]), unsafe_allow_html=True)
             except Exception as _e:
                 st.caption(f"No disponible ({_e}).")
     st.button("Administración", key="tgl_admin", icon=":material/key:",
@@ -2122,7 +2134,8 @@ with st.sidebar:
                     with st.expander("Ver registro de administración"):
                         st.code(loga.read_text(encoding="utf-8")[-2000:])
     st.divider()
-    st.markdown("**Métricas rápidas**")
+    st.markdown('<div style="text-align:center;font-weight:800;">Métricas rápidas</div>',
+                unsafe_allow_html=True)
     try:
         from datetime import datetime as _dtm, timedelta as _tdl
 
@@ -2141,16 +2154,21 @@ with st.sidebar:
     stat_box(_n_sem, "Avistamientos 7 días", mini=True)
     stat_box(_urg, "Casos urgentes ≥7 días", mini=True)
     st.markdown(
-        '<div style="margin-top:.5rem;">'
+        '<div style="margin-top:.5rem;text-align:center;">'
         '<span class="huellas-dotv"></span>'
         '<span style="font-weight:800;font-size:.8rem;">'
         'Estado del Servicio: Activo (Jerez)</span></div>',
         unsafe_allow_html=True)
-    st.markdown("**Soporte**")
-    st.markdown("[Instagram @mariop.17](https://instagram.com/mariop.17)")
-    st.markdown("[Aporta para mantener los servidores]"
-                "(https://paypal.me/mariop1706)")
-    st.caption("PayPal donaciones: paypal.me/mariop1706")
+    st.divider()
+    st.markdown('<div style="text-align:center;font-weight:800;">Soporte</div>',
+                unsafe_allow_html=True)
+    st.markdown('<div style="text-align:center;">'
+                '[Instagram @mariop.17](https://instagram.com/mariop.17)</div>',
+                unsafe_allow_html=True)
+    st.markdown('<div style="text-align:center;">'
+                '[Aporta para mantener los servidores: paypal.me/mariop1706]'
+                '(https://paypal.me/mariop1706)</div>',
+                unsafe_allow_html=True)
 
 page = st.session_state.get("page", "inicio")
 

@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from ui_home import (
     badge_lateral_html,
+    build_alt_list,
     build_bars_html,
     build_leyenda_html,
     build_cerrado_card_html,
@@ -118,6 +119,14 @@ def test_leyenda_con_conteos_y_sin_contacto():
     assert "TU CASO" in out and "contact" not in out.lower()
     out2 = build_leyenda_html(True, False, 6, 13)
     assert "PERDIDOS (6)" in out2 and "AVISTAMIENTOS" not in out2
+
+
+def test_alt_list_alterna_y_escapa():
+    out = build_alt_list([("CMPA", True), ("Calle 1", False), ("a@x.es", False)])
+    assert "huellas-alt" in out
+    assert out.index("#FFFFFF") < out.index("#E30613")
+    assert "contact" not in out.lower() or "a@x.es" in out
+    assert build_alt_list([]) == '<div class="huellas-alt"></div>'
 
 
 def test_radar_y_scan():
