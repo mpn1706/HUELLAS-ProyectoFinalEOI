@@ -269,31 +269,31 @@ def badge_lateral_html(texto: str) -> str:
 
 
 _PERRO_MARCHA = (
-    '<svg viewBox="0 0 48 32" width="38" height="26" aria-hidden="true">'
-    '<path d="M11 18 Q3 16 5 8" stroke="{c}" stroke-width="3" fill="none" '
+    '<svg viewBox="0 0 48 32" width="48" height="30" aria-hidden="true">'
+    '<path d="M11 16 Q3 14 4 6" stroke="{c}" stroke-width="3" fill="none" '
     'stroke-linecap="round"/>'
-    '<ellipse cx="23" cy="21" rx="12" ry="6.5" fill="{c}"/>'
-    '<rect x="15" y="22" width="3.6" height="8" rx="1.8" fill="{c}" '
-    'transform="rotate(-12 17 22)"/>'
-    '<rect x="28" y="22" width="3.6" height="8" rx="1.8" fill="{c}" '
-    'transform="rotate(12 30 22)"/>'
-    '<circle cx="36" cy="14" r="6.5" fill="{c}"/>'
-    '<ellipse cx="41" cy="16" rx="3" ry="2.4" fill="{c}"/>'
-    '<ellipse cx="33" cy="8.5" rx="2.6" ry="4.5" fill="{c}" '
-    'transform="rotate(-15 33 8.5)"/></svg>')
+    '<ellipse cx="23" cy="18" rx="13" ry="5.5" fill="{c}"/>'
+    '<rect x="13" y="19" width="3.4" height="9" rx="1.7" fill="{c}" '
+    'transform="rotate(-28 15 19)"/>'
+    '<rect x="29" y="19" width="3.4" height="9" rx="1.7" fill="{c}" '
+    'transform="rotate(28 31 19)"/>'
+    '<circle cx="37" cy="11" r="6" fill="{c}"/>'
+    '<ellipse cx="42" cy="13" rx="2.8" ry="2.2" fill="{c}"/>'
+    '<path d="M32 8 Q30 2 34 3 Q37 6 35 9 Z" fill="{c}"/></svg>')
 
 _GATO_MARCHA = (
-    '<svg viewBox="0 0 48 32" width="34" height="26" aria-hidden="true">'
-    '<path d="M10 22 Q4 20 6 8" stroke="{c}" stroke-width="2.6" fill="none" '
+    '<svg viewBox="0 0 48 32" width="48" height="30" aria-hidden="true">'
+    '<path d="M12 22 Q6 18 8 7" stroke="{c}" stroke-width="2.6" fill="none" '
     'stroke-linecap="round"/>'
-    '<ellipse cx="22" cy="23" rx="10" ry="5.5" fill="{c}"/>'
-    '<rect x="15" y="24" width="3.2" height="7" rx="1.6" fill="{c}" '
-    'transform="rotate(-12 17 24)"/>'
-    '<rect x="25" y="24" width="3.2" height="7" rx="1.6" fill="{c}" '
-    'transform="rotate(12 27 24)"/>'
-    '<circle cx="34" cy="15" r="5.5" fill="{c}"/>'
-    '<path d="M30 12 L29 4 L34.5 8.5 Z" fill="{c}"/>'
-    '<path d="M36.5 10.5 L38.5 3 L40.5 9 Z" fill="{c}"/></svg>')
+    '<path d="M12 24 Q24 12 34 22" stroke="{c}" stroke-width="8" fill="none" '
+    'stroke-linecap="round"/>'
+    '<rect x="13" y="22" width="3" height="8" rx="1.5" fill="{c}" '
+    'transform="rotate(-25 15 22)"/>'
+    '<rect x="29" y="22" width="3" height="8" rx="1.5" fill="{c}" '
+    'transform="rotate(25 31 22)"/>'
+    '<circle cx="37" cy="13" r="5.5" fill="{c}"/>'
+    '<path d="M33 10 L32 3 L37 7.5 Z" fill="{c}"/>'
+    '<path d="M39 9.5 L41 2.5 L43 8 Z" fill="{c}"/></svg>')
 
 
 def build_marcha_html() -> str:
