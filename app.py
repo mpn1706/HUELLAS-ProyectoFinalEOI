@@ -1234,9 +1234,12 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 [data-testid="stAppViewContainer"] .st-key-count_reencuentro button {
   background:#FFFFFF !important;
   color:#23201B !important;
+  font-weight:800 !important;
+  font-size:1.05rem !important;
   border:1px solid #57503F !important;
   border-radius:8px !important;
-  padding:10px 12px !important;
+  padding:18px 12px !important;
+  min-height:96px !important;
   white-space:pre-line !important;
   text-align:left !important;
   line-height:1.25 !important;
@@ -2740,16 +2743,6 @@ if page == "reencuentro":
             for _fc, _f in zip(_fp_cols, fotos_r[:3]):
                 with _fc:
                     st.image(_f, caption=getattr(_f, "name", "foto"), width=150)
-        _elegidos_ver = list(dict.fromkeys(list(sel_lost) + list(sel_found)))
-        _primer_ver = next((x for x in (perd_opts + found_opts)
-                            if x["id"] in _elegidos_ver), None)
-        if _primer_ver is not None and fotos_r:
-            c_a, c_b = st.columns(2)
-            with c_a:
-                show_image(_primer_ver["image_url"],
-                           caption=f"Su aviso · {_primer_ver['id']}", width=220)
-            with c_b:
-                st.image(fotos_r[0], caption="Su foto", width=220)
     if st.button("Empezar de cero", key="re_limpiar"):
         for _k in ("re_lost", "re_found", "re_nota", "re_fotos", "re_shake_n",
                    "re_shake_pending", "re_faltan"):
@@ -2840,16 +2833,15 @@ if page == "reencuentro":
     for r in pendientes:
         _av0, _uri, _uri_av = _datos_caso(con, r)
         _tit = titulo_corto(_av0) if _av0 else "Aviso"
-        with st.container(border=True):
-            st.markdown(build_cerrado_card_html(
-                _uri, _tit, "En revisión por el administrador", 0,
-                marca="En revisión", marca_clase="ambar",
-                pie=f"Resuelve {', '.join(r['aviso_ids'])}",
-                nota=r["nota"], estado="revision", foto2_uri=_uri_av),
-                unsafe_allow_html=True)
-            if len(r["fotos"]) > 1:
-                fcols = st.columns(min(3, len(r["fotos"]) - 1))
-                for fc, fp in zip(fcols, r["fotos"][1:4]):
-                    with fc:
-                        show_image(fp, caption="Reencuentro", width=220)
+        st.markdown(build_cerrado_card_html(
+            _uri, _tit, "En revisión por el administrador", 0,
+            marca="En revisión", marca_clase="ambar",
+            pie=f"Resuelve {', '.join(r['aviso_ids'])}",
+            nota=r["nota"], estado="revision", foto2_uri=_uri_av),
+            unsafe_allow_html=True)
+        if len(r["fotos"]) > 1:
+            fcols = st.columns(min(3, len(r["fotos"]) - 1))
+            for fc, fp in zip(fcols, r["fotos"][1:4]):
+                with fc:
+                    show_image(fp, caption="Reencuentro", width=220)
 

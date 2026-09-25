@@ -383,6 +383,13 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-61 — La nota del reencuentro va justo bajo "Especie · color" (dentro de
   la tarjeta, en cursiva).
 
+## 31. Remates casos y contadores (v1.28 25/09/2026, solo UI)
+
+- REQ-UI-73 — En revisión sin doble borde (tarjeta directa, como cerrados).
+- REQ-UI-74 — En el formulario solo vista previa de lo subido (fuera el par lateral).
+- REQ-UI-75 — Lluvia pareja en todo el ancho (reparto uniforme 2–98%).
+- REQ-UI-76 — Contadores con texto negro en negrita y más altos (96px).
+
 ## 30. Velo visible + reencuentro completo (v1.27 25/09/2026, solo UI)
 
 - REQ-UI-71 — Velo de contadores sin `!important` en `opacity` (la base con
