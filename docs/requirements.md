@@ -406,6 +406,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   Reencuentro rotan con época (`pub_epoch`/`re_epoch`; el prefill escribe en la época
   vigente). Test AppTest con claves rotadas.
 
+## 36. Sidebar igualado + leyenda con conteos (v1.33 25/09/2026, solo UI)
+
+- REQ-UI-85 — Los 4 expanders secundarios (Cómo puntúa, Aviso legal, Protectoras,
+  Tiempo) con la misma tabulación que PUBLICAR/BÚSQUEDA (claves `exp_*` + margen).
+- REQ-UI-86 — Protectoras y Tiempo en Jerez como desplegables compactos DENTRO del
+  sidebar, con el perrito animado (SVG con clases globales, sin `<style>` ni iframe).
+- REQ-UI-87 — Leyenda con conteos en vivo ("PERDIDOS (6) · AVISTAMIENTOS (13)"):
+  lo que no cabe en número se agrupa en clusters (se despliegan al clicar).
+
 ## 35. Sidebar uniforme + MÁS desplegable (v1.32 25/09/2026, solo UI)
 
 - REQ-UI-83 — Puntualizaciones a todo ancho (fuera columnas 0.12/0.88): mismo tamaño

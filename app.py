@@ -34,6 +34,7 @@ from ui_home import (
     build_crossing_html,
     build_fiesta_html,
     build_foto_scan_html,
+    build_leyenda_html,
     build_match_card_html,
     build_pen_html,
     build_radar_html,
@@ -641,26 +642,11 @@ def popup_html(c: dict, marca: str = "", dist=None) -> str:
     return "green" if a.get("type") == "found" else "blue"
 
 
-def leyenda_mapa(mostrar_perdidos: bool = True, mostrar_avist: bool = True):
-    """Franja de leyenda bajo el mapa (solo los canales visibles)."""
-    piezas = ['<span><span style="display:inline-block;width:12px;height:12px;'
-              'border-radius:50%;background:#E30613;margin-right:.35rem;"></span>TU CASO</span>']
-    if mostrar_perdidos:
-        piezas.append('<span><span style="display:inline-block;width:12px;height:12px;'
-                      'border-radius:50%;background:#3388FF;margin-right:.35rem;"></span>'
-                      'PERDIDOS</span>')
-    if mostrar_avist:
-        piezas.append('<span><span style="display:inline-block;width:12px;height:12px;'
-                      'border-radius:50%;background:#35AC46;margin-right:.35rem;"></span>'
-                      'AVISTAMIENTOS</span>')
-    piezas.append('<span style="font-weight:400;">PULSA CADA CHINCHETA PARA VER FOTO '
-                  'Y DIRECCIÓN.</span>')
-    st.markdown(
-        '<div style="background:#23201B;border-radius:10px;padding:.45rem .9rem;'
-        'color:#FFFFFF;font-weight:700;font-size:.75rem;display:flex;gap:1.4rem;'
-        'flex-wrap:wrap;align-items:center;margin-top:.4rem;">'
-        + "".join(piezas) + '</div>',
-        unsafe_allow_html=True)
+def leyenda_mapa(mostrar_perdidos: bool = True, mostrar_avist: bool = True,
+                 n_perd=None, n_av=None):
+    """Franja de leyenda bajo el mapa (canales visibles + conteos en vivo)."""
+    st.markdown(build_leyenda_html(mostrar_perdidos, mostrar_avist, n_perd, n_av),
+                unsafe_allow_html=True)
 
 
 def huella_mapa(con) -> str:
@@ -729,8 +715,11 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
         st_folium(fmap, key=f"{key}_{huella_mapa(con)}", height=450,
                   use_container_width=True)
         tipos = {it.get("candidato", it).get("type") for it in items}
+        n_p = sum(1 for it in items if it.get("candidato", it).get("type") == "lost")
+        n_p += len(otros_lost or [])
+        n_a = sum(1 for it in items if it.get("candidato", it).get("type") == "found")
         leyenda_mapa(mostrar_perdidos=("lost" in tipos or bool(otros_lost)),
-                     mostrar_avist=("found" in tipos))
+                     mostrar_avist=("found" in tipos), n_perd=n_p, n_av=n_a)
     except Exception as e:
         st.caption(f"Mapa no disponible ({e}).")
 
@@ -934,6 +923,15 @@ def perro_html(modo: str, noche: bool = False) -> str:
 
 def toggle_top(nombre: str):
     st.session_state.top_panel = None if st.session_state.get("top_panel") == nombre else nombre
+
+
+def perro_side_html(modo: str, noche: bool = False) -> str:
+    """Perro sin bloque <style> (el CSS vive global): apto para el sidebar.
+
+    `st.markdown` no traga <style>+<svg> juntos (S53); el iframe tampoco cabe
+    en el panel. Así el SVG usa las clases globales y cabe a lo ancho.
+    """
+    return perro_html(modo, noche=noche).split("</style>", 1)[1]
 
 
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
@@ -1146,10 +1144,14 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-nav_publicar_side,
 [data-testid="stSidebar"] .st-key-nav_buscar_side,
 [data-testid="stSidebar"] .st-key-nav_protectoras,
-[data-testid="stSidebar"] .st-key-nav_tiempo {
+[data-testid="stSidebar"] .st-key-nav_tiempo,
+[data-testid="stSidebar"] .st-key-exp_punt1,
+[data-testid="stSidebar"] .st-key-exp_punt2,
+[data-testid="stSidebar"] .st-key-exp_mas1,
+[data-testid="stSidebar"] .st-key-exp_mas2 {
   margin-left:1.25rem !important;
 }
-[data-testid="stSidebar"] .st-key-nav_publicar_side button,
+[data-testid="stSidebar"] .st-key-nav_protectoras button,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button,
 [data-testid="stSidebar"] .st-key-nav_protectoras button,
 [data-testid="stSidebar"] .st-key-nav_tiempo button {
@@ -1596,6 +1598,26 @@ div[class*="st-key-re_notif"] button { position:relative; }
 .huellas-marca.ambar { background:#E8A100; color:#23201B; }
 .huellas-cerrado-pie { color:#57503F; font-size:.8rem; margin-top:.4rem; }
 .huellas-vacio-heart { text-align:center; margin:.4rem 0; }
+/* Perro del tiempo (mismo SVG global, también en el sidebar). */
+.perro-wrap { text-align:center; }
+.perro-wrap svg { max-width:100%; height:auto; }
+.perro-svg { animation:perro-salto 1.6s ease-in-out infinite; }
+.perro-svg.frio { animation:perro-tiritona 0.25s linear infinite; }
+.perro-cola { transform-origin:30px 78px; animation:perro-cola 0.5s ease-in-out infinite alternate; }
+.perro-svg.triste .perro-cola { animation:none; }
+@keyframes perro-cola { from { transform:rotate(-18deg); } to { transform:rotate(24deg); } }
+@keyframes perro-salto { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
+@keyframes perro-tiritona { 0%,100% { transform:translateX(-2px); } 50% { transform:translateX(2px); } }
+.lengua { animation:perro-lengua 0.8s ease-in-out infinite alternate; transform-origin:104px 88px; }
+@keyframes perro-lengua { from { transform:scaleY(1); } to { transform:scaleY(1.35); } }
+.lluvia { animation:perro-lluvia 0.9s linear infinite; }
+.l2 { animation-delay:0.3s; } .l3 { animation-delay:0.6s; }
+@keyframes perro-lluvia { from { transform:translateY(-6px); opacity:0; } 30% { opacity:1; } to { transform:translateY(14px); opacity:0; } }
+.viento { stroke-dasharray:14 12; animation:perro-viento 0.9s linear infinite; }
+.v2 { animation-delay:0.3s; } .v3 { animation-delay:0.6s; }
+@keyframes perro-viento { to { stroke-dashoffset:-52; } }
+.twinkle { animation:perro-tw 1.8s ease-in-out infinite alternate; }
+@keyframes perro-tw { from { opacity:0.25; } to { opacity:1; } }
 /* Guardar como aviso: rebote suave continuo. */
 div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out infinite; }
 @keyframes huellas-bob {
@@ -1635,6 +1657,8 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
   .huellas-nodo, .huellas-sello { opacity:1 !important; }
   .huellas-tl-linea { transform:scaleX(1) !important; }
+  .perro-svg, .perro-cola, .lengua, .lluvia, .viento, .twinkle {
+    animation:none !important; }
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
   .huellas-trazo { stroke-dashoffset:0 !important; }
@@ -1894,7 +1918,8 @@ with st.sidebar:
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_punt",))
     if st.session_state.get("side_punt", False):
-        with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False):
+        with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False,
+                          key="exp_punt1"):
             st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
             u1, u2 = st.columns(2)
             with u1:
@@ -1914,22 +1939,24 @@ with st.sidebar:
                 st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
                             'text-align:center;color:#FFFFFF;font-weight:800;">'
                             'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
-        with st.expander("Aviso legal", expanded=False):
+        with st.expander("Aviso legal", expanded=False, key="exp_punt2"):
             st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
                      "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_mas",))
     if st.session_state.get("side_mas", False):
-        with st.expander("Protectoras"):
+        with st.expander("Protectoras", key="exp_mas1"):
             for _p in PERRERAS:
                 st.markdown(f"**{_p['nombre']}**")
                 st.caption(f"{_p['direccion']} · {_p['contacto']}")
-        with st.expander("Tiempo en Jerez"):
+        with st.expander("Tiempo en Jerez", key="exp_mas2"):
             try:
                 _td = get_tiempo()
                 _cur = _td.get("current") or {}
-                _w, _ = estado_perro(_td)
+                _w, _modo = estado_perro(_td)
+                st.markdown(perro_side_html(_modo, es_de_noche(_td)),
+                            unsafe_allow_html=True)
                 st.markdown(f"**{WMO_ES.get(_cur.get('weather_code', 0), '—')} · "
                             f"{(_cur.get('temperature_2m') or 0):.0f}º · {_w}**")
                 st.caption(f"Viento {(_cur.get('wind_speed_10m') or 0):.0f} km/h · Jerez")
@@ -2220,15 +2247,17 @@ if page == "buscar":
                           fill=True, fill_opacity=0.06).add_to(fmap)
             # El mapa de zona es de referencia: muestra AMBOS lados (perdidos en
             # azul y avistamientos en verde). El cruce sí va solo contra el canal.
+            _zona_perd = dbmod.get_active_opuestos(con, "found")
+            _zona_av = dbmod.get_active_opuestos(con, "lost")
             cl_perd = MarkerCluster(name="Perdidos").add_to(fmap)
-            for c in dbmod.get_active_opuestos(con, "found"):
+            for c in _zona_perd:
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
                     tooltip=c["id"],
                     popup=folium.Popup(popup_html(c), max_width=260),
                     icon=folium.Icon(color=pin_color(c))).add_to(cl_perd)
             cl_av = MarkerCluster(name="Avistamientos").add_to(fmap)
-            for c in dbmod.get_active_opuestos(con, "lost"):
+            for c in _zona_av:
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
                     tooltip=c["id"],
@@ -2237,7 +2266,7 @@ if page == "buscar":
             out = st_folium(fmap, key=f"cerca_map_{huella_mapa(con)}",
                             center=(st.session_state.q_lat, st.session_state.q_lon),
                             zoom=14, height=380, use_container_width=True)
-            leyenda_mapa()
+            leyenda_mapa(n_perd=len(_zona_perd), n_av=len(_zona_av))
             if out and out.get("last_clicked"):
                 nlat = round(out["last_clicked"]["lat"], 4)
                 nlng = round(out["last_clicked"]["lng"], 4)
@@ -2568,15 +2597,17 @@ if page == "publicar":
                                  f"{st.session_state.get(f'addr_in_{_pe}', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
             from folium.plugins import MarkerCluster as _MC
+            _reg_perd = dbmod.get_active_opuestos(con, "found")
+            _reg_av = dbmod.get_active_opuestos(con, "lost")
             _cl_perd = _MC(name="Perdidos").add_to(fmap)
-            for _c in dbmod.get_active_opuestos(con, "found"):
+            for _c in _reg_perd:
                 folium.Marker(
                     [_c["location"]["lat"], _c["location"]["lng"]],
                     tooltip=_c["id"],
                     popup=folium.Popup(popup_html(_c), max_width=260),
                     icon=folium.Icon(color=pin_color(_c))).add_to(_cl_perd)
             _cl_av = _MC(name="Avistamientos").add_to(fmap)
-            for _c in dbmod.get_active_opuestos(con, "lost"):
+            for _c in _reg_av:
                 folium.Marker(
                     [_c["location"]["lat"], _c["location"]["lng"]],
                     tooltip=_c["id"],
@@ -2586,7 +2617,7 @@ if page == "publicar":
                             center=(st.session_state[f"reg_lat_{_pe}"],
                                     st.session_state[f"reg_lon_{_pe}"]),
                             zoom=14, height=380, use_container_width=True)
-            leyenda_mapa()
+            leyenda_mapa(n_perd=len(_reg_perd), n_av=len(_reg_av))
             if out and out.get("last_clicked"):
                 st.session_state[f"reg_lat_{_pe}"] = round(out["last_clicked"]["lat"], 4)
                 st.session_state[f"reg_lon_{_pe}"] = round(out["last_clicked"]["lng"], 4)

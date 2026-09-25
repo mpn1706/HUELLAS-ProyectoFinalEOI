@@ -539,6 +539,31 @@ def build_check_html() -> str:
     )
 
 
+def build_leyenda_html(mostrar_perdidos: bool = True, mostrar_avist: bool = True,
+                       n_perd=None, n_av=None) -> str:
+    """Franja de leyenda del mapa, con conteos opcionales. Pura y testeada."""
+    piezas = ['<span><span style="display:inline-block;width:12px;height:12px;'
+              'border-radius:50%;background:#E30613;margin-right:.35rem;"></span>TU CASO</span>']
+    if mostrar_perdidos:
+        txt = f"PERDIDOS ({int(n_perd)})" if n_perd is not None else "PERDIDOS"
+        piezas.append('<span><span style="display:inline-block;width:12px;height:12px;'
+                      'border-radius:50%;background:#3388FF;margin-right:.35rem;"></span>'
+                      f'{txt}</span>')
+    if mostrar_avist:
+        txt = f"AVISTAMIENTOS ({int(n_av)})" if n_av is not None else "AVISTAMIENTOS"
+        piezas.append('<span><span style="display:inline-block;width:12px;height:12px;'
+                      'border-radius:50%;background:#35AC46;margin-right:.35rem;"></span>'
+                      f'{txt}</span>')
+    piezas.append('<span style="font-weight:400;">PULSA CADA CHINCHETA PARA VER FOTO '
+                  'Y DIRECCIÓN.</span>')
+    return (
+        '<div style="background:#23201B;border-radius:10px;padding:.45rem .9rem;'
+        'color:#FFFFFF;font-weight:700;font-size:.75rem;display:flex;gap:1.4rem;'
+        'flex-wrap:wrap;align-items:center;margin-top:.4rem;">'
+        + "".join(piezas) + '</div>'
+    )
+
+
 def build_counts_html(n_lost: int, n_found: int, n_reenc: int) -> str:
     """3 contadores blancos clicables (?page= → su pestaña). Sin contacto."""
     return (

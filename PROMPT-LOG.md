@@ -563,6 +563,16 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.32: `requirements.md` §35 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 63/63, smoke 9 páginas OK.
 
+## S101 — 25/09/2026 — Sidebar igualado + leyenda con conteos v1.33 (Muse Spark)
+- REQ-UI-85/86: claves en los 4 expanders + tabulación; perrito sin `<style>` con
+  CSS global (verificado salto activo); páginas grandes como fallback.
+- REQ-UI-87: `build_leyenda_html()` con conteos (test) y llamadas con `len()`.
+  Aclarado: los clusters agrupan chinchetas solapadas (clic para desplegar).
+- Falsa alarma instructiva: buscaba `.perro-salto` con punto (es keyframes, sin
+  punto); el CSS estaba bien.
+- Specs v1.33: `requirements.md` §36 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 64/64, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

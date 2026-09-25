@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 from ui_home import (
     badge_lateral_html,
     build_bars_html,
+    build_leyenda_html,
     build_cerrado_card_html,
     build_fiesta_html,
     build_revision_html,
@@ -108,6 +109,15 @@ def test_reencuentro_builders():
     assert "huellas-spinner" in c4 and "huellas-heart" not in c4
     assert "huellas-lluvia" not in c4
     assert titulo_corto({"animal": "dog", "color_primary": "marrón"}) == "Perro · marrón"
+
+
+def test_leyenda_con_conteos_y_sin_contacto():
+    from ui_home import build_leyenda_html
+    out = build_leyenda_html(True, True, 6, 13)
+    assert "PERDIDOS (6)" in out and "AVISTAMIENTOS (13)" in out
+    assert "TU CASO" in out and "contact" not in out.lower()
+    out2 = build_leyenda_html(True, False, 6, 13)
+    assert "PERDIDOS (6)" in out2 and "AVISTAMIENTOS" not in out2
 
 
 def test_radar_y_scan():
