@@ -428,6 +428,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   CSS: la demo siempre está instaurada (auto-carga al arrancar); limpiar = avisar.
   Sidebar de 5 elementos. Sin borrado a un clic: el wipe era irreversible.
 
+## 37. Sidebar rematado + pie admin (v1.34 25/09/2026, solo UI)
+
+- REQ-UI-88 — Publicar aviso otra vez negro (una edición había roto su selector).
+- REQ-UI-89 — Cuadros de Cómo puntúa compactos (sin solapes en el panel).
+- REQ-UI-90 — Protectoras/Tiempo inline con contraste (fondo claro) y perrito por
+  iframe probado (el SVG por markdown no renderiza: sale como texto).
+- REQ-UI-91 — Pie de admin tras divisor: avistamientos 7 días + urgentes ≥7 días,
+  badge verde pulsante "Estado del Servicio: Activo (Jerez)" e Instagram/paypal.
+
 ## 30. Velo visible + reencuentro completo (v1.27 25/09/2026, solo UI)
 
 - REQ-UI-71 — Velo de contadores sin `!important` en `opacity` (la base con

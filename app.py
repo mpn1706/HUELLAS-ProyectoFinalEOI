@@ -925,15 +925,6 @@ def toggle_top(nombre: str):
     st.session_state.top_panel = None if st.session_state.get("top_panel") == nombre else nombre
 
 
-def perro_side_html(modo: str, noche: bool = False) -> str:
-    """Perro sin bloque <style> (el CSS vive global): apto para el sidebar.
-
-    `st.markdown` no traga <style>+<svg> juntos (S53); el iframe tampoco cabe
-    en el panel. Así el SVG usa las clases globales y cabe a lo ancho.
-    """
-    return perro_html(modo, noche=noche).split("</style>", 1)[1]
-
-
 # ── Cabecera (si hay logo con wordmark, no se duplica el título) ──
 if LOGO:
     hc1, hc2 = st.columns([2, 5], vertical_alignment="center")
@@ -1151,7 +1142,22 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-exp_mas2 {
   margin-left:1.25rem !important;
 }
-[data-testid="stSidebar"] .st-key-nav_protectoras button,
+/* Contenido claro en Protectoras/Tiempo (contraste sobre el panel oscuro). */
+[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stVerticalBlock"],
+[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stVerticalBlock"] {
+  background:#FFFFFF !important;
+  border-radius:8px !important;
+  padding:.5rem .6rem !important;
+}
+[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stMarkdownContainer"] p {
+  color:#23201B !important;
+}
+[data-testid="stSidebar"] .st-key-exp_mas1 small,
+[data-testid="stSidebar"] .st-key-exp_mas2 small {
+  color:#57503F !important;
+}
+[data-testid="stSidebar"] .st-key-nav_publicar_side button,
 [data-testid="stSidebar"] .st-key-nav_buscar_side button,
 [data-testid="stSidebar"] .st-key-nav_protectoras button,
 [data-testid="stSidebar"] .st-key-nav_tiempo button {
@@ -1512,6 +1518,9 @@ div[class*="st-key-b_buscar"] button { position:relative; }
 .huellas-dot { display:inline-block; width:9px; height:9px; border-radius:50%;
   background:#E30613; margin-right:.35rem;
   animation:huellas-dot 1.2s ease-in-out infinite; }
+.huellas-dotv { display:inline-block; width:10px; height:10px; border-radius:50%;
+  background:#35AC46; margin-right:.4rem;
+  animation:huellas-dot 1.6s ease-in-out infinite; }
 @keyframes huellas-dot {
   0%,100% { transform:scale(1); opacity:1; }
   50% { transform:scale(1.5); opacity:.55; }
@@ -1598,26 +1607,6 @@ div[class*="st-key-re_notif"] button { position:relative; }
 .huellas-marca.ambar { background:#E8A100; color:#23201B; }
 .huellas-cerrado-pie { color:#57503F; font-size:.8rem; margin-top:.4rem; }
 .huellas-vacio-heart { text-align:center; margin:.4rem 0; }
-/* Perro del tiempo (mismo SVG global, también en el sidebar). */
-.perro-wrap { text-align:center; }
-.perro-wrap svg { max-width:100%; height:auto; }
-.perro-svg { animation:perro-salto 1.6s ease-in-out infinite; }
-.perro-svg.frio { animation:perro-tiritona 0.25s linear infinite; }
-.perro-cola { transform-origin:30px 78px; animation:perro-cola 0.5s ease-in-out infinite alternate; }
-.perro-svg.triste .perro-cola { animation:none; }
-@keyframes perro-cola { from { transform:rotate(-18deg); } to { transform:rotate(24deg); } }
-@keyframes perro-salto { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
-@keyframes perro-tiritona { 0%,100% { transform:translateX(-2px); } 50% { transform:translateX(2px); } }
-.lengua { animation:perro-lengua 0.8s ease-in-out infinite alternate; transform-origin:104px 88px; }
-@keyframes perro-lengua { from { transform:scaleY(1); } to { transform:scaleY(1.35); } }
-.lluvia { animation:perro-lluvia 0.9s linear infinite; }
-.l2 { animation-delay:0.3s; } .l3 { animation-delay:0.6s; }
-@keyframes perro-lluvia { from { transform:translateY(-6px); opacity:0; } 30% { opacity:1; } to { transform:translateY(14px); opacity:0; } }
-.viento { stroke-dasharray:14 12; animation:perro-viento 0.9s linear infinite; }
-.v2 { animation-delay:0.3s; } .v3 { animation-delay:0.6s; }
-@keyframes perro-viento { to { stroke-dashoffset:-52; } }
-.twinkle { animation:perro-tw 1.8s ease-in-out infinite alternate; }
-@keyframes perro-tw { from { opacity:0.25; } to { opacity:1; } }
 /* Guardar como aviso: rebote suave continuo. */
 div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out infinite; }
 @keyframes huellas-bob {
@@ -1647,7 +1636,7 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-dots span, .huellas-match-card, .huellas-strip, .huellas-ringfill,
   .huellas-trazo, .huellas-boli, .huellas-radar::before, .huellas-ping,
   .huellas-res, .huellas-res-top::after, .huellas-pindrop, .huellas-pinring,
-  .huellas-dot, .huellas-pinok, .huellas-flash, .huellas-flecha,
+  .huellas-dot, .huellas-dotv, .huellas-pinok, .huellas-flash, .huellas-flecha,
   div[class*="st-key-ir_publicar"] button,
   .huellas-okcheck circle, .huellas-okcheck path,
   div[class*="st-key-confirm_pub"] button,
@@ -1657,8 +1646,6 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
   .huellas-nodo, .huellas-sello { opacity:1 !important; }
   .huellas-tl-linea { transform:scaleX(1) !important; }
-  .perro-svg, .perro-cola, .lengua, .lluvia, .viento, .twinkle {
-    animation:none !important; }
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
   .huellas-trazo { stroke-dashoffset:0 !important; }
@@ -1923,21 +1910,23 @@ with st.sidebar:
             st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
             u1, u2 = st.columns(2)
             with u1:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;'
+                            'margin-bottom:.5rem;">'
                             '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
             with u2:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;'
+                            'margin-bottom:.5rem;">'
                             '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
             u3, u4 = st.columns(2)
             with u3:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;">'
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;">'
                             'RADIO<br>15 KM</div>', unsafe_allow_html=True)
             with u4:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;">'
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;">'
                             'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
         with st.expander("Aviso legal", expanded=False, key="exp_punt2"):
             st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
@@ -1952,11 +1941,12 @@ with st.sidebar:
                 st.caption(f"{_p['direccion']} · {_p['contacto']}")
         with st.expander("Tiempo en Jerez", key="exp_mas2"):
             try:
+                import streamlit.components.v1 as _comp
+
                 _td = get_tiempo()
                 _cur = _td.get("current") or {}
                 _w, _modo = estado_perro(_td)
-                st.markdown(perro_side_html(_modo, es_de_noche(_td)),
-                            unsafe_allow_html=True)
+                _comp.html(perro_html(_modo, es_de_noche(_td)), height=150)
                 st.markdown(f"**{WMO_ES.get(_cur.get('weather_code', 0), '—')} · "
                             f"{(_cur.get('temperature_2m') or 0):.0f}º · {_w}**")
                 st.caption(f"Viento {(_cur.get('wind_speed_10m') or 0):.0f} km/h · Jerez")
@@ -2159,6 +2149,36 @@ with st.sidebar:
                 if loga.exists():
                     with st.expander("Ver registro de administración"):
                         st.code(loga.read_text(encoding="utf-8")[-2000:])
+                st.divider()
+                st.markdown("**Métricas rápidas**")
+                try:
+                    from datetime import datetime as _dtm, timedelta as _tdl
+
+                    _hace7 = (_dtm.now().astimezone() - _tdl(days=7)).isoformat()
+                    _n_sem = con.execute(
+                        "SELECT COUNT(*) FROM avisos WHERE type='found' "
+                        "AND status='active' AND date_reported >= ?",
+                        (_hace7,)).fetchone()[0]
+                    _todas_lost = [dbmod.get_aviso(con, r["id"]) for r in
+                                   con.execute("SELECT id FROM avisos WHERE status='active'"
+                                               " AND type='lost'").fetchall()]
+                    _urg = sum(1 for _a in _todas_lost if _a and dias_perdido(
+                        _a.get("date_last_seen"), _a.get("date_reported")) >= 7)
+                except Exception:
+                    _n_sem, _urg = 0, 0
+                stat_box(_n_sem, "Avistamientos 7 días", mini=True)
+                stat_box(_urg, "Casos urgentes ≥7 días", mini=True)
+                st.markdown(
+                    '<div style="margin-top:.5rem;">'
+                    '<span class="huellas-dotv"></span>'
+                    '<span style="font-weight:800;font-size:.8rem;">'
+                    'Estado del Servicio: Activo (Jerez)</span></div>',
+                    unsafe_allow_html=True)
+                st.markdown("**Soporte**")
+                st.markdown("[Instagram @mariop.17](https://instagram.com/mariop.17)")
+                st.markdown("[Aporta para mantener los servidores]"
+                            "(https://paypal.me/mariop1706)")
+                st.caption("PayPal donaciones: paypal.me/mariop1706")
 
 page = st.session_state.get("page", "inicio")
 
