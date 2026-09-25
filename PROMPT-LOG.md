@@ -451,6 +451,18 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.20: `requirements.md` §23 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 59/59, smoke 9 páginas OK, demo_check E2E OK.
 
+## S88 — 25/09/2026 — Misma pestaña, atrás, fechas admin e insignia XL v1.21 (Muse Spark)
+- REQ-UI-43: `target="_self"` en carrusel y contadores (si el navegador lo respeta,
+  misma pestaña; si no, el deep-link igual aterriza en el aviso).
+- REQ-UI-44: `?s=` por navegación + `sync_page_from_url()` (sustituye a
+  `handle_counts_click()`; `?page=` migra solo; `?aviso=` no interfiere vía flag).
+  Honesto: el atrás funciona si el navegador reacciona al historial; si no, todo
+  queda igual que antes (sin regresión posible: la sesión manda en empates).
+- REQ-UI-45: admin edita fechas ISO (valida `validate_aviso`, con traza en el log).
+- REQ-UI-46: insignia 1.6rem + flecha 110px.
+- Specs v1.21: `requirements.md` §24 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 59/59, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

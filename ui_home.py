@@ -410,13 +410,13 @@ def build_counts_html(n_lost: int, n_found: int, n_reenc: int) -> str:
     """3 contadores blancos clicables (?page= → su pestaña). Sin contacto."""
     return (
         '<div class="huellas-counts">'
-        f'<a class="huellas-count-link" href="?page=perdidos">'
+        f'<a class="huellas-count-link" href="?page=perdidos" target="_self">'
         f'<div class="huellas-count"><div class="huellas-count-v">{int(n_lost)}</div>'
         '<div class="huellas-count-l">perdidos activos</div></div></a>'
-        f'<a class="huellas-count-link" href="?page=encontrados">'
+        f'<a class="huellas-count-link" href="?page=encontrados" target="_self">'
         f'<div class="huellas-count"><div class="huellas-count-v">{int(n_found)}</div>'
         '<div class="huellas-count-l">avistamientos</div></div></a>'
-        f'<a class="huellas-count-link" href="?page=reencuentro">'
+        f'<a class="huellas-count-link" href="?page=reencuentro" target="_self">'
         f'<div class="huellas-count"><div class="huellas-count-v">{int(n_reenc)}</div>'
         '<div class="huellas-count-l">reencuentros</div></div></a>'
         '</div>'
@@ -452,7 +452,9 @@ def build_carousel_html(cards: list) -> str:
             foto = f'<div class="huellas-cd-ph" aria-hidden="true">{inicial}</div>'
         cls_et = "perd" if et.lower().startswith("perd") else "avis"
         piezas.append(
-            f'<a class="huellas-cd-link" href="?aviso={cid}">'
+            # target=_self: misma pestaña si el navegador lo respeta (si no,
+            # el enlace igual aterriza directo en el aviso en pestaña nueva).
+            f'<a class="huellas-cd-link" href="?aviso={cid}" target="_self">'
             f'<div class="huellas-cd"><div class="huellas-cd-img">{foto}</div>'
             f'<div class="huellas-cd-b"><div class="huellas-cd-t">{titulo}</div>'
             f'<div class="huellas-cd-z">{zona}</div>'

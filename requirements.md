@@ -356,6 +356,18 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-42 — Mapas: se indica clicar 2 veces para fijar el punto (verificado por
   el alumno: con una no basta).
 
+## 24. Misma pestaña, atrás, fechas admin e insignia XL (v1.21 25/09/2026, solo UI)
+
+- REQ-UI-43 — Carrusel y contadores con `target="_self"`: misma pestaña si el
+  navegador lo respeta; si Streamlit fuerza pestaña nueva, el enlace igual aterriza
+  directo en el aviso (`?aviso=`).
+- REQ-UI-44 — Historial del navegador: cada sección queda reflejada en `?s=` y
+  `sync_page_from_url()` adopta la URL (atrás/adelante y deep-links); `?page=`
+  antiguo migra solo; `?aviso=` sigue siendo de un solo uso sin interferir.
+- REQ-UI-45 — El admin edita `date_reported` y `date_last_seen` (texto ISO, validado
+  por `validate_aviso`, con traza) para ajustar la demo (p. ej. el chip semáforo).
+- REQ-UI-46 — Insignia lateral XL (1.6rem) con flecha grande (110px).
+
 ## 20. Boli en el hueco + imagen admin contenida (v1.17 25/09/2026, solo UI)
 
 - REQ-UI-24 — Al subir foto en Publicar, la columna izquierda crece y deja hueco abajo

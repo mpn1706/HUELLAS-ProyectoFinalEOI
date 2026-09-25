@@ -892,9 +892,14 @@ if "page" not in st.session_state:
     st.session_state.page = "inicio"
 
 
+_PAGES = ("inicio", "buscar", "perdidos", "encontrados", "reencuentro",
+          "publicar", "protectoras", "tiempo", "legal")
+
+
 def nav_to(dest: str):
     # Cambio de sección sin perder filtros: solo cambia la página y limpia el resaltado.
     # Mantiene FUNCIONALIDADES abierta para tener inicio/funciones siempre a mano.
+    # Refleja la sección en ?s= para que el botón atrás del navegador pueda volver.
     st.session_state.page = dest
     st.session_state.pop("destacar_id", None)
     st.session_state["side_func"] = True
@@ -904,6 +909,10 @@ def nav_to(dest: str):
                 del st.query_params[_k]
         except Exception:
             pass
+    try:
+        st.query_params["s"] = dest
+    except Exception:
+        pass
 
 
 # Secciones abiertas por defecto (el resto, plegadas).
@@ -920,6 +929,10 @@ def ir_a_caso(aviso_id: str, tipo: str):
     st.session_state.destacar_id = aviso_id
     st.session_state.page = "perdidos" if tipo == "lost" else "encontrados"
     st.session_state["side_func"] = True
+    try:
+        st.query_params["s"] = st.session_state.page
+    except Exception:
+        pass
 
 
 def ir_a_publicar_con(q: dict, lado: str):
@@ -939,6 +952,10 @@ def ir_a_publicar_con(q: dict, lado: str):
     st.session_state.pub_init = False
     st.session_state.page = "publicar"
     st.session_state["side_func"] = True
+    try:
+        st.query_params["s"] = "publicar"
+    except Exception:
+        pass
 
 
 def tarjeta_destacada(aid: str) -> bool:
@@ -1230,17 +1247,17 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   animation:huellas-scan 1.5s ease-in-out 1 both; }
 @keyframes huellas-scan { from { top:0; } to { top:calc(100% - 3px); } }
 .huellas-analizada { display:inline-block; font-weight:800;
-  font-size:1.25rem; color:#23201B; background:#FFFFFF;
-  border:2px solid #35AC46; border-radius:10px; padding:.7rem 1.4rem;
+  font-size:1.6rem; color:#23201B; background:#FFFFFF;
+  border:2px solid #35AC46; border-radius:10px; padding:.9rem 1.8rem;
   position:relative; overflow:hidden;
   opacity:0; animation:huellas-fadein .4s ease 1.5s 1 both; }
 /* Flecha roja hacia la foto (con leve impulso) + destello dentro de la insignia. */
-.huellas-flecha { display:inline-block; width:70px; height:4px; background:#E30613;
-  border-radius:2px; margin-right:.9rem; position:relative;
+.huellas-flecha { display:inline-block; width:110px; height:6px; background:#E30613;
+  border-radius:3px; margin-right:1.1rem; position:relative;
   animation:huellas-nudge 1.8s ease-in-out infinite; }
-.huellas-flecha::before { content:""; position:absolute; left:-2px; top:50%;
-  transform:translateY(-50%); border-right:12px solid #E30613;
-  border-top:8px solid transparent; border-bottom:8px solid transparent; }
+.huellas-flecha::before { content:""; position:absolute; left:-3px; top:50%;
+  transform:translateY(-50%); border-right:18px solid #E30613;
+  border-top:12px solid transparent; border-bottom:12px solid transparent; }
 @keyframes huellas-nudge {
   0%,100% { transform:translateX(0); }
   50% { transform:translateX(-8px); }
@@ -1537,6 +1554,7 @@ def handle_carousel_click(con) -> None:
     if a and a.get("type") in ("lost", "found"):
         st.session_state.destacar_id = aid
         st.session_state.page = "perdidos" if a["type"] == "lost" else "encontrados"
+        st.session_state["_aviso_nav"] = True
         st.rerun()
 
 
@@ -1547,24 +1565,34 @@ _PAGE_ALIAS = {
 }
 
 
-def handle_counts_click() -> None:
-    """Clic en contador (?page=perdidos|encontrados|reencuentro) → su pestaña."""
+def sync_page_from_url() -> None:
+    """El botón atrás/adelante y los deep-links (?s= / ?page=) mandan en la sección.
+
+    Sin ?s= ni ?page= no hace nada (la sesión manda). Tras saltar a un aviso
+    (?aviso=) no interfiere: ese handler ya consumió su clave y marcó el flag.
+    """
+    if st.session_state.pop("_aviso_nav", False):
+        return
     try:
         qp = st.query_params
-        if "page" not in qp:
-            return
-        dest = _PAGE_ALIAS.get(str(qp["page"]))
     except Exception:
         return
-    if not dest:
-        return
+    dest = None
     try:
-        del st.query_params["page"]
+        if "s" in qp and str(qp["s"]) in _PAGES:
+            dest = str(qp["s"])
+        elif "page" in qp and str(qp["page"]) in _PAGE_ALIAS:
+            dest = _PAGE_ALIAS[str(qp["page"])]
+            try:
+                st.query_params["s"] = dest
+                del st.query_params["page"]
+            except Exception:
+                pass
     except Exception:
-        pass
-    st.session_state.page = dest
-    st.session_state.pop("destacar_id", None)
-    st.rerun()
+        return
+    if dest and dest != st.session_state.get("page"):
+        st.session_state.page = dest
+        st.session_state.pop("destacar_id", None)
 
 
 def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
@@ -1664,7 +1692,7 @@ def render_legal() -> None:
 # ── UI Inicio: CSS + clics del carrusel (?aviso=) y contadores (?page=) ──
 inject_ui_css(st.session_state.get("page", "inicio"))
 handle_carousel_click(con)
-handle_counts_click()
+sync_page_from_url()
 
 # ── Barra lateral (REQ-UI-02 v1.4): 6 elementos en orden ─────────────
 with st.sidebar:
@@ -1840,6 +1868,12 @@ with st.sidebar:
                                                     index=["active", "resolved", "expired"].index(a["status"]),
                                                     key=f"e_st_{a['id']}",
                                                     format_func=lambda s: ESTADO_ES.get(s, s))
+                            e_rep = st.text_input("Fecha reporte (ISO)",
+                                                  value=a.get("date_reported") or "",
+                                                  key=f"e_rp_{a['id']}")
+                            e_seen = st.text_input("Visto por última vez (ISO, vacío=ninguna)",
+                                                   value=a.get("date_last_seen") or "",
+                                                   key=f"e_ls_{a['id']}")
                             if st.button("Guardar cambios", key=f"e_sv_{a['id']}", type="primary"):
                                 try:
                                     from agents.ingestor import validate_aviso
@@ -1853,7 +1887,9 @@ with st.sidebar:
                                         "markings": [m.strip().lower() for m in e_marks.split(",") if m.strip()],
                                         "size": e_size, "has_collar": bool(e_collar),
                                         "collar_description": e_collar_d.strip() or None,
-                                        "description_text": e_desc.strip(), "status": e_status})
+                                        "description_text": e_desc.strip(), "status": e_status,
+                                        "date_reported": e_rep.strip(),
+                                        "date_last_seen": e_seen.strip() or None})
                                     nuevo["location"] = dict(a.get("location") or {},
                                                              address_text=e_addr.strip() or None)
                                     errs = validate_aviso(nuevo)
@@ -1862,7 +1898,8 @@ with st.sidebar:
                                     else:
                                         campos = ("type", "animal", "breed_guess", "color_primary",
                                                   "color_secondary", "markings", "size", "has_collar",
-                                                  "collar_description", "description_text", "status")
+                                                  "collar_description", "description_text", "status",
+                                                  "date_reported", "date_last_seen")
                                         cambiados = [k for k in campos if nuevo.get(k) != a.get(k)]
                                         if (nuevo.get("location") or {}).get("address_text") != (
                                                 a.get("location") or {}).get("address_text"):

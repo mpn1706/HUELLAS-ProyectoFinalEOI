@@ -50,6 +50,7 @@ def test_html_no_incluye_contacto_ni_telefono():
     assert "contact" not in out.lower()
     assert "?aviso=t_01" in out and "?aviso=t_02" in out
     assert "Perdido" in out and "Avistado" in out
+    assert 'target="_self"' in out
 
 
 def test_html_vacio_invita_a_publicar():
@@ -81,3 +82,4 @@ def test_counts_con_links_y_sin_contacto():
     assert ">5<" in out and ">11<" in out and ">0<" in out
     assert "perdidos activos" in out and "avistamientos" in out and "reencuentros" in out
     assert "contact" not in out.lower()
+    assert out.count('target="_self"') == 3
