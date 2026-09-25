@@ -32,6 +32,14 @@ def test_faltantes_color_y_desc():
     assert "color principal" in f and "descripción" in f
 
 
+def test_fmt_corta():
+    from datetime import datetime
+    from ui_home import fmt_corta
+    assert fmt_corta(datetime(2026, 9, 25, 10, 0)) == "25/09/26"
+    assert fmt_corta("2026-08-25T12:00:00+02:00") == "25/08/26"
+    assert fmt_corta(None) == "—"
+
+
 def test_match_card_con_porcentaje_y_sin_contacto():
     out = build_match_card_html("found_011", 0.843)
     assert "found_011" in out

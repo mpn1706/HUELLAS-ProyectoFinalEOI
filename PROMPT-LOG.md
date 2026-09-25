@@ -431,6 +431,19 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Verificación: pytest 58/58 (nuevo `tests/test_buscar_ui.py`), smoke 9 páginas OK,
   demo_check E2E OK.
 
+## S86 — 25/09/2026 — Pulido Buscar/Publicar/Perdidos v1.19 (Muse Spark)
+- REQ-UI-35: "Foto lista" lateral + flash verde en ambas (builder compartido).
+- REQ-UI-36: seed con fechas 25/08–25/09 (semilla fija, pareja E2E intacta, SEED v7) y
+  formato DD/MM/AA (`fmt_corta()`); la regeneración había pisado 9 contactos S65,
+  recuperados de git al dict `CONTACTOS`.
+- REQ-UI-37: leyenda + chinchetas en el mapa de Publicar.
+- REQ-UI-38: fix del crash al clicar (`q_addr_pending` antes del widget) + cachés 30 d.
+- REQ-UI-39: contacto con `<details>` (abre/cierra fluido sin rerun; verificado open
+  18px y cierre en Edge; la lectura intermedia era tiempo virtual headless).
+- Specs v1.19: `requirements.md` §22 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 59/59, smoke 9 páginas OK, demo_check E2E OK
+  (found_011 top-1 84.3% ≥80%).
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

@@ -17,9 +17,9 @@
     "lng": -6.13173,
     "address_text": "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera"
   },
-  "date_reported": "2026-09-19T09:00:00+02:00",
-  "date_last_seen": "2026-09-18T20:00:00+02:00",
-  "image_url": "data/seed/images/lost_004.jpg",
+  "date_reported": "2026-09-01T12:00:00+02:00",
+  "date_last_seen": "2026-08-31T18:00:00+02:00",
+  "image_url": "data/seed/images/gato 4.jpg",
   "image_embedding": null,
   "contact_info": "marcos.soto.8390@gmail.com",
   "status": "active"

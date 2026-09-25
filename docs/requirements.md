@@ -332,6 +332,21 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-34 — Avistamientos: mismo contacto bajo demanda y "Nuevo"; chip neutro
   "Visto hace N días" en vez del de urgencia.
 
+## 22. Pulido Buscar/Publicar/Perdidos (v1.19 25/09/2026, solo UI)
+
+- REQ-UI-35 — "Foto lista" en grande a la derecha de la foto (fila flex, como en
+  Publicar) + relleno verde parpadeante consistente en ambas miniaturas
+  (`.huellas-flash`, infinito suave).
+- REQ-UI-36 — Fechas del seed aleatorias reproducibles entre el 25/08 y el 25/09
+  (`make_seed.py` con semilla; la pareja E2E conserva las suyas) + `SEED_VERSION` 7;
+  formato de muestra siempre DD/MM/AA (`fmt_corta()`, la BD sigue en ISO).
+- REQ-UI-37 — Leyenda y chinchetas (ambos lados) también en el mapa de Publicar.
+- REQ-UI-38 — Fix mapa Buscar: la dirección del clic se aplica ANTES de instanciar el
+  widget (clave `q_addr_pending`; asignarla después reventaba) + caché 30 días en
+  geocodificado directo e inverso (el mapa ya no se arrastra por la red).
+- REQ-UI-39 — Contacto con `<details>` nativo: abre y recoge fluido (transición de
+  filas 300 ms reversible) sin rerun; el resumén alterna Ver/Ocultar solo con CSS.
+
 ## 20. Boli en el hueco + imagen admin contenida (v1.17 25/09/2026, solo UI)
 
 - REQ-UI-24 — Al subir foto en Publicar, la columna izquierda crece y deja hueco abajo

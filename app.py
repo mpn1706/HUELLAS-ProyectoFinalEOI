@@ -37,11 +37,12 @@ from ui_home import (
     build_result_card_html,
     chip_dias_perdido,
     chip_visto,
-    contacto_html,
+    contacto_details_html,
     dias_perdido,
     es_nuevo,
     faltantes_buscar,
     faltantes_publicar,
+    fmt_corta,
     make_carousel_thumb,
     nuevo_html,
     select_carousel_items,
@@ -387,12 +388,11 @@ def vista_previa_scan(foto):
     raw = foto.getvalue()
     mime = "image/png" if raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
     b64 = base64.b64encode(raw).decode()
-    nombre = _html.escape(getattr(foto, "name", "tu foto"), quote=False)
     st.markdown(
-        f'<div class="huellas-scanrow"><div class="huellas-scan">'
-        f'<img src="data:{mime};base64,{b64}" alt="{nombre}">'
-        '<div class="huellas-scanline"></div></div>'
-        '<div class="huellas-scanbadge">'
+        f'<div class="huellas-scanrow">'
+        + build_foto_scan_html(f"data:{mime};base64,{b64}",
+                               getattr(foto, "name", "tu foto"))
+        + '<div class="huellas-scanbadge">'
         '<span class="huellas-analizada">Foto analizada</span></div></div>',
         unsafe_allow_html=True)
 
@@ -526,18 +526,8 @@ def linea_chips_avist(a: dict):
 
 
 def bloque_contacto(a: dict):
-    """Contacto oculto: botón que lo despliega con transición (nunca visible)."""
-    vc = st.session_state.get("ver_contacto") or {}
-    if vc.get(a["id"]):
-        st.markdown(contacto_html(a.get("contact_info")), unsafe_allow_html=True)
-        if st.button("Ocultar contacto", key=f"vc_no_{a['id']}"):
-            vc.pop(a["id"], None)
-            st.session_state.ver_contacto = vc
-            st.rerun()
-    elif st.button("Ver contacto", key=f"vc_si_{a['id']}"):
-        vc[a["id"]] = True
-        st.session_state.ver_contacto = vc
-        st.rerun()
+    """Contacto oculto tras <details> nativo: fluido al abrir y al cerrar."""
+    st.markdown(contacto_details_html(a.get("contact_info")), unsafe_allow_html=True)
 
 
 def aplicar_filtros(lista: list, pref: str) -> list:
@@ -672,10 +662,12 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
         st.caption(f"Mapa no disponible ({e}).")
 
 
+@st.cache_data(ttl=86400 * 30, show_spinner=False)
 def geocode_nominatim(q: str):
     """Calle/número → (lat, lng, nombre) vía Nominatim OSM con sesgo a Jerez.
 
     Sin dependencias ni claves. Devuelve None si no hay red o no se encuentra.
+    Cache 30 días (las direcciones no cambian; evita re-llamar al recargar).
     """
     import json as _json
     import urllib.parse
@@ -685,17 +677,22 @@ def geocode_nominatim(q: str):
         {"q": q, "format": "json", "limit": 1,
          "viewbox": "-6.25,36.75,-6.00,36.60", "bounded": 0}))
     req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
-    with urllib.request.urlopen(req, timeout=8) as r:
-        data = _json.loads(r.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = _json.loads(r.read().decode("utf-8"))
+    except Exception:
+        return None
     if not data:
         return None
     return float(data[0]["lat"]), float(data[0]["lon"]), data[0].get("display_name", q)
 
 
+@st.cache_data(ttl=86400 * 30, show_spinner=False)
 def reverse_geocode_nominatim(lat: float, lng: float):
     """Coords → dirección legible vía Nominatim OSM (para autocompletar al clicar).
 
     Sin dependencias ni claves. Devuelve None si no hay red o no se encuentra.
+    Cache 30 días: cada punto solo viaja a la red una vez (el mapa va fluido).
     """
     import urllib.parse
     import urllib.request
@@ -704,8 +701,11 @@ def reverse_geocode_nominatim(lat: float, lng: float):
     url = ("https://nominatim.openstreetmap.org/reverse?" + urllib.parse.urlencode(
         {"lat": lat, "lon": lng, "format": "json"}))
     req = urllib.request.Request(url, headers={"User-Agent": "HUELLAS-EOI-MVP/1.0"})
-    with urllib.request.urlopen(req, timeout=8) as r:
-        data = _json.loads(r.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = _json.loads(r.read().decode("utf-8"))
+    except Exception:
+        return None
     return data.get("display_name")
 
 
@@ -1233,6 +1233,11 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   font-size:1rem; color:#23201B; background:#FFFFFF;
   border:2px solid #35AC46; border-radius:10px; padding:.5rem 1rem;
   opacity:0; animation:huellas-fadein .4s ease 1.5s 1 both; }
+/* Relleno verde parpadeante sobre la miniatura (ambas fotos, consistente). */
+.huellas-flash { position:absolute; inset:0; background:rgba(53,172,70,.22);
+  opacity:0; pointer-events:none;
+  animation:huellas-flash 1.6s ease-in-out infinite alternate; }
+@keyframes huellas-flash { from { opacity:0; } to { opacity:1; } }
 /* Fila imagen + etiqueta a la derecha (aprovecha el hueco lateral). */
 .huellas-scanrow { display:flex; gap:.7rem; align-items:flex-start; flex-wrap:wrap;
   margin-bottom:.6rem; }
@@ -1396,11 +1401,22 @@ div[class*="st-key-b_buscar"] button { position:relative; }
   0%,100% { transform:scale(1); opacity:1; }
   50% { transform:scale(1.5); opacity:.55; }
 }
-.huellas-contacto { overflow:hidden; animation:huellas-expand .3s ease-out both; }
-@keyframes huellas-expand {
-  from { max-height:0; opacity:0; }
-  to { max-height:120px; opacity:1; }
-}
+.huellas-details summary { cursor:pointer; font-weight:700; color:#23201B;
+  list-style:none; }
+.huellas-details summary::-webkit-details-marker { display:none; }
+.huellas-details summary::before { content:""; display:inline-block; width:0;
+  height:0; margin-right:.45rem; border-left:8px solid #E30613;
+  border-top:5px solid transparent; border-bottom:5px solid transparent;
+  transition:transform .3s ease-out; }
+.huellas-details[open] summary::before { transform:rotate(90deg); }
+.huellas-details .mas { display:inline; }
+.huellas-details .menos { display:none; }
+.huellas-details[open] .mas { display:none; }
+.huellas-details[open] .menos { display:inline; }
+.huellas-details .huellas-slide { display:grid; grid-template-rows:0fr;
+  transition:grid-template-rows .3s ease-out; }
+.huellas-details[open] .huellas-slide { grid-template-rows:1fr; }
+.huellas-slide > div { overflow:hidden; }
 /* Guardar como aviso: rebote suave continuo. */
 div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out infinite; }
 @keyframes huellas-bob {
@@ -1429,7 +1445,7 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-dots span, .huellas-match-card, .huellas-strip, .huellas-ringfill,
   .huellas-trazo, .huellas-boli, .huellas-radar::before, .huellas-ping,
   .huellas-res, .huellas-res-top::after, .huellas-pindrop, .huellas-pinring,
-  .huellas-dot, .huellas-pinok,
+  .huellas-dot, .huellas-pinok, .huellas-flash,
   div[class*="st-key-ir_publicar"] button,
   .huellas-okcheck circle, .huellas-okcheck path,
   div[class*="st-key-confirm_pub"] button,
@@ -1438,6 +1454,8 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
   .huellas-trazo { stroke-dashoffset:0 !important; }
+  .huellas-details .huellas-slide,
+  .huellas-details summary::before { transition:none !important; }
   .huellas-analizada, .huellas-okcheck circle,
   .huellas-okcheck path { opacity:1 !important; }
   .huellas-okcheck circle, .huellas-okcheck path { stroke-dashoffset:0 !important; }
@@ -1920,9 +1938,13 @@ if page == "buscar":
         _raw = foto_b.getvalue()
         _mime = "image/png" if _raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
         _uri = f"data:{_mime};base64," + _b64.b64encode(_raw).decode()
-        st.markdown(build_foto_scan_html(
-            _uri, getattr(foto_b, "name", "tu foto"), "Foto lista", esquinas=True),
-            unsafe_allow_html=True)
+        st.markdown('<div class="huellas-scanrow">'
+                    + build_foto_scan_html(
+                        _uri, getattr(foto_b, "name", "tu foto"), None,
+                        esquinas=True)
+                    + '<div class="huellas-scanbadge">'
+                    '<span class="huellas-analizada">Foto lista</span></div></div>',
+                    unsafe_allow_html=True)
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
 
@@ -1930,6 +1952,10 @@ if page == "buscar":
     with st.container(border=True):
         if "q_lat" not in st.session_state:
             st.session_state.q_lat, st.session_state.q_lon = 36.6826, -6.1376
+        if "q_addr_pending" in st.session_state:
+            # La dirección del clic se aplica ANTES de instanciar el widget
+            # (asignarla después revienta con DuplicateWidgetID).
+            st.session_state.q_addr_in = st.session_state.pop("q_addr_pending")
         q_addr = st.text_input("Calle, número y zona", value="Centro, Jerez", key="q_addr_in")
         if st.button("Buscar dirección en el mapa", key="q_geocode"):
             res = geocode_nominatim(q_addr)
@@ -1984,7 +2010,7 @@ if page == "buscar":
                     st.session_state.q_pin_nuevo = True
                     rev = reverse_geocode_nominatim(nlat, nlng)
                     if rev:
-                        st.session_state.q_addr_in = rev[:120]
+                        st.session_state.q_addr_pending = rev[:120]
                     st.rerun()
             if st.session_state.pop("q_pin_nuevo", False):
                 # La chincheta "cae" con rebote + anillo pulsante del radio.
@@ -2177,7 +2203,7 @@ if page == "perdidos":
                     linea_chips_perdido(a)
                     st.write(a["description_text"])
                     st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
-                    st.write(f"- Visto: {effective_date(a).date()}")
+                    st.write(f"- Visto: {fmt_corta(effective_date(a))}")
                     st.write(f"- {a['location'].get('address_text', '')}")
                     bloque_contacto(a)
 
@@ -2203,7 +2229,7 @@ if page == "encontrados":
                     linea_chips_avist(a)
                     st.write(a["description_text"])
                     st.write(f"- Collar: {'sí' if a['has_collar'] else 'no'}")
-                    st.write(f"- Visto: {effective_date(a).date()}")
+                    st.write(f"- Visto: {fmt_corta(effective_date(a))}")
                     st.write(f"- {a['location'].get('address_text', '')}")
                     bloque_contacto(a)
 
@@ -2296,10 +2322,29 @@ if page == "publicar":
 
             fmap = folium.Map(location=[st.session_state.reg_lat, st.session_state.reg_lon], zoom_start=14)
             folium.Marker([st.session_state.reg_lat, st.session_state.reg_lon],
+                          tooltip="TU PUNTO",
+                          popup=("TU PUNTO · "
+                                 f"{st.session_state.get('addr_in', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
+            from folium.plugins import MarkerCluster as _MC
+            _cl_perd = _MC(name="Perdidos").add_to(fmap)
+            for _c in dbmod.get_active_opuestos(con, "found"):
+                folium.Marker(
+                    [_c["location"]["lat"], _c["location"]["lng"]],
+                    tooltip=_c["id"],
+                    popup=folium.Popup(popup_html(_c), max_width=260),
+                    icon=folium.Icon(color=pin_color(_c))).add_to(_cl_perd)
+            _cl_av = _MC(name="Avistamientos").add_to(fmap)
+            for _c in dbmod.get_active_opuestos(con, "lost"):
+                folium.Marker(
+                    [_c["location"]["lat"], _c["location"]["lng"]],
+                    tooltip=_c["id"],
+                    popup=folium.Popup(popup_html(_c), max_width=260),
+                    icon=folium.Icon(color=pin_color(_c))).add_to(_cl_av)
             out = st_folium(fmap, key="reg_map",
                             center=(st.session_state.reg_lat, st.session_state.reg_lon),
                             zoom=14, height=380, use_container_width=True)
+            leyenda_mapa()
             if out and out.get("last_clicked"):
                 st.session_state.reg_lat = round(out["last_clicked"]["lat"], 4)
                 st.session_state.reg_lon = round(out["last_clicked"]["lng"], 4)

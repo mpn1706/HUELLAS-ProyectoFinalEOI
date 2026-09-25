@@ -237,7 +237,7 @@ def build_radar_html() -> str:
 
 def build_foto_scan_html(data_uri: str, alt: str = "foto",
                          etiqueta=None, esquinas: bool = False) -> str:
-    """Miniatura con línea de escaneo; esquinas de encuadre + etiqueta opcionales."""
+    """Miniatura con escaneo + relleno verde parpadeante; esquinas y etiqueta opcionales."""
     uri_esc = _html.escape(str(data_uri or ""), quote=True)
     alt_esc = _html.escape(str(alt or "foto"), quote=False)
     extra = ('<i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i>'
@@ -248,7 +248,7 @@ def build_foto_scan_html(data_uri: str, alt: str = "foto",
         etiqueta_html = f'<div><span class="huellas-analizada">{et_esc}</span></div>'
     return (
         f'<div class="huellas-scan"><img src="{uri_esc}" alt="{alt_esc}">{extra}'
-        '<div class="huellas-scanline"></div></div>'
+        '<div class="huellas-scanline"></div><div class="huellas-flash"></div></div>'
         f'{etiqueta_html}'
     )
 
@@ -270,6 +270,23 @@ def faltantes_buscar(lado=None, foto_ok: bool = False, animal="",
     if not (desc or "").strip():
         faltan.append("descripción")
     return faltan
+
+
+def fmt_corta(dt) -> str:
+    """Fecha para mostrar en formato DD/MM/AA (25/09/26). Robusta."""
+    from datetime import datetime
+
+    if dt is None:
+        return "—"
+    if isinstance(dt, str):
+        try:
+            dt = datetime.fromisoformat(dt)
+        except ValueError:
+            return dt[:10]
+    try:
+        return dt.strftime("%d/%m/%y")
+    except Exception:
+        return str(dt)
 
 
 def _eff_dt(iso_last, iso_rep):
@@ -335,10 +352,16 @@ def nuevo_html() -> str:
     return '<span class="huellas-nuevo"><span class="huellas-dot"></span>Nuevo</span>'
 
 
-def contacto_html(info: str) -> str:
-    """Línea de contacto escapada con despliegue de altura (300 ms)."""
+def contacto_details_html(info: str) -> str:
+    """Contacto tras <details> nativo: despliega y recoge fluido, sin rerun.
+
+    El resumén alterna "Ver/Ocultar contacto" solo con CSS.
+    """
     txt = _html.escape(str(info or "Sin contacto registrado."), quote=False)
-    return f'<div class="huellas-contacto">- Contacto: {txt}</div>'
+    return ('<details class="huellas-details"><summary>'
+            '<span class="mas">Ver contacto</span>'
+            '<span class="menos">Ocultar contacto</span></summary>'
+            f'<div class="huellas-slide"><div>- Contacto: {txt}</div></div></details>')
 
 
 def build_pen_html() -> str:

@@ -5,6 +5,8 @@ ubicación exacta reciclada del pool validado (Nominatim, S28).
 Trazable a REQ-03.8.
 """
 import json
+import random
+from datetime import date, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,12 +19,21 @@ IMG = ROOT / "data" / "seed" / "images"
 # Contacto por aviso: teléfonos variados en algunos, vacío en el resto.
 CONTACTOS = {
     "lost_001.json": "610 204 518",
+    "lost_002.json": "lucia.chapin.2741@gmail.com",
     "lost_003.json": "656 903 274",
+    "lost_004.json": "marcos.soto.8390@gmail.com",
     "lost_005.json": "682 417 930",
+    "lost_006.json": "carmen.gris.5517@gmail.com",
     "found_001.json": "617 552 086",
+    "found_002.json": "pepe.avista.1974@gmail.com",
+    "found_003.json": "ana.torres.6682@gmail.com",
     "found_004.json": "699 318 442",
+    "found_005.json": "david.luna.3409@gmail.com",
+    "found_006.json": "sara.vega.7128@gmail.com",
     "found_007.json": "640 771 295",
+    "found_008.json": "juan.palacios.9045@gmail.com",
     "found_009.json": "674 025 638",
+    "found_010.json": "elena.mora.1236@gmail.com",
     "found_011.json": "619 884 203",
 }
 A = [
@@ -81,17 +92,28 @@ A = [
 
 
 def main():
+    # Fechas aleatorias reproducibles entre el 25/08 y el 25/09 (S86). La pareja
+    # E2E (lost_001/found_011) conserva sus fechas para no romper la demo.
+    random.seed(20260925)
+    d0, d1 = date(2026, 8, 25), date(2026, 9, 25)
+    fijas = {"lost_001", "found_011"}
     for d in (LOST, FOUND, IMG):
         d.mkdir(parents=True, exist_ok=True)
     for (fn, tipo, animal, breed, c1, c2, marks, size, collar, collar_d, desc,
          lat, lng, addr, rep, seen, img, status) in A:
         folder = LOST if tipo == "lost" else FOUND
-        doc = {"id": fn.replace(".json", ""), "type": tipo, "animal": animal,
+        aid = fn.replace(".json", "")
+        if aid not in fijas:
+            rep_d = d0 + timedelta(days=random.randint(0, (d1 - d0).days))
+            rep = f"{rep_d.isoformat()}T12:00:00+02:00"
+            seen = (f"{max(d0, rep_d - timedelta(days=1)).isoformat()}T18:00:00+02:00"
+                    if tipo == "lost" else None)
+        doc = {"id": aid, "type": tipo, "animal": animal,
                "breed_guess": breed, "color_primary": c1, "color_secondary": c2,
                "markings": marks, "size": size, "has_collar": collar,
                "collar_description": collar_d, "description_text": desc,
                "location": {"lat": lat, "lng": lng, "address_text": addr},
-                "date_reported": rep, "date_last_seen": seen,
+               "date_reported": rep, "date_last_seen": seen,
                 "image_url": f"data/seed/images/{img}", "image_embedding": None,
                 "contact_info": CONTACTOS.get(fn, ""), "status": status}
         (folder / fn).write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")

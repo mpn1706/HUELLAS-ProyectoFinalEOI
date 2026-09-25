@@ -8,7 +8,7 @@ from ui_home import (
     build_result_card_html,
     chip_dias_perdido,
     chip_visto,
-    contacto_html,
+    contacto_details_html,
     dias_perdido,
     es_nuevo,
     faltantes_buscar,
@@ -59,13 +59,13 @@ def test_bars_cuatro_y_valores():
     assert out.count("huellas-barfill") == 4
 
 
-def test_contacto_escapado_y_sin_contacto():
-    out = contacto_html("610 204 518")
-    assert "610 204 518" in out and "huellas-contacto" in out
-    assert contacto_html("<b>x</b>") == ('<div class="huellas-contacto">- Contacto: '
-                                         '&lt;b&gt;x&lt;/b&gt;</div>')
-    assert "Sin contacto registrado" in contacto_html("")
-    assert "610" not in contacto_html("")
+def test_contacto_details_escapado_y_alternancia():
+    out = contacto_details_html("610 204 518")
+    assert "610 204 518" in out and "<details" in out and "<summary>" in out
+    assert "Ver contacto" in out and "Ocultar contacto" in out
+    assert "&lt;b&gt;x&lt;/b&gt;" in contacto_details_html("<b>x</b>")
+    assert "Sin contacto registrado" in contacto_details_html("")
+    assert "610" not in contacto_details_html("")
 
 
 def test_radar_y_scan():
@@ -74,6 +74,8 @@ def test_radar_y_scan():
     s = build_foto_scan_html("data:image/jpeg;base64,AAA", "mi foto",
                              "Foto lista", esquinas=True)
     assert "huellas-scanline" in s and "Foto lista" in s
+    assert "huellas-flash" in s
     assert s.count('<i class="c') == 4
     s2 = build_foto_scan_html("data:image/jpeg;base64,AAA")
     assert '<i class="c' not in s2 and "huellas-analizada" not in s2
+    assert "huellas-flash" in s2
