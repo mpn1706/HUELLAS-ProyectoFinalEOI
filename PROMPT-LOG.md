@@ -484,6 +484,15 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.23: `requirements.md` §26 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 60/60, smoke 9 páginas OK, demo_check E2E OK.
 
+## S91 — 25/09/2026 — Casos con lluvia/ruleta + nota v1.24 (Muse Spark)
+- REQ-UI-59/60/61: lluvia (8 corazones) vs ruleta por estado, tarjeta translúcida,
+  nota bajo especie·color (parámetro `nota` + `estado` en el builder).
+- Visión: verificado con datos que NO hay azar — seed intacto, CLIP local, top-1
+  correctos en ambos espacios (lost_001→found_011 84.3/71.1%, lost_003→found_003).
+  Lo de `marr�n` era artefacto del comparador, no del seed.
+- Specs v1.24: `requirements.md` §27 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 60/60, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

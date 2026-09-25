@@ -430,9 +430,12 @@ def build_fiesta_html() -> str:
 
 def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
                             idx: int = 0, marca=None,
-                            marca_clase: str = "verde", pie=None) -> str:
-    """Tarjeta de caso (cerrado o en revisión): marca, foto, 'Especie · color',
-    línea de estado, pie interior y corazón latiendo."""
+                            marca_clase: str = "verde", pie=None, nota=None,
+                            estado: str = "cerrada") -> str:
+    """Tarjeta de caso: marca, foto, 'Especie · color', nota, estado y pie.
+
+    Cerrada: llueven corazones + corazón latiendo. En revisión: solo ruleta.
+    """
     titulo_e = _html.escape(str(titulo), quote=False)
     dias_e = _html.escape(str(dias_txt), quote=False)
     uri = str(foto_uri or "")
@@ -447,24 +450,44 @@ def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
         mc = "".join(c if c.isalnum() else "" for c in str(marca_clase)) or "verde"
         marca_html = (f'<div><span class="huellas-marca {mc}">'
                       f'{_html.escape(str(marca), quote=False)}</span></div>')
+    nota_html = ""
+    if (nota or "").strip():
+        nota_html = (f'<div class="huellas-cerrado-nota">'
+                     f'{_html.escape(str(nota).strip(), quote=False)}</div>')
     pie_html = ""
     if pie:
         pie_html = (f'<div class="huellas-cerrado-pie">'
                     f'{_html.escape(str(pie), quote=False)}</div>')
+    if estado == "revision":
+        final = '<div class="huellas-spinner"></div>'
+        lluvia = ""
+    else:
+        corazones = "".join(
+            f'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" '
+            f'style="left:{5 + i * 11}%;animation-delay:{i * 0.45:.2f}s">'
+            '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 '
+            '2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 '
+            '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 '
+            '21.35z" fill="#E30613"/></svg>'
+            for i in range(8))
+        lluvia = f'<div class="huellas-lluvia">{corazones}</div>'
+        final = ('<svg class="huellas-heart" viewBox="0 0 24 24" width="26" height="26" '
+                 'aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 '
+                 '2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 '
+                 '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" '
+                 'fill="#E30613"/></svg>')
     retraso = max(0, int(idx)) * 0.08
     return (
         f'<div class="huellas-res" style="animation-delay:{retraso:.2f}s">'
         '<div class="huellas-cerrado">'
+        f'{lluvia}'
         f'{marca_html}'
         f'<div class="huellas-cerrado-img">{foto}</div>'
         f'<div class="huellas-cerrado-t">{titulo_e}</div>'
+        f'{nota_html}'
         f'<div class="huellas-cerrado-d">{dias_e}</div>'
         f'{pie_html}'
-        '<svg class="huellas-heart" viewBox="0 0 24 24" width="26" height="26" '
-        'aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 '
-        '2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 '
-        '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" '
-        'fill="#E30613"/></svg>'
+        f'{final}'
         '</div></div>'
     )
 

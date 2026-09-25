@@ -94,6 +94,14 @@ def test_reencuentro_builders():
                                  marca="En revisión", marca_clase="ambar",
                                  pie="Resuelve lost_002")
     assert "huellas-marca ambar" in c2 and "Resuelve lost_002" in c2
+    c3 = build_cerrado_card_html("", "Gato · naranja", "Volvió a casa", 0,
+                                 nota="Apareció en casa", estado="cerrada")
+    assert "huellas-lluvia" in c3 and "Apareció en casa" in c3
+    assert c3.index("Apareció en casa") < c3.index("Volvió a casa")
+    c4 = build_cerrado_card_html("", "Gato · naranja", "En revisión", 0,
+                                 estado="revision")
+    assert "huellas-spinner" in c4 and "huellas-heart" not in c4
+    assert "huellas-lluvia" not in c4
     assert titulo_corto({"animal": "dog", "color_primary": "marrón"}) == "Perro · marrón"
 
 

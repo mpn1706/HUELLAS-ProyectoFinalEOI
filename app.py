@@ -1523,9 +1523,25 @@ div[class*="st-key-re_notif"] button { position:relative; }
   60% { opacity:1; transform:scale(1) rotate(-8deg); }
   100% { opacity:1; transform:scale(1) rotate(-8deg); }
 }
-/* Tarjeta de caso cerrado. */
-.huellas-cerrado { background:#FFFFFF; border:2px solid #23201B;
-  border-radius:12px; padding:1rem; text-align:center; }
+/* Tarjeta de caso cerrado (translúcida: se ve el fondo de la web). */
+.huellas-cerrado { background:rgba(255,255,255,0.55); border:2px solid #23201B;
+  border-radius:12px; padding:1rem; text-align:center;
+  position:relative; overflow:hidden; }
+.huellas-cerrado-nota { font-style:italic; color:#57503F; font-size:.9rem;
+  margin-top:.3rem; }
+/* Lluvia de corazones en casos cerrados. */
+.huellas-lluvia { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.huellas-lluvia svg { position:absolute; top:-26px;
+  animation:huellas-llueve 3.4s linear infinite; }
+@keyframes huellas-llueve {
+  from { transform:translateY(-30px) rotate(-10deg); opacity:0; }
+  12% { opacity:.9; }
+  to { transform:translateY(340px) rotate(14deg); opacity:0; }
+}
+/* Ruleta de carga en casos en revisión. */
+.huellas-spinner { width:26px; height:26px; margin:.2rem auto;
+  border-radius:50%; border:4px solid #E8E0D2; border-top-color:#E30613;
+  animation:huellas-spin 1s linear infinite; }
 .huellas-cerrado-img img { width:100%; max-width:300px; border-radius:8px; }
 .huellas-cerrado-t { font-family:'Montserrat','Inter',sans-serif; font-weight:800;
   color:#23201B; font-size:1.05rem; margin-top:.5rem; }
@@ -1577,6 +1593,8 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
   .huellas-trazo { stroke-dashoffset:0 !important; }
+  .huellas-lluvia { display:none !important; }
+  .huellas-spinner { animation:none !important; }
   .huellas-details .huellas-slide,
   .huellas-details summary::before { transition:none !important; }
   .huellas-analizada, .huellas-okcheck circle,
@@ -2706,10 +2724,9 @@ if page == "reencuentro":
                     _dias = "Reencuentro cerrado"
                 st.markdown(build_cerrado_card_html(
                     _uri, _tit, _dias, base + j, marca="Caso cerrado",
-                    pie=f"Resuelve {', '.join(r['aviso_ids'])}"),
+                    pie=f"Resuelve {', '.join(r['aviso_ids'])}",
+                    nota=r["nota"], estado="cerrada"),
                     unsafe_allow_html=True)
-                if r["nota"]:
-                    st.write(r["nota"])
     for r in pendientes:
         _av0, _uri = _datos_caso(con, r)
         _tit = titulo_corto(_av0) if _av0 else "Aviso"
@@ -2717,10 +2734,9 @@ if page == "reencuentro":
             st.markdown(build_cerrado_card_html(
                 _uri, _tit, "En revisión por el administrador", 0,
                 marca="En revisión", marca_clase="ambar",
-                pie=f"Resuelve {', '.join(r['aviso_ids'])}"),
+                pie=f"Resuelve {', '.join(r['aviso_ids'])}",
+                nota=r["nota"], estado="revision"),
                 unsafe_allow_html=True)
-            if r["nota"]:
-                st.write(r["nota"])
             if len(r["fotos"]) > 1:
                 fcols = st.columns(min(3, len(r["fotos"]) - 1))
                 for fc, fp in zip(fcols, r["fotos"][1:4]):

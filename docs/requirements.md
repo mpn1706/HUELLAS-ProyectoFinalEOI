@@ -375,6 +375,14 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-55 — Vacío: corazón latiendo + "Aún no hay reencuentros. Sé el primero
   en cerrar un caso."
 
+## 27. Casos con lluvia/ruleta + nota (v1.24 25/09/2026, solo UI)
+
+- REQ-UI-59 — Cerrados con lluvia de corazones (8, escalonados) + corazón latiendo;
+  en revisión solo ruleta de carga (sin corazón).
+- REQ-UI-60 — Tarjeta translúcida (`rgba(255,255,255,0.55)`, se ve el fondo).
+- REQ-UI-61 — La nota del reencuentro va justo bajo "Especie · color" (dentro de
+  la tarjeta, en cursiva).
+
 ## 26. Reencuentros visibles + cerrados en fila (v1.23 25/09/2026, solo UI)
 
 - REQ-UI-56 — Vista previa de los avisos elegidos bajo cada multiselect (miniaturas;
