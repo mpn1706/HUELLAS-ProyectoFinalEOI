@@ -431,6 +431,15 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Verificación: pytest 58/58 (nuevo `tests/test_buscar_ui.py`), smoke 9 páginas OK,
   demo_check E2E OK.
 
+## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
+- Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
+  el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError
+  no se cura hasta el reboot. Fix: `importlib.reload(_uh)` antes del `from ui_home
+  import` (con `try/except`, autocura en segundos).
+- Simulado en local: módulo viejo cacheado + fichero nuevo → sin reload falla,
+  con reload importa OK. Repo intacto tras la simulación (solo `M app.py`).
+- Verificación: syntax OK, pytest 58/58, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S82 — 25/09/2026 — Boli alto y translúcido (Muse Spark)
 - Boli en formato alto (`min-height:240px`, SVG 300×150 con trazos repartidos) y fondo
   translúcido (`rgba(255,255,255,0.45)`, se ve el patrón de la web).

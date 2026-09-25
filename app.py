@@ -16,6 +16,15 @@ from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
+import ui_home as _uh
+import importlib as _importlib
+try:
+    # Cloud: el pull trae ficheros nuevos sin reiniciar el proceso; el autoreload
+    # re-ejecuta este app.py nuevo con ui_home cacheado (viejo) y el ImportError
+    # se quedaba atascado hasta el reboot. Recargar a disco lo autocura.
+    _importlib.reload(_uh)
+except Exception:
+    pass
 from ui_home import (
     build_bars_html,
     build_carousel_html,
