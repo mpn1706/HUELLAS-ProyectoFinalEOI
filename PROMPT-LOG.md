@@ -631,6 +631,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Fuera el borde punteado de `.huellas-penwrap` (`border:none`): sin marco.
 - Verificación: smoke 9 páginas OK.
 
+## S109 — 25/09/2026 — Scan lado a lado + métricas frescas al publicar (Muse Spark)
+- La insignia FOTO ANALIZADA envolvía debajo de la foto en la columna estrecha de Publicar: `.huellas-scanrow` ahora `flex-wrap:nowrap` con foto flexible (máx. 240px), flecha corta (56px) e insignia compacta (implementa REQ-UI-21).
+- Las métricas (sidebar/inicio) se calculaban antes del alta y quedaban viejas tras publicar: ahora se guarda `pub_result`, se rota `pub_epoch` (formulario limpio, sin doble envío) y `st.rerun()`; el banner repite el resultado del cruce (éxito/tarjeta/Ver aviso o check/info) con descarte "Publicar otro aviso".
+- Verificación: pytest (incl. `test_publicar_scan.py` 3/3) + smoke 9 páginas OK.
+
 ## S108 — 25/09/2026 — Matching v1.40: visual manda + puerta foto idéntica (Muse Spark)
 - Queja del alumno con pantallazos: misma foto daba 73% (visual 100% pero texto 23% vetaba la alerta) y distintos perros daban visual alta (histograma de colores en Cloud, no identidad).
 - Pesos (decisión alumno): 0.55 visual + 0.25 texto + 0.10 temporal + 0.10 geo (`matcher.py`, spec §8 v1.40, `architecture.md` x2, `README.md`, sidebar). Descartado 0.60 visual: medido, la demo E2E caía a 0.798 <0.80.

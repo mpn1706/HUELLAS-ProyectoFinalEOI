@@ -1387,11 +1387,16 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   opacity:0; pointer-events:none;
   animation:huellas-flash 1.6s ease-in-out infinite alternate; }
 @keyframes huellas-flash { from { opacity:0; } to { opacity:1; } }
-/* Fila imagen + etiqueta a la derecha (aprovecha el hueco lateral). */
-.huellas-scanrow { display:flex; gap:.7rem; align-items:flex-start; flex-wrap:wrap;
+/* Fila imagen + etiqueta a la derecha (lado a lado, sin envolver: la
+   insignia NO baja debajo aunque la columna sea estrecha). */
+.huellas-scanrow { display:flex; gap:.7rem; align-items:center; flex-wrap:nowrap;
   margin-bottom:.6rem; }
-.huellas-scanbadge { display:flex; align-items:center; justify-content:center;
-  flex:1; align-self:stretch; }
+.huellas-scanrow .huellas-scan { flex:0 1 240px; min-width:0; max-width:240px; }
+.huellas-scanrow .huellas-scan img { width:100%; max-width:100%; }
+.huellas-scanrow .huellas-scanbadge { flex:1 1 auto; min-width:0; flex-wrap:nowrap;
+  display:flex; align-items:center; justify-content:center; align-self:stretch; }
+.huellas-scanrow .huellas-flecha { width:56px; flex:none; margin-right:.55rem; }
+.huellas-scanrow .huellas-analizada { font-size:1.05rem; padding:.55rem .9rem; }
 
 @keyframes huellas-fadein {
   from { opacity:0; transform:translateY(4px); }
@@ -2552,6 +2557,32 @@ if page == "encontrados":
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
     titulo_barrido("Publica un aviso de perdido o avistamiento")
+    # Banner del último aviso publicado (tras el rerun que refresca métricas):
+    # repite el resultado del cruce para no perderlo con la recarga.
+    _pub_res = st.session_state.get("pub_result")
+    if _pub_res:
+        st.success(f"Aviso `{_pub_res['aviso_id']}` publicado.")
+        if _pub_res.get("top_id"):
+            if not _pub_res.get("visto"):
+                celebrate_search()
+                _pub_res["visto"] = True
+            st.success(f"Cruce automático: {_pub_res['n']} alerta(s) ≥80%.")
+            st.markdown(build_match_card_html(_pub_res["top_id"], _pub_res["top_score"]),
+                        unsafe_allow_html=True)
+            st.button("Ver aviso y contactar", key=f"ver_co_{_pub_res['aviso_id']}_r",
+                      type="primary", use_container_width=True,
+                      on_click=ir_a_caso,
+                      args=(_pub_res["top_id"], _pub_res.get("top_tipo", "found")))
+        elif _pub_res.get("cruce_error"):
+            st.caption(f"Cruce automático no disponible ({_pub_res['cruce_error']}).")
+        else:
+            st.markdown(build_check_html(), unsafe_allow_html=True)
+            st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
+                    "Te avisaremos si aparece algo.")
+        if st.button("Publicar otro aviso", key="pub_otro"):
+            st.session_state.pop("pub_result", None)
+            st.rerun()
+        st.divider()
     # Los widgets se borran rotando la época (el navegador restaura valores
     # aunque se vacíe su clave: solo una clave nueva garantiza un campo limpio).
     _pe = st.session_state.get("pub_epoch", 0)
@@ -2761,27 +2792,26 @@ if page == "publicar":
                 cruce_box = None
                 if auto:
                     top = auto[0]
-                    st.success(f"Cruce automático: {len(auto)} alerta(s) ≥80%.")
-                    st.markdown(build_match_card_html(top["candidato_id"], top["score"]),
-                                unsafe_allow_html=True)
-                    celebrate_search()
                     _tc = dbmod.get_aviso(con, top["candidato_id"])
-                    st.button("Ver aviso y contactar", key=f"ver_co_{av['id']}",
-                              type="primary", use_container_width=True,
-                              on_click=ir_a_caso,
-                              args=(top["candidato_id"],
-                                    (_tc or {}).get("type", "found")))
+                    st.session_state.pub_result = {
+                        "aviso_id": av["id"], "n": len(auto),
+                        "top_id": top["candidato_id"], "top_score": top["score"],
+                        "top_tipo": (_tc or {}).get("type", "found")}
                 else:
-                    st.markdown(build_check_html(), unsafe_allow_html=True)
-                    st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
-                            "Te avisaremos si aparece algo.")
+                    st.session_state.pub_result = {"aviso_id": av["id"], "n": 0}
             except Exception as e:
                 try:
                     if cruce_box is not None:
                         cruce_box.empty()
                 except Exception:
                     pass
-                st.caption(f"Cruce automático no disponible ({e}).")
+                st.session_state.pub_result = {"aviso_id": av["id"],
+                                               "cruce_error": str(e)}
+            # Recarga: sidebar/inicio recalculan métricas con el aviso ya
+            # guardado; el banner de arriba repite el resultado del cruce.
+            # También rota la época: el formulario vuelve limpio (sin doble envío).
+            st.session_state.pub_epoch = _pe + 1
+            st.rerun()
         except Exception as e:
             st.error(f"Error: {e}")
 
