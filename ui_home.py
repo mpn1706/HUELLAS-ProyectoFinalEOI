@@ -290,13 +290,14 @@ _GATO_MARCHA = (
     '<path d="M32.5 6.5 L35 0 L37 6 Z" fill="{c}"/></svg>')
 
 
-def build_marcha_html() -> str:
+def build_marcha_html(invertida: bool = False) -> str:
     """Tira de gatitos y perritos trotando en fila (solo CSS, bucle infinito).
 
-    Miran a la derecha y avanzan hacia delante (`-50%→0`). Pista de 6
-    manadas (la mitad idéntica a la otra) para que nunca se vacíe ningún
-    lado aunque el sidebar sea ancho. Cada figura trota con retardo
-    escalonado. Paleta de la web: negro y rojo alternos.
+    Miran a la derecha y avanzan hacia delante (`-50%→0`). Con
+    `invertida=True` van hacia la izquierda (figuras espejadas, `0→-50%`).
+    Pista de 6 manadas (la mitad idéntica a la otra) para que nunca se
+    vacíe ningún lado aunque el sidebar sea ancho. Cada figura trota con
+    retardo escalonado. Paleta de la web: negro y rojo alternos.
     """
     manada = [(_PERRO_MARCHA.format(c="#23201B"), 0.0),
               (_GATO_MARCHA.format(c="#E30613"), 0.12),
@@ -306,7 +307,8 @@ def build_marcha_html() -> str:
         f'<span class="huellas-pet" style="animation-delay:{d}s">{svg}</span>'
         for svg, d in manada)
     mitad = pack * 3
-    return ('<div class="huellas-march" aria-hidden="true">'
+    cls = "huellas-march inv" if invertida else "huellas-march"
+    return (f'<div class="{cls}" aria-hidden="true">'
             f'<div class="huellas-track">{mitad}{mitad}</div></div>')
 
 

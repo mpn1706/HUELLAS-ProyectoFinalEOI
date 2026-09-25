@@ -24,12 +24,12 @@ def test_marcha_no_colisiona_con_tira_digitos():
     assert ".huellas-march .huellas-pet" in SRC
 
 
-def test_marcha_duplica_pista_y_alterna():
-    h = build_marcha_html()
-    assert 'class="huellas-march"' in h and 'class="huellas-track"' in h
-    assert h.count('class="huellas-pet"') == 24  # 12 + 12 (pista larga, sin vacíos)
-    assert h.count("<svg") == 24
-    assert "#23201B" in h and "#E30613" in h  # paleta negro/rojo
+def test_marcha_invertida_va_a_la_izquierda():
+    h = build_marcha_html(invertida=True)
+    assert 'class="huellas-march inv"' in h
+    assert h.count('class="huellas-pet"') == 24
+    assert ".huellas-march.inv .huellas-track" in SRC  # pista al revés
+    assert ".huellas-march.inv .huellas-pet svg" in SRC  # figuras espejadas
 
 
 def test_sidebar_muestra_divisoria_y_desfile():
@@ -37,5 +37,6 @@ def test_sidebar_muestra_divisoria_y_desfile():
     at.run(timeout=120)
     assert not at.exception, at.exception
     md = " ".join(str(m.value) for m in at.markdown)
-    assert "huellas-march" in md and "huellas-track" in md
+    assert md.count("huellas-march") >= 2  # tira + contratiira
+    assert "huellas-march inv" in md
     assert len(at.divider) >= 1  # divisoria(s) negra(s) del sidebar

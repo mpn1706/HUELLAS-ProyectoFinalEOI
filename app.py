@@ -1413,6 +1413,10 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 @keyframes huellas-trote {
   from { transform:translateY(0) rotate(-3deg); }
   to { transform:translateY(-3px) rotate(3deg); } }
+/* Segunda tira en sentido contrario: figuras espejadas (miran a la
+   izquierda) y pista al revés (`0→-50%`). */
+.huellas-march.inv .huellas-track { animation-direction:reverse; }
+.huellas-march.inv .huellas-pet svg { transform:scaleX(-1); }
 
 @keyframes huellas-fadein {
   from { opacity:0; transform:translateY(4px); }
@@ -2234,6 +2238,7 @@ with st.sidebar:
         unsafe_allow_html=True)
     st.divider()
     st.markdown(build_marcha_html(), unsafe_allow_html=True)
+    st.markdown(build_marcha_html(invertida=True), unsafe_allow_html=True)
 
 page = st.session_state.get("page", "inicio")
 
