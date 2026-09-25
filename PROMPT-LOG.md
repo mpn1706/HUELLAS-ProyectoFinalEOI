@@ -514,6 +514,15 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.26: `requirements.md` §29 + CU-05 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 62/62, smoke 9 páginas OK, demo_check E2E OK.
 
+## S95 — 25/09/2026 — Velo visible + reencuentro completo v1.27 (Muse Spark)
+- REQ-UI-71: el velo era invisible por `opacity:0 !important` en la base (S76
+  repetido); auditoría de todas las animaciones sin más casos; verificado en
+  Edge (opacidad 0.15→0.59).
+- REQ-UI-72: "Empezar de cero" + limpieza tras publicar + previews + par lado a
+  lado + doble foto en tarjetas + 20 corazones (verificado doble 220px).
+- Specs v1.27: `requirements.md` §30 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 62/62, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

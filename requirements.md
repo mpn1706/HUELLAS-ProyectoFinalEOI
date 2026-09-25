@@ -383,6 +383,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-61 — La nota del reencuentro va justo bajo "Especie · color" (dentro de
   la tarjeta, en cursiva).
 
+## 30. Velo visible + reencuentro completo (v1.27 25/09/2026, solo UI)
+
+- REQ-UI-71 — Velo de contadores sin `!important` en `opacity` (la base con
+  `!important` congelaba los keyframes: mismo bug S76; auditoría completa del CSS
+  sin más casos vivos).
+- REQ-UI-72 — Reencuentro: botón "Empezar de cero", limpieza total tras publicar,
+  vista previa de subidas y par aviso+foto lado a lado; tarjetas con ambas fotos
+  (aviso + prueba) y lluvia de 20 corazones.
+
 ## 29. Inicio vivo + expiración anual + lost_006 (v1.26 25/09/2026, solo UI)
 
 - REQ-UI-66 — Contadores de Inicio con velo rojo parpadeante (relleno rojo↔blanco a

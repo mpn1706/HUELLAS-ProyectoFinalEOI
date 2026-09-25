@@ -438,20 +438,23 @@ def build_fiesta_html() -> str:
 def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
                             idx: int = 0, marca=None,
                             marca_clase: str = "verde", pie=None, nota=None,
-                            estado: str = "cerrada") -> str:
-    """Tarjeta de caso: marca, foto, 'Especie · color', nota, estado y pie.
+                            estado: str = "cerrada", foto2_uri: str = "") -> str:
+    """Tarjeta de caso: marca, fotos lado a lado, 'Especie · color', nota y pie.
 
     Cerrada: llueven corazones + corazón latiendo. En revisión: solo ruleta.
+    `foto2_uri` (foto del aviso) va junto a la foto del reencuentro.
     """
     titulo_e = _html.escape(str(titulo), quote=False)
     dias_e = _html.escape(str(dias_txt), quote=False)
-    uri = str(foto_uri or "")
-    if uri.startswith("data:image"):
-        uri_esc = _html.escape(uri, quote=True)
-        foto = f'<img src="{uri_esc}" alt="{titulo_e}" loading="lazy">'
-    else:
+    def _foto(u: str) -> str:
+        u = str(u or "")
+        if u.startswith("data:image"):
+            return f'<img src="{_html.escape(u, quote=True)}" alt="{titulo_e}" loading="lazy">'
         inicial = _html.escape((titulo_e[:1] or "H").upper(), quote=False)
-        foto = f'<div class="huellas-cd-ph" aria-hidden="true">{inicial}</div>'
+        return f'<div class="huellas-cd-ph" aria-hidden="true">{inicial}</div>'
+
+    foto = _foto(foto_uri)
+    foto2 = _foto(foto2_uri) if str(foto2_uri or "") else ""
     marca_html = ""
     if marca:
         mc = "".join(c if c.isalnum() else "" for c in str(marca_clase)) or "verde"
@@ -470,13 +473,14 @@ def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
         lluvia = ""
     else:
         corazones = "".join(
-            f'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" '
-            f'style="left:{5 + i * 11}%;animation-delay:{i * 0.45:.2f}s">'
+            f'<svg viewBox="0 0 24 24" width="{14 + (i % 3) * 4}" '
+            f'height="{14 + (i % 3) * 4}" aria-hidden="true" '
+            f'style="left:{3 + (i * 53) % 88}%;animation-delay:{i * 0.22:.2f}s">'
             '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 '
             '2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 '
             '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 '
             '21.35z" fill="#E30613"/></svg>'
-            for i in range(8))
+            for i in range(20))
         lluvia = f'<div class="huellas-lluvia">{corazones}</div>'
         final = ('<svg class="huellas-heart" viewBox="0 0 24 24" width="26" height="26" '
                  'aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 '
@@ -484,12 +488,13 @@ def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
                  '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" '
                  'fill="#E30613"/></svg>')
     retraso = max(0, int(idx)) * 0.08
+    fotos_html = f'<div class="huellas-cerrado-imgs">{foto}{foto2}</div>'
     return (
         f'<div class="huellas-res" style="animation-delay:{retraso:.2f}s">'
         '<div class="huellas-cerrado">'
         f'{lluvia}'
         f'{marca_html}'
-        f'<div class="huellas-cerrado-img">{foto}</div>'
+        f'{fotos_html}'
         f'<div class="huellas-cerrado-t">{titulo_e}</div>'
         f'{nota_html}'
         f'<div class="huellas-cerrado-d">{dias_e}</div>'

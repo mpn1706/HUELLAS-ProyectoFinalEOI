@@ -90,6 +90,11 @@ def test_reencuentro_builders():
                                 "Volvió a casa tras 6 días", 1)
     assert "animation-delay:0.08s" in c and "huellas-heart" in c
     assert "Gato" in c and "contact" not in c.lower()
+    c5 = build_cerrado_card_html("data:image/jpeg;base64,AAA", "Gato · naranja",
+                                 "Volvió a casa", 0, foto2_uri="data:image/jpeg;base64,BBB")
+    assert "huellas-cerrado-imgs" in c5
+    assert c5.count("<img") == 2
+    assert c5.count("viewBox") == 21  # 20 lluvia + corazón
     c2 = build_cerrado_card_html("", "Gato · naranja", "En revisión", 0,
                                  marca="En revisión", marca_clase="ambar",
                                  pie="Resuelve lost_002")

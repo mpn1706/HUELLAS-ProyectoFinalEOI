@@ -567,7 +567,7 @@ def _prev_sel(ids: list, opts: list):
 
 
 def _datos_caso(con, r: dict):
-    """Primer aviso del caso + uri de su primera foto (para tarjetas)."""
+    """Primer aviso del caso + uri de su primera foto + uri del aviso (tarjetas)."""
     av0 = None
     for aid in r["aviso_ids"]:
         try:
@@ -581,7 +581,8 @@ def _datos_caso(con, r: dict):
         uri = thumb_uri(fp)
         if uri:
             break
-    return av0, uri
+    uri_av = thumb_uri(av0["image_url"]) if av0 else ""
+    return av0, uri, uri_av
 
 
 def aplicar_filtros(lista: list, pref: str) -> list:
@@ -1258,7 +1259,9 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   inset:0 !important;
   border-radius:8px !important;
   background:#E30613 !important;
-  opacity:0 !important;
+  /* SIN !important en opacity (la animan los keyframes): con !important la base
+     gana en la cascada y el velo quedaría invisible (S76 otra vez). */
+  opacity:0;
   animation:huellas-fillblink 1.8s ease-in-out infinite !important;
   pointer-events:none !important;
 }
@@ -1569,6 +1572,10 @@ div[class*="st-key-re_notif"] button { position:relative; }
   border-radius:50%; border:4px solid #E8E0D2; border-top-color:#E30613;
   animation:huellas-spin 1s linear infinite; }
 .huellas-cerrado-img img { width:100%; max-width:300px; border-radius:8px; }
+.huellas-cerrado-imgs { display:flex; gap:.6rem; justify-content:center;
+  align-items:center; flex-wrap:wrap; }
+.huellas-cerrado-imgs img { width:100%; max-width:220px; border-radius:8px; }
+.huellas-cerrado-imgs img:only-child { max-width:300px; }
 .huellas-cerrado-t { font-family:'Montserrat','Inter',sans-serif; font-weight:800;
   color:#23201B; font-size:1.05rem; margin-top:.5rem; }
 .huellas-cerrado-d { color:#57503F; margin:.2rem 0 .4rem; }
@@ -2728,6 +2735,26 @@ if page == "reencuentro":
                             placeholder="Ej. apareció en el portal de casa")
         fotos_r = st.file_uploader("Fotos del reencuentro", type=["jpg", "jpeg", "png"],
                                    accept_multiple_files=True, key="re_fotos")
+        if fotos_r:
+            _fp_cols = st.columns(min(3, len(fotos_r)))
+            for _fc, _f in zip(_fp_cols, fotos_r[:3]):
+                with _fc:
+                    st.image(_f, caption=getattr(_f, "name", "foto"), width=150)
+        _elegidos_ver = list(dict.fromkeys(list(sel_lost) + list(sel_found)))
+        _primer_ver = next((x for x in (perd_opts + found_opts)
+                            if x["id"] in _elegidos_ver), None)
+        if _primer_ver is not None and fotos_r:
+            c_a, c_b = st.columns(2)
+            with c_a:
+                show_image(_primer_ver["image_url"],
+                           caption=f"Su aviso · {_primer_ver['id']}", width=220)
+            with c_b:
+                st.image(fotos_r[0], caption="Su foto", width=220)
+    if st.button("Empezar de cero", key="re_limpiar"):
+        for _k in ("re_lost", "re_found", "re_nota", "re_fotos", "re_shake_n",
+                   "re_shake_pending", "re_faltan"):
+            st.session_state.pop(_k, None)
+        st.rerun()
     _re_n = st.session_state.get("re_shake_n", 0)
     if st.session_state.pop("re_shake_pending", False):
         st.markdown(SHAKE_RE_STYLE, unsafe_allow_html=True)
@@ -2759,6 +2786,8 @@ if page == "reencuentro":
                     guardadas.append(dest)
                 rid = dbmod.save_reencuentro(con, elegidos, guardadas, nota)
                 admmod.log_action(f"REENCUENTRO {rid} pendiente: {', '.join(elegidos)}")
+                for _k in ("re_lost", "re_found", "re_nota", "re_fotos"):
+                    st.session_state.pop(_k, None)
                 _dt = _tr.time() - _t0
                 if _dt < 1.5:
                     _tr.sleep(1.5 - _dt)
@@ -2796,7 +2825,7 @@ if page == "reencuentro":
         cols = st.columns(len(fila))
         for j, (col, r) in enumerate(zip(cols, fila)):
             with col:
-                _av0, _uri = _datos_caso(con, r)
+                _av0, _uri, _uri_av = _datos_caso(con, r)
                 _tit = titulo_corto(_av0) if _av0 else "Aviso"
                 if _av0:
                     _eff = _av0.get("date_last_seen") or _av0.get("date_reported")
@@ -2806,17 +2835,17 @@ if page == "reencuentro":
                 st.markdown(build_cerrado_card_html(
                     _uri, _tit, _dias, base + j, marca="Caso cerrado",
                     pie=f"Resuelve {', '.join(r['aviso_ids'])}",
-                    nota=r["nota"], estado="cerrada"),
+                    nota=r["nota"], estado="cerrada", foto2_uri=_uri_av),
                     unsafe_allow_html=True)
     for r in pendientes:
-        _av0, _uri = _datos_caso(con, r)
+        _av0, _uri, _uri_av = _datos_caso(con, r)
         _tit = titulo_corto(_av0) if _av0 else "Aviso"
         with st.container(border=True):
             st.markdown(build_cerrado_card_html(
                 _uri, _tit, "En revisión por el administrador", 0,
                 marca="En revisión", marca_clase="ambar",
                 pie=f"Resuelve {', '.join(r['aviso_ids'])}",
-                nota=r["nota"], estado="revision"),
+                nota=r["nota"], estado="revision", foto2_uri=_uri_av),
                 unsafe_allow_html=True)
             if len(r["fotos"]) > 1:
                 fcols = st.columns(min(3, len(r["fotos"]) - 1))
