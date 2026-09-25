@@ -1894,41 +1894,47 @@ with st.sidebar:
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_punt",))
     if st.session_state.get("side_punt", False):
-        _sp, _punt = st.columns([0.12, 0.88])
-        with _punt:
-            with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False):
-                st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
-                u1, u2 = st.columns(2)
-                with u1:
-                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                                'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                                '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
-                with u2:
-                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                                'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
-                                '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
-                u3, u4 = st.columns(2)
-                with u3:
-                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                                'text-align:center;color:#FFFFFF;font-weight:800;">'
-                                'RADIO<br>15 KM</div>', unsafe_allow_html=True)
-                with u4:
-                    st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
-                                'text-align:center;color:#FFFFFF;font-weight:800;">'
-                                'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
-            with st.expander("Aviso legal", expanded=False):
-                st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
-                         "Una imagen no permite confirmar la identidad, verifique en persona.")
+        with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False):
+            st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
+            u1, u2 = st.columns(2)
+            with u1:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                            '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
+            with u2:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;margin-bottom:.5rem;">'
+                            '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
+            u3, u4 = st.columns(2)
+            with u3:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;">'
+                            'RADIO<br>15 KM</div>', unsafe_allow_html=True)
+            with u4:
+                st.markdown('<div style="background:#000000;border-radius:8px;padding:.55rem .3rem;'
+                            'text-align:center;color:#FFFFFF;font-weight:800;">'
+                            'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
+        with st.expander("Aviso legal", expanded=False):
+            st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
+                     "Una imagen no permite confirmar la identidad, verifique en persona.")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_mas",))
     if st.session_state.get("side_mas", False):
-        st.button("Protectoras", key="nav_protectoras", icon=":material/pets:",
-                  use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("protectoras",))
-        st.button("Tiempo en Jerez", key="nav_tiempo", icon=":material/wb_sunny:",
-                  use_container_width=True, type="tertiary",
-                  on_click=nav_to, args=("tiempo",))
+        with st.expander("Protectoras"):
+            for _p in PERRERAS:
+                st.markdown(f"**{_p['nombre']}**")
+                st.caption(f"{_p['direccion']} · {_p['contacto']}")
+        with st.expander("Tiempo en Jerez"):
+            try:
+                _td = get_tiempo()
+                _cur = _td.get("current") or {}
+                _w, _ = estado_perro(_td)
+                st.markdown(f"**{WMO_ES.get(_cur.get('weather_code', 0), '—')} · "
+                            f"{(_cur.get('temperature_2m') or 0):.0f}º · {_w}**")
+                st.caption(f"Viento {(_cur.get('wind_speed_10m') or 0):.0f} km/h · Jerez")
+            except Exception as _e:
+                st.caption(f"No disponible ({_e}).")
     st.button("Administración", key="tgl_admin", icon=":material/key:",
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_admin",))
@@ -2521,7 +2527,7 @@ if page == "publicar":
                                 placeholder="Describe al animal: color, marcas, collar…")
             c1 = st.text_input("Color principal *", "", key=f"pub_color_{_pe}",
                                placeholder="Ej. marrón")
-            size = st.selectbox("Tamaño *", ["small", "medium", "large"], key="pub_size",
+            size = st.selectbox("Tamaño *", ["small", "medium", "large"], key=f"pub_size_{_pe}",
                                 index=None, placeholder="SELECCIONAR",
                                 format_func=lambda s: {"small": "Pequeño", "medium": "Mediano",
                                                        "large": "Grande"}.get(s, "SELECCIONAR"))

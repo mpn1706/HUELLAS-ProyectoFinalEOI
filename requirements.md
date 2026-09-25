@@ -406,6 +406,13 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   Reencuentro rotan con época (`pub_epoch`/`re_epoch`; el prefill escribe en la época
   vigente). Test AppTest con claves rotadas.
 
+## 35. Sidebar uniforme + MÁS desplegable (v1.32 25/09/2026, solo UI)
+
+- REQ-UI-83 — Puntualizaciones a todo ancho (fuera columnas 0.12/0.88): mismo tamaño
+  y expansión que el resto de secundarios.
+- REQ-UI-84 — Protectoras y Tiempo en Jerez como desplegables DENTRO del sidebar
+  (compactos, adaptados al panel), en vez de páginas grandes.
+
 ## 32. Sin Datos demo (v1.29 25/09/2026, solo UI)
 
 - REQ-UI-77 — Fuera `DATOS DEMO` del sidebar (botón + cargar seed + expirar) con su

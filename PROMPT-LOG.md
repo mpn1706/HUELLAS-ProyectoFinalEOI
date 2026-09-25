@@ -553,6 +553,16 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.31: `requirements.md` §34 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 63/63, smoke 9 páginas OK, demo_check E2E OK.
 
+## S100 — 25/09/2026 — Sidebar uniforme + MÁS desplegable v1.32 (Muse Spark)
+- REQ-UI-83: fuera columnas 0.12/0.88 en puntualizaciones (mismo ancho que el resto).
+- REQ-UI-84: protectoras/tiempo como expanders compactos en el sidebar (las páginas
+  grandes quedan como fallback por deep-link).
+- De paso: `pub_size` también con época (era la única clave del formulario sin rotar).
+- Aclarado: las capturas del alumno eran v1.30 (foto rota pero campos no = previo a
+  la época v1.31); retest con Ctrl+F5 tras redesplegar.
+- Specs v1.32: `requirements.md` §35 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 63/63, smoke 9 páginas OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError
