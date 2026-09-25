@@ -237,7 +237,7 @@ def build_radar_html() -> str:
 
 def build_foto_scan_html(data_uri: str, alt: str = "foto",
                          etiqueta=None, esquinas: bool = False) -> str:
-    """Miniatura con escaneo + relleno verde parpadeante; esquinas y etiqueta opcionales."""
+    """Miniatura con línea de escaneo; esquinas de encuadre + etiqueta opcionales."""
     uri_esc = _html.escape(str(data_uri or ""), quote=True)
     alt_esc = _html.escape(str(alt or "foto"), quote=False)
     extra = ('<i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i>'
@@ -248,9 +248,17 @@ def build_foto_scan_html(data_uri: str, alt: str = "foto",
         etiqueta_html = f'<div><span class="huellas-analizada">{et_esc}</span></div>'
     return (
         f'<div class="huellas-scan"><img src="{uri_esc}" alt="{alt_esc}">{extra}'
-        '<div class="huellas-scanline"></div><div class="huellas-flash"></div></div>'
+        '<div class="huellas-scanline"></div></div>'
         f'{etiqueta_html}'
     )
+
+
+def badge_lateral_html(texto: str) -> str:
+    """Insignia lateral grande con flecha a la foto y destello verde dentro."""
+    et = _html.escape(str(texto), quote=False)
+    return ('<div class="huellas-scanbadge"><span class="huellas-flecha"></span>'
+            f'<span class="huellas-analizada">{et}'
+            '<i class="huellas-flash"></i></span></div>')
 
 
 def faltantes_buscar(lado=None, foto_ok: bool = False, animal="",

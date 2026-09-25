@@ -2,6 +2,7 @@
 from datetime import date, datetime, timedelta, timezone
 
 from ui_home import (
+    badge_lateral_html,
     build_bars_html,
     build_foto_scan_html,
     build_radar_html,
@@ -74,8 +75,10 @@ def test_radar_y_scan():
     s = build_foto_scan_html("data:image/jpeg;base64,AAA", "mi foto",
                              "Foto lista", esquinas=True)
     assert "huellas-scanline" in s and "Foto lista" in s
-    assert "huellas-flash" in s
+    assert "huellas-flash" not in s
     assert s.count('<i class="c') == 4
     s2 = build_foto_scan_html("data:image/jpeg;base64,AAA")
     assert '<i class="c' not in s2 and "huellas-analizada" not in s2
-    assert "huellas-flash" in s2
+    b = badge_lateral_html("Foto lista")
+    assert "huellas-flecha" in b and "huellas-flash" in b and "Foto lista" in b
+    assert "contact" not in b.lower()

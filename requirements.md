@@ -347,6 +347,15 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-39 — Contacto con `<details>` nativo: abre y recoge fluido (transición de
   filas 300 ms reversible) sin rerun; el resumén alterna Ver/Ocultar solo con CSS.
 
+## 23. Insignia grande + destello + doble clic (v1.20 25/09/2026, solo UI)
+
+- REQ-UI-40 — "Foto lista" en grande a la derecha (como "Foto analizada"):
+  `badge_lateral_html()` con flecha roja hacia la foto (leve impulso) e insignia
+  mayor (1.25rem).
+- REQ-UI-41 — El destello verde vive DENTRO de las insignias (no sobre las fotos).
+- REQ-UI-42 — Mapas: se indica clicar 2 veces para fijar el punto (verificado por
+  el alumno: con una no basta).
+
 ## 20. Boli en el hueco + imagen admin contenida (v1.17 25/09/2026, solo UI)
 
 - REQ-UI-24 — Al subir foto en Publicar, la columna izquierda crece y deja hueco abajo

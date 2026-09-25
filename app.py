@@ -28,6 +28,7 @@ except Exception:
 from ui_home import (
     build_bars_html,
     build_carousel_html,
+    badge_lateral_html,
     build_check_html,
     build_crossing_html,
     build_foto_scan_html,
@@ -392,8 +393,7 @@ def vista_previa_scan(foto):
         f'<div class="huellas-scanrow">'
         + build_foto_scan_html(f"data:{mime};base64,{b64}",
                                getattr(foto, "name", "tu foto"))
-        + '<div class="huellas-scanbadge">'
-        '<span class="huellas-analizada">Foto analizada</span></div></div>',
+        + badge_lateral_html("Foto analizada") + '</div>',
         unsafe_allow_html=True)
 
 
@@ -1230,9 +1230,21 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   animation:huellas-scan 1.5s ease-in-out 1 both; }
 @keyframes huellas-scan { from { top:0; } to { top:calc(100% - 3px); } }
 .huellas-analizada { display:inline-block; font-weight:800;
-  font-size:1rem; color:#23201B; background:#FFFFFF;
-  border:2px solid #35AC46; border-radius:10px; padding:.5rem 1rem;
+  font-size:1.25rem; color:#23201B; background:#FFFFFF;
+  border:2px solid #35AC46; border-radius:10px; padding:.7rem 1.4rem;
+  position:relative; overflow:hidden;
   opacity:0; animation:huellas-fadein .4s ease 1.5s 1 both; }
+/* Flecha roja hacia la foto (con leve impulso) + destello dentro de la insignia. */
+.huellas-flecha { display:inline-block; width:70px; height:4px; background:#E30613;
+  border-radius:2px; margin-right:.9rem; position:relative;
+  animation:huellas-nudge 1.8s ease-in-out infinite; }
+.huellas-flecha::before { content:""; position:absolute; left:-2px; top:50%;
+  transform:translateY(-50%); border-right:12px solid #E30613;
+  border-top:8px solid transparent; border-bottom:8px solid transparent; }
+@keyframes huellas-nudge {
+  0%,100% { transform:translateX(0); }
+  50% { transform:translateX(-8px); }
+}
 /* Relleno verde parpadeante sobre la miniatura (ambas fotos, consistente). */
 .huellas-flash { position:absolute; inset:0; background:rgba(53,172,70,.22);
   opacity:0; pointer-events:none;
@@ -1445,7 +1457,7 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-dots span, .huellas-match-card, .huellas-strip, .huellas-ringfill,
   .huellas-trazo, .huellas-boli, .huellas-radar::before, .huellas-ping,
   .huellas-res, .huellas-res-top::after, .huellas-pindrop, .huellas-pinring,
-  .huellas-dot, .huellas-pinok, .huellas-flash,
+  .huellas-dot, .huellas-pinok, .huellas-flash, .huellas-flecha,
   div[class*="st-key-ir_publicar"] button,
   .huellas-okcheck circle, .huellas-okcheck path,
   div[class*="st-key-confirm_pub"] button,
@@ -1942,8 +1954,7 @@ if page == "buscar":
                     + build_foto_scan_html(
                         _uri, getattr(foto_b, "name", "tu foto"), None,
                         esquinas=True)
-                    + '<div class="huellas-scanbadge">'
-                    '<span class="huellas-analizada">Foto lista</span></div></div>',
+                    + badge_lateral_html("Foto lista") + '</div>',
                     unsafe_allow_html=True)
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
@@ -1964,7 +1975,7 @@ if page == "buscar":
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
-        st.caption("O marca el punto clicando en el mapa (la dirección se autocompleta). " +
+        st.caption("O marca el punto clicando 2 veces en el mapa (la dirección se autocompleta). " +
                    "Azules: perdidos · Verdes: avistamientos · roja: tu zona.")
         try:
             import folium
@@ -2315,7 +2326,7 @@ if page == "publicar":
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
-        st.caption("O marca el punto exacto clicando en el mapa:")
+        st.caption("O marca el punto exacto clicando 2 veces en el mapa:")
         try:
             import folium
             from streamlit_folium import st_folium

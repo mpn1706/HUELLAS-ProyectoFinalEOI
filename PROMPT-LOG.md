@@ -444,6 +444,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Verificación: pytest 59/59, smoke 9 páginas OK, demo_check E2E OK
   (found_011 top-1 84.3% ≥80%).
 
+## S87 — 25/09/2026 — Insignia grande + destello + doble clic v1.20 (Muse Spark)
+- REQ-UI-40/41: `badge_lateral_html()` (flecha con impulso + insignia 1.25rem con
+  destello dentro); flash fuera de las fotos.
+- REQ-UI-42: doble clic documentado en ambos mapas.
+- Specs v1.20: `requirements.md` §23 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 59/59, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError
