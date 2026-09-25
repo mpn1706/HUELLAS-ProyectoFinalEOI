@@ -4,6 +4,12 @@ from datetime import date, datetime, timedelta, timezone
 from ui_home import (
     badge_lateral_html,
     build_bars_html,
+    build_cerrado_card_html,
+    build_fiesta_html,
+    build_revision_html,
+    dias_entre,
+    texto_dias_casa,
+    titulo_corto,
     build_foto_scan_html,
     build_radar_html,
     build_result_card_html,
@@ -67,6 +73,24 @@ def test_contacto_details_escapado_y_alternancia():
     assert "&lt;b&gt;x&lt;/b&gt;" in contacto_details_html("<b>x</b>")
     assert "Sin contacto registrado" in contacto_details_html("")
     assert "610" not in contacto_details_html("")
+
+
+def test_reencuentro_builders():
+    f = build_fiesta_html()
+    assert "huellas-nodo" in f and f.count("huellas-nodo n") == 3
+    assert "huellas-sello" in f and "Volvió a casa" in f
+    assert "contact" not in f.lower()
+    assert "En revisión" in build_revision_html()
+    assert texto_dias_casa(0) == "Volvió a casa el mismo día"
+    assert texto_dias_casa(1) == "Volvió a casa tras 1 día"
+    assert texto_dias_casa(5) == "Volvió a casa tras 5 días"
+    assert dias_entre("2026-09-19T18:00:00+02:00", "2026-09-25T10:00:00+02:00") == 6
+    assert dias_entre(None, None) == 0
+    c = build_cerrado_card_html("data:image/jpeg;base64,AAA", "Gato · naranja",
+                                "Volvió a casa tras 6 días", 1)
+    assert "animation-delay:0.08s" in c and "huellas-heart" in c
+    assert "Gato" in c and "contact" not in c.lower()
+    assert titulo_corto({"animal": "dog", "color_primary": "marrón"}) == "Perro · marrón"
 
 
 def test_radar_y_scan():

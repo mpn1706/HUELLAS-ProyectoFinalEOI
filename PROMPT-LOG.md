@@ -463,6 +463,17 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.21: `requirements.md` §24 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 59/59, smoke 9 páginas OK, demo_check E2E OK.
 
+## S89 — 25/09/2026 — Foto centrada, atrás honesto y reencuentros v1.22 (Muse Spark)
+- REQ-UI-47/48: foto centrada sin insignia; caption corto.
+- REQ-UI-49: verificado por el alumno que el atrás no recorre (URL sí registra):
+  `?s=` queda como deep-link; documentado el límite sin regresión.
+- REQ-UI-50..55: reencuentros en ES, shake, revisión 1,5 s, fiesta (timeline+sello+
+  lluvia), tarjetas cerradas con días y corazón, vacío con corazón.
+  Regla de terminal del alumno guardada: jamás `streamlit run`/`Start-Process`;
+  solo HTTP o Playwright contra el 8587 (aquí inalcanzable: sondas con file://).
+- Specs v1.22: `requirements.md` §25 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 60/60, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

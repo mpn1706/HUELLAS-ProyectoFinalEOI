@@ -372,6 +372,90 @@ def contacto_details_html(info: str) -> str:
             f'<div class="huellas-slide"><div>- Contacto: {txt}</div></div></details>')
 
 
+def titulo_corto(a: dict) -> str:
+    """'Especie · color' para tarjetas (p. ej. 'Perro · marrón')."""
+    return _titulo(a)
+
+
+def dias_entre(iso_desde, iso_hasta) -> int:
+    """Días enteros entre dos ISO (0 si falla o es negativo)."""
+    from datetime import datetime
+
+    try:
+        a = datetime.fromisoformat(str(iso_desde))
+        b = datetime.fromisoformat(str(iso_hasta))
+        return max(0, (b.date() - a.date()).days)
+    except (ValueError, TypeError, AttributeError):
+        return 0
+
+
+def texto_dias_casa(n: int) -> str:
+    """'Volvió a casa tras N días' (casos 0 y 1 cuidados)."""
+    n = max(0, int(n))
+    if n == 0:
+        return "Volvió a casa el mismo día"
+    if n == 1:
+        return "Volvió a casa tras 1 día"
+    return f"Volvió a casa tras {n} días"
+
+
+def build_revision_html() -> str:
+    """Bloque 'En revisión' con puntos animados (reutiliza dots)."""
+    return (
+        '<div class="huellas-cruce">En revisión'
+        '<span class="huellas-dots"><span></span><span></span><span></span></span>'
+        '</div>'
+    )
+
+
+def build_fiesta_html() -> str:
+    """Celebración de reencuentro: timeline + sello (los corazones los pone la app).
+
+    Nodos con rebote escalonado, líneas que se dibujan y sello que cae.
+    Sin contacto por construcción.
+    """
+    return (
+        '<div class="huellas-fiesta">'
+        '<div class="huellas-tl">'
+        '<div class="huellas-nodo n1"><span>Perdido</span></div>'
+        '<div class="huellas-tl-linea l1"></div>'
+        '<div class="huellas-nodo n2"><span>Encontrado</span></div>'
+        '<div class="huellas-tl-linea l2"></div>'
+        '<div class="huellas-nodo n3"><span>En casa</span></div>'
+        '</div>'
+        '<div class="huellas-sello">Volvió a casa</div>'
+        '</div>'
+    )
+
+
+def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
+                            idx: int = 0) -> str:
+    """Tarjeta de caso cerrado: foto, 'Especie · color', días y corazón latiendo."""
+    titulo_e = _html.escape(str(titulo), quote=False)
+    dias_e = _html.escape(str(dias_txt), quote=False)
+    uri = str(foto_uri or "")
+    if uri.startswith("data:image"):
+        uri_esc = _html.escape(uri, quote=True)
+        foto = f'<img src="{uri_esc}" alt="{titulo_e}" loading="lazy">'
+    else:
+        inicial = _html.escape((titulo_e[:1] or "H").upper(), quote=False)
+        foto = f'<div class="huellas-cd-ph" aria-hidden="true">{inicial}</div>'
+    retraso = max(0, int(idx)) * 0.08
+    return (
+        f'<div class="huellas-res" style="animation-delay:{retraso:.2f}s">'
+        '<div class="huellas-cerrado">'
+        f'<div class="huellas-cerrado-img">{foto}</div>'
+        f'<div class="huellas-cerrado-t">{titulo_e}</div>'
+        f'<div class="huellas-cerrado-d">{dias_e}</div>'
+        '<svg class="huellas-heart" viewBox="0 0 24 24" width="26" height="26" '
+        'aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 '
+        '2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 '
+        '19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" '
+        'fill="#E30613"/></svg>'
+        '</div></div>'
+    )
+
+
 def build_pen_html() -> str:
     """Boli escribiendo trazos (relleno del hueco al subir foto). Solo CSS.
 

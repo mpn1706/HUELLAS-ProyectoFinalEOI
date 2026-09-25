@@ -356,6 +356,25 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-42 — Mapas: se indica clicar 2 veces para fijar el punto (verificado por
   el alumno: con una no basta).
 
+## 25. Foto centrada, atrás honesto y reencuentros (v1.22 25/09/2026, solo UI)
+
+- REQ-UI-47 — "Foto lista" sin insignia ni flecha: imagen centrada
+  (`.huellas-scancenter`) equilibrando el hueco.
+- REQ-UI-48 — Caption de Buscar acortado (sin la leyenda de colores; ya está en el mapa).
+- REQ-UI-49 — Botón atrás: `?s=` refleja la sección y sirve como deep-link, pero el
+  navegador NO recorre secciones (estado en sesión, `replaceState`): documentado como
+  límite, sin regresión.
+- REQ-UI-50 — Reencuentros en español (`placeholder="Elige una opción"` nativo).
+- REQ-UI-51 — "Notificar reencuentro": shake + faltante si no hay caso elegido.
+- REQ-UI-52 — "En revisión" con puntos animados (mínimo 1,5 s real).
+- REQ-UI-53 — Fiesta: timeline Perdido→Encontrado→En casa (nodos con rebote, líneas
+  que se dibujan) + sello "VOLVIÓ A CASA" (cae de 2.4 con -8°) + lluvia de corazones
+  y huellas (`celebrate_search()`).
+- REQ-UI-54 — Tarjeta de caso cerrado deslizante: foto, "Especie · color",
+  "Volvió a casa tras N días" y corazón latiendo (`build_cerrado_card_html()`).
+- REQ-UI-55 — Vacío: corazón latiendo + "Aún no hay reencuentros. Sé el primero
+  en cerrar un caso."
+
 ## 24. Misma pestaña, atrás, fechas admin e insignia XL (v1.21 25/09/2026, solo UI)
 
 - REQ-UI-43 — Carrusel y contadores con `target="_self"`: misma pestaña si el

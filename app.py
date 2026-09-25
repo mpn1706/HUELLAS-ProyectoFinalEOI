@@ -29,17 +29,23 @@ from ui_home import (
     build_bars_html,
     build_carousel_html,
     badge_lateral_html,
+    build_cerrado_card_html,
     build_check_html,
     build_crossing_html,
+    build_fiesta_html,
     build_foto_scan_html,
     build_match_card_html,
     build_pen_html,
     build_radar_html,
     build_result_card_html,
+    build_revision_html,
     chip_dias_perdido,
     chip_visto,
     contacto_details_html,
+    dias_entre,
     dias_perdido,
+    texto_dias_casa,
+    titulo_corto,
     es_nuevo,
     faltantes_buscar,
     faltantes_publicar,
@@ -363,6 +369,10 @@ div[class*="st-key-confirm_pub"] button { animation:huellas-shake .4s ease 1; }
 
 SHAKE_BUSCAR_STYLE = """<style>
 div[class*="st-key-b_buscar"] button { animation:huellas-shake .4s ease 1; }
+</style>"""
+
+SHAKE_RE_STYLE = """<style>
+div[class*="st-key-re_notif"] button { animation:huellas-shake .4s ease 1; }
 </style>"""
 
 FOTO_PUB_STYLE = """<style>
@@ -1446,6 +1456,47 @@ div[class*="st-key-b_buscar"] button { position:relative; }
   transition:grid-template-rows .3s ease-out; }
 .huellas-details[open] .huellas-slide { grid-template-rows:1fr; }
 .huellas-slide > div { overflow:hidden; }
+/* Foto centrada (Buscar sin insignia lateral). */
+.huellas-scancenter { display:flex; justify-content:center; }
+/* Botón Notificar reencuentro: base neutra (el shake se inyecta al fallar). */
+div[class*="st-key-re_notif"] button { position:relative; }
+/* Fiesta de reencuentro: timeline + sello. */
+.huellas-fiesta { text-align:center; margin:.4rem 0; }
+.huellas-tl { display:flex; align-items:center; justify-content:center; margin:.6rem 0; }
+.huellas-nodo { width:86px; height:86px; flex:none; border-radius:50%;
+  background:#23201B; color:#F5F1EA; display:flex; align-items:center;
+  justify-content:center; font-weight:800; font-size:.8rem; text-align:center;
+  opacity:0; animation:huellas-pop .5s cubic-bezier(.2,1.6,.4,1) both; }
+.huellas-nodo.n1 { animation-delay:.1s; }
+.huellas-nodo.n2 { animation-delay:.6s; }
+.huellas-nodo.n3 { animation-delay:1.1s; background:#E30613; color:#FFFFFF; }
+@keyframes huellas-pop {
+  from { transform:scale(0); opacity:0; }
+  to { transform:scale(1); opacity:1; }
+}
+.huellas-tl-linea { height:4px; width:70px; flex:none; background:#E30613;
+  transform:scaleX(0); transform-origin:left center;
+  animation:huellas-tl .4s ease-out both; }
+.huellas-tl-linea.l1 { animation-delay:.45s; }
+.huellas-tl-linea.l2 { animation-delay:.95s; }
+@keyframes huellas-tl { to { transform:scaleX(1); } }
+.huellas-sello { display:inline-block; margin:.8rem auto 0; padding:.7rem 1.6rem;
+  background:#E30613; color:#FFFFFF; font-family:'Montserrat','Inter',sans-serif;
+  font-weight:800; font-size:1.4rem; border-radius:10px;
+  opacity:0; animation:huellas-sello 1.6s ease 1.4s both; }
+@keyframes huellas-sello {
+  0% { opacity:0; transform:scale(2.4) rotate(-8deg); }
+  60% { opacity:1; transform:scale(1) rotate(-8deg); }
+  100% { opacity:1; transform:scale(1) rotate(-8deg); }
+}
+/* Tarjeta de caso cerrado. */
+.huellas-cerrado { background:#FFFFFF; border:2px solid #23201B;
+  border-radius:12px; padding:1rem; text-align:center; }
+.huellas-cerrado-img img { width:100%; max-width:300px; border-radius:8px; }
+.huellas-cerrado-t { font-family:'Montserrat','Inter',sans-serif; font-weight:800;
+  color:#23201B; font-size:1.05rem; margin-top:.5rem; }
+.huellas-cerrado-d { color:#57503F; margin:.2rem 0 .4rem; }
+.huellas-vacio-heart { text-align:center; margin:.4rem 0; }
 /* Guardar como aviso: rebote suave continuo. */
 div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out infinite; }
 @keyframes huellas-bob {
@@ -1479,7 +1530,11 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   .huellas-okcheck circle, .huellas-okcheck path,
   div[class*="st-key-confirm_pub"] button,
   div[class*="st-key-confirm_pub"] button::after,
-  div[class*="st-key-b_buscar"] button { animation:none !important; }
+  div[class*="st-key-b_buscar"] button,
+  div[class*="st-key-re_notif"] button { animation:none !important; }
+  .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
+  .huellas-nodo, .huellas-sello { opacity:1 !important; }
+  .huellas-tl-linea { transform:scaleX(1) !important; }
   .huellas-strip { display:none !important; }
   .huellas-ring-fg { stroke-dashoffset:0 !important; }
   .huellas-trazo { stroke-dashoffset:0 !important; }
@@ -1987,11 +2042,11 @@ if page == "buscar":
         _raw = foto_b.getvalue()
         _mime = "image/png" if _raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
         _uri = f"data:{_mime};base64," + _b64.b64encode(_raw).decode()
-        st.markdown('<div class="huellas-scanrow">'
+        st.markdown('<div class="huellas-scancenter">'
                     + build_foto_scan_html(
                         _uri, getattr(foto_b, "name", "tu foto"), None,
                         esquinas=True)
-                    + badge_lateral_html("Foto lista") + '</div>',
+                    + '</div>',
                     unsafe_allow_html=True)
     else:
         st.caption("Sin foto no hay búsqueda: súbela para empezar.")
@@ -2012,8 +2067,7 @@ if page == "buscar":
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
-        st.caption("O marca el punto clicando 2 veces en el mapa (la dirección se autocompleta). " +
-                   "Azules: perdidos · Verdes: avistamientos · roja: tu zona.")
+        st.caption("O marca el punto clicando 2 veces en el mapa (la dirección se autocompleta)")
         try:
             import folium
             from folium.plugins import MarkerCluster
@@ -2523,25 +2577,39 @@ if page == "reencuentro":
                                   format_func=lambda i: next(
                                       (f"[{x['id']}] {animal_tag(x)}" for x in perd_opts
                                        if x["id"] == i), i),
-                                  key="re_lost")
+                                  key="re_lost", placeholder="Elige una opción")
         sel_found = st.multiselect("Avistamientos que se resuelven",
                                    [a["id"] for a in found_opts],
                                    format_func=lambda i: next(
                                        (f"[{x['id']}] {animal_tag(x)}" for x in found_opts
                                         if x["id"] == i), i),
-                                   key="re_found")
+                                   key="re_found", placeholder="Elige una opción")
         nota = st.text_area("Cómo fue el reencuentro", "Apareció en el portal de casa.",
                             key="re_nota")
         fotos_r = st.file_uploader("Fotos del reencuentro", type=["jpg", "jpeg", "png"],
                                    accept_multiple_files=True, key="re_fotos")
-    if st.button("Notificar reencuentro", type="primary"):
+    _re_n = st.session_state.get("re_shake_n", 0)
+    if st.session_state.pop("re_shake_pending", False):
+        st.markdown(SHAKE_RE_STYLE, unsafe_allow_html=True)
+    if st.session_state.get("re_faltan"):
+        st.warning("Te falta: " + ", ".join(st.session_state.pop("re_faltan")) + ".")
+    if st.button("Notificar reencuentro", type="primary", key=f"re_notif_{_re_n}"):
         elegidos = list(dict.fromkeys(list(sel_lost) + list(sel_found)))
         if not elegidos:
-            st.warning("Selecciona al menos un aviso (perdido, avistamiento o ambos).")
+            st.session_state.re_shake_n = _re_n + 1
+            st.session_state.re_shake_pending = True
+            st.session_state.re_faltan = ["elegir al menos un aviso"]
+            st.rerun()
         else:
+            rev_box = None
             try:
                 from datetime import datetime as _dtr
+                import time as _tr
 
+                rev_box = st.empty()
+                with rev_box.container():
+                    st.markdown(build_revision_html(), unsafe_allow_html=True)
+                _t0 = _tr.time()
                 Path("data/uploads").mkdir(parents=True, exist_ok=True)
                 sello = _dtr.now().strftime("%Y%m%d%H%M%S")
                 guardadas = []
@@ -2551,10 +2619,21 @@ if page == "reencuentro":
                     guardadas.append(dest)
                 rid = dbmod.save_reencuentro(con, elegidos, guardadas, nota)
                 admmod.log_action(f"REENCUENTRO {rid} pendiente: {', '.join(elegidos)}")
+                _dt = _tr.time() - _t0
+                if _dt < 1.5:
+                    _tr.sleep(1.5 - _dt)
+                rev_box.empty()
+                rev_box = None
+                st.markdown(build_fiesta_html(), unsafe_allow_html=True)
                 celebrate_search()
                 st.success(f"Reencuentro `{rid}` notificado al administrador. "
                            "Él revisará las pruebas y cerrará (o no) los avisos.")
             except Exception as e:
+                try:
+                    if rev_box is not None:
+                        rev_box.empty()
+                except Exception:
+                    pass
                 st.error(f"Error: {e}")
 
     st.subheader("Casos cerrados")
@@ -2563,11 +2642,44 @@ if page == "reencuentro":
     if pendientes:
         st.caption(f"{len(pendientes)} caso(s) en revisión por el administrador.")
     if not cerrados and not pendientes:
-        st.info("Aún no hay reencuentros notificados.")
-    for r in cerrados + pendientes:
-        marca = "CASO CERRADO" if r["estado"] == "validada" else "EN REVISIÓN"
+        st.markdown(
+            '<div class="huellas-vacio-heart">'
+            '<svg class="huellas-heart" viewBox="0 0 24 24" width="44" height="44" '
+            'aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 '
+            '2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 '
+            '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" '
+            'fill="#E30613"/></svg></div>',
+            unsafe_allow_html=True)
+        st.info("Aún no hay reencuentros. Sé el primero en cerrar un caso.")
+    for idx, r in enumerate(cerrados):
+        _av0 = None
+        for _aid in r["aviso_ids"]:
+            try:
+                _av0 = dbmod.get_aviso(con, _aid)
+            except Exception:
+                _av0 = None
+            if _av0:
+                break
+        _tit = titulo_corto(_av0) if _av0 else "Aviso"
+        if _av0:
+            _eff = _av0.get("date_last_seen") or _av0.get("date_reported")
+            _dias = texto_dias_casa(dias_entre(_eff, r.get("created_at")))
+        else:
+            _dias = "Reencuentro cerrado"
+        _uri = ""
+        for _fp in r["fotos"][:1]:
+            _uri = thumb_uri(_fp)
+            if _uri:
+                break
+        st.markdown(build_cerrado_card_html(_uri, _tit, _dias, idx),
+                    unsafe_allow_html=True)
+        if r["nota"]:
+            st.write(r["nota"])
+        st.caption(f"Caso `{r['id']}` · resuelve "
+                   f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+    for r in pendientes:
         with st.container(border=True):
-            st.markdown(f"**{marca}** · `{r['id']}` · resuelve "
+            st.markdown(f"**EN REVISIÓN** · `{r['id']}` · resuelve "
                         f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
             if r["nota"]:
                 st.write(r["nota"])
