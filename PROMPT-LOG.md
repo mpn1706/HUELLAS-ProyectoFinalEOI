@@ -582,6 +582,13 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.34: `requirements.md` §37 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 64/64, smoke 9 páginas OK, demo_check E2E OK.
 
+## S103 — 25/09/2026 — Contraste MÁS + puntúa vertical + pie visible v1.35 (Muse Spark)
+- REQ-UI-92: expansores MÁS en claro con selectores al widget (la versión por
+  bloques fugaba a la cabecera); el alumno aclaró que eran Protectoras/Tiempo.
+- REQ-UI-93/94: puntúa en 1 columna; pie de admin tras el login.
+- Specs v1.35: `requirements.md` §38 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 64/64, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

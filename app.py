@@ -1142,15 +1142,17 @@ def inject_ui_css(active_page: str) -> None:
 [data-testid="stSidebar"] .st-key-exp_mas2 {
   margin-left:1.25rem !important;
 }
-/* Contenido claro en Protectoras/Tiempo (contraste sobre el panel oscuro). */
-[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stVerticalBlock"],
-[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stVerticalBlock"] {
+/* Expansores MÁS en claro entero (cabecera + contenido): contraste total.
+   (Un selector por bloques internos fugaba a la cabecera y la dejaba ilegible.) */
+[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stExpander"],
+[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stExpander"] {
   background:#FFFFFF !important;
-  border-radius:8px !important;
-  padding:.5rem .6rem !important;
+  border:1.5px solid #57503F !important;
 }
-[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stMarkdownContainer"] p,
-[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stMarkdownContainer"] p {
+[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stExpander"] summary span,
+[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stExpander"] summary span,
+[data-testid="stSidebar"] .st-key-exp_mas1 [data-testid="stExpander"] p,
+[data-testid="stSidebar"] .st-key-exp_mas2 [data-testid="stExpander"] p {
   color:#23201B !important;
 }
 [data-testid="stSidebar"] .st-key-exp_mas1 small,
@@ -1908,26 +1910,12 @@ with st.sidebar:
         with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False,
                           key="exp_punt1"):
             st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
-            u1, u2 = st.columns(2)
-            with u1:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;'
-                            'margin-bottom:.5rem;">'
-                            '≥80%<br>ALERTA</div>', unsafe_allow_html=True)
-            with u2:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;'
-                            'margin-bottom:.5rem;">'
-                            '≥65%<br>EN LISTA</div>', unsafe_allow_html=True)
-            u3, u4 = st.columns(2)
-            with u3:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
+            for _txt in ("≥80% · ALERTA", "≥65% · EN LISTA", "RADIO 15 KM",
+                         "VENTANA 30 DÍAS"):
+                st.markdown('<div style="background:#000000;border-radius:8px;'
+                            'padding:.4rem .2rem;margin-bottom:.4rem;'
                             'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;">'
-                            'RADIO<br>15 KM</div>', unsafe_allow_html=True)
-            with u4:
-                st.markdown('<div style="background:#000000;border-radius:8px;padding:.4rem .2rem;'
-                            'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;">'
-                            'VENTANA<br>30 DÍAS</div>', unsafe_allow_html=True)
+                            f'{_txt}</div>', unsafe_allow_html=True)
         with st.expander("Aviso legal", expanded=False, key="exp_punt2"):
             st.write("Este análisis no promete una coincidencia inequívoca respecto al animal buscado. "
                      "Una imagen no permite confirmar la identidad, verifique en persona.")
@@ -1987,6 +1975,36 @@ with st.sidebar:
                 if st.button("Salir"):
                     st.session_state.admin_ok = False
                     st.rerun()
+                st.divider()
+                st.markdown("**Métricas rápidas**")
+                try:
+                    from datetime import datetime as _dtm, timedelta as _tdl
+
+                    _hace7 = (_dtm.now().astimezone() - _tdl(days=7)).isoformat()
+                    _n_sem = con.execute(
+                        "SELECT COUNT(*) FROM avisos WHERE type='found' "
+                        "AND status='active' AND date_reported >= ?",
+                        (_hace7,)).fetchone()[0]
+                    _todas_lost = [dbmod.get_aviso(con, r["id"]) for r in
+                                   con.execute("SELECT id FROM avisos WHERE status='active'"
+                                               " AND type='lost'").fetchall()]
+                    _urg = sum(1 for _a in _todas_lost if _a and dias_perdido(
+                        _a.get("date_last_seen"), _a.get("date_reported")) >= 7)
+                except Exception:
+                    _n_sem, _urg = 0, 0
+                stat_box(_n_sem, "Avistamientos 7 días", mini=True)
+                stat_box(_urg, "Casos urgentes ≥7 días", mini=True)
+                st.markdown(
+                    '<div style="margin-top:.5rem;">'
+                    '<span class="huellas-dotv"></span>'
+                    '<span style="font-weight:800;font-size:.8rem;">'
+                    'Estado del Servicio: Activo (Jerez)</span></div>',
+                    unsafe_allow_html=True)
+                st.markdown("**Soporte**")
+                st.markdown("[Instagram @mariop.17](https://instagram.com/mariop.17)")
+                st.markdown("[Aporta para mantener los servidores]"
+                            "(https://paypal.me/mariop1706)")
+                st.caption("PayPal donaciones: paypal.me/mariop1706")
                 st.subheader("Reencuentros")
                 _re_est = st.selectbox(
                     "Reencuentros por estado",
@@ -2149,36 +2167,6 @@ with st.sidebar:
                 if loga.exists():
                     with st.expander("Ver registro de administración"):
                         st.code(loga.read_text(encoding="utf-8")[-2000:])
-                st.divider()
-                st.markdown("**Métricas rápidas**")
-                try:
-                    from datetime import datetime as _dtm, timedelta as _tdl
-
-                    _hace7 = (_dtm.now().astimezone() - _tdl(days=7)).isoformat()
-                    _n_sem = con.execute(
-                        "SELECT COUNT(*) FROM avisos WHERE type='found' "
-                        "AND status='active' AND date_reported >= ?",
-                        (_hace7,)).fetchone()[0]
-                    _todas_lost = [dbmod.get_aviso(con, r["id"]) for r in
-                                   con.execute("SELECT id FROM avisos WHERE status='active'"
-                                               " AND type='lost'").fetchall()]
-                    _urg = sum(1 for _a in _todas_lost if _a and dias_perdido(
-                        _a.get("date_last_seen"), _a.get("date_reported")) >= 7)
-                except Exception:
-                    _n_sem, _urg = 0, 0
-                stat_box(_n_sem, "Avistamientos 7 días", mini=True)
-                stat_box(_urg, "Casos urgentes ≥7 días", mini=True)
-                st.markdown(
-                    '<div style="margin-top:.5rem;">'
-                    '<span class="huellas-dotv"></span>'
-                    '<span style="font-weight:800;font-size:.8rem;">'
-                    'Estado del Servicio: Activo (Jerez)</span></div>',
-                    unsafe_allow_html=True)
-                st.markdown("**Soporte**")
-                st.markdown("[Instagram @mariop.17](https://instagram.com/mariop.17)")
-                st.markdown("[Aporta para mantener los servidores]"
-                            "(https://paypal.me/mariop1706)")
-                st.caption("PayPal donaciones: paypal.me/mariop1706")
 
 page = st.session_state.get("page", "inicio")
 

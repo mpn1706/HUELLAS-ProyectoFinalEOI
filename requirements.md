@@ -437,6 +437,14 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-91 — Pie de admin tras divisor: avistamientos 7 días + urgentes ≥7 días,
   badge verde pulsante "Estado del Servicio: Activo (Jerez)" e Instagram/paypal.
 
+## 38. Contraste MÁS + puntúa vertical + pie visible (v1.35 25/09/2026, solo UI)
+
+- REQ-UI-92 — Protectoras/Tiempo en claro entero (cabecera en negro sobre blanco):
+  el selector por bloques fugaba a la cabecera y la dejaba ilegible.
+- REQ-UI-93 — Cómo puntúa en vertical (1 columna de 4): fin de solapes en el panel.
+- REQ-UI-94 — Pie de admin justo tras entrar (tras login/Salir): antes quedaba tras
+  20 tarjetas, invisible sin scroll.
+
 ## 30. Velo visible + reencuentro completo (v1.27 25/09/2026, solo UI)
 
 - REQ-UI-71 — Velo de contadores sin `!important` en `opacity` (la base con
