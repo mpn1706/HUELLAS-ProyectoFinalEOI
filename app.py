@@ -560,7 +560,7 @@ def titulo_barrido(texto: str):
     """Título con barrido rojo continuo sobre letras negras (izq↔der). Solo CSS."""
     import html as _html
 
-    c1, c2 = st.columns([1, 10], vertical_alignment="center")
+    c1, c2 = st.columns([1, 12], gap="small", vertical_alignment="center")
     with c1:
         _boton_inicio(texto)
     with c2:
@@ -572,7 +572,7 @@ def titulo_perimetro(texto: str):
     """Título en caja con huella roja recorriendo su perímetro (velocidad media)."""
     import html as _html
 
-    c1, c2 = st.columns([1, 10], vertical_alignment="center")
+    c1, c2 = st.columns([1, 12], gap="small", vertical_alignment="center")
     with c1:
         _boton_inicio(texto)
     with c2:
