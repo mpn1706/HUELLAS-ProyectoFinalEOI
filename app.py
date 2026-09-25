@@ -547,23 +547,40 @@ PAW_ROJA_SVG = ('<svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="
                 '<circle cx="59" cy="25" r="10"/><circle cx="76" cy="36" r="10"/></g></svg>')
 
 
+def _boton_inicio(texto: str):
+    """Botón rojo ⏪ junto al título: vuelve a Inicio (nav_to)."""
+    import hashlib as _hl
+
+    slug = _hl.md5(texto.encode("utf-8")).hexdigest()[:6]
+    st.button("", icon=":material/fast_rewind:", key=f"home_{slug}",
+              help="Volver al inicio", on_click=nav_to, args=("inicio",))
+
+
 def titulo_barrido(texto: str):
     """Título con barrido rojo continuo sobre letras negras (izq↔der). Solo CSS."""
     import html as _html
 
-    st.markdown(f'<h3 class="huellas-barrido">{_html.escape(texto)}</h3>',
-                unsafe_allow_html=True)
+    c1, c2 = st.columns([10, 1], vertical_alignment="center")
+    with c1:
+        st.markdown(f'<h3 class="huellas-barrido">{_html.escape(texto)}</h3>',
+                    unsafe_allow_html=True)
+    with c2:
+        _boton_inicio(texto)
 
 
 def titulo_perimetro(texto: str):
     """Título en caja con huella roja recorriendo su perímetro (velocidad media)."""
     import html as _html
 
-    st.markdown(
-        f'<div class="huellas-peri-wrap"><span class="huellas-perimetro">'
-        f'{_html.escape(texto)}'
-        f'<span class="huellas-perimetro-paw">{PAW_ROJA_SVG}</span></span></div>',
-        unsafe_allow_html=True)
+    c1, c2 = st.columns([10, 1], vertical_alignment="center")
+    with c1:
+        st.markdown(
+            f'<div class="huellas-peri-wrap"><span class="huellas-perimetro">'
+            f'{_html.escape(texto)}'
+            f'<span class="huellas-perimetro-paw">{PAW_ROJA_SVG}</span></span></div>',
+            unsafe_allow_html=True)
+    with c2:
+        _boton_inicio(texto)
 
 
 def linea_chips_perdido(a: dict):
@@ -1413,6 +1430,24 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 @keyframes huellas-trote {
   from { transform:translateY(0) rotate(-3deg); }
   to { transform:translateY(-3px) rotate(3deg); } }
+/* Botón volver al inicio junto a títulos de sección: cuadrado rojo con
+   flecha blanca (estilo rewind de la imagen de referencia). */
+div[class*="st-key-home_"] button {
+  background:#E30613 !important;
+  border:none !important;
+  border-radius:10px !important;
+  color:#FFFFFF !important;
+  font-size:1.5rem !important;
+  padding:.25rem .4rem !important;
+  min-height:2.6rem;
+}
+div[class*="st-key-home_"] button:hover {
+  background:rgba(227,6,19,0.85) !important;
+}
+div[class*="st-key-home_"] button p,
+div[class*="st-key-home_"] button span {
+  color:#FFFFFF !important;
+}
 /* Segunda tira en sentido contrario: figuras espejadas (miran a la
    izquierda) y pista al revés (`0→-50%`). */
 .huellas-march.inv .huellas-track { animation-direction:reverse; }

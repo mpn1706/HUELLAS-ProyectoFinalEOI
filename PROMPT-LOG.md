@@ -652,3 +652,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Cambio a estilo C "Chibi" (cabezón sentado) + tira más rápida (12s→7s).
 - Fix tirones: la tira de dígitos pisaba `.huellas-track` con `display:block`; reglas acotadas a `.huellas-march` + velocidad 4s + `will-change:transform`.
 - Segunda tira invertida (`invertida=True`): espejada y en sentido contrario, mismos parámetros.
+
+## S111 — 25/09/2026 — Botón rojo ⏪ a Inicio junto a títulos (Muse Spark)
+- `titulo_barrido`/`titulo_perimetro` (los 5 títulos de sección) llevan al lado botón rojo con icono rewind blanco (`:material/fast_rewind:`, clave `home_*`) que redirige a Inicio vía `nav_to`.
+- Verificación: `test_titulo_home.py` 2/2 (botón en las 5 páginas + navega) + smoke implícito.
