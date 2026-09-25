@@ -649,3 +649,4 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Verificación: `test_sidebar_marcha.py` 2/2 + smoke 9 páginas OK.
 - Fix: pista x3 (24 figuras, mitades idénticas) para que no se vacíe ningún lado + dirección `-50%→0` (avanzan hacia donde miran).
 - Siluetas estilo B "Corre" elegidas por el alumno (hoja siluetas.html con 4 estilos): zancada extendida.
+- Cambio a estilo C "Chibi" (cabezón sentado) + tira más rápida (12s→7s).

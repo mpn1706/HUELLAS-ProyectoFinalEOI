@@ -1401,7 +1401,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito). */
 .huellas-march { overflow:hidden; margin:.1rem 0 .3rem; }
 .huellas-track { display:inline-flex; white-space:nowrap;
-  animation:huellas-march 12s linear infinite; }
+  animation:huellas-march 7s linear infinite; }
 .huellas-track .huellas-pet { display:inline-block; margin-right:16px;
   animation:huellas-trote .38s ease-in-out infinite alternate; }
 @keyframes huellas-march {
