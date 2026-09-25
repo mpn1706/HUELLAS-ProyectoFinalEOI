@@ -474,6 +474,16 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.22: `requirements.md` §25 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 60/60, smoke 9 páginas OK, demo_check E2E OK.
 
+## S90 — 25/09/2026 — Reencuentros visibles + cerrados en fila v1.23 (Muse Spark)
+- REQ-UI-56: miniaturas de elegidos bajo multiselects (límite hover documentado).
+- REQ-UI-57: tarjeta con marca/pie en cerrados y en revisión; "Resuelve X" dentro
+  (márgenes coherentes); nota vacía con placeholder.
+- REQ-UI-58: cerrados de 3 en 3 por fila.
+- Aclarado al alumno: la tarjeta S89 solo salía en validados; ahora ambos estados
+  la usan y se ve desde el primer aviso en revisión.
+- Specs v1.23: `requirements.md` §26 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 60/60, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

@@ -90,6 +90,10 @@ def test_reencuentro_builders():
                                 "Volvió a casa tras 6 días", 1)
     assert "animation-delay:0.08s" in c and "huellas-heart" in c
     assert "Gato" in c and "contact" not in c.lower()
+    c2 = build_cerrado_card_html("", "Gato · naranja", "En revisión", 0,
+                                 marca="En revisión", marca_clase="ambar",
+                                 pie="Resuelve lost_002")
+    assert "huellas-marca ambar" in c2 and "Resuelve lost_002" in c2
     assert titulo_corto({"animal": "dog", "color_primary": "marrón"}) == "Perro · marrón"
 
 

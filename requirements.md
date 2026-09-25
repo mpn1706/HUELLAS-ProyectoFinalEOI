@@ -375,6 +375,14 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-55 — Vacío: corazón latiendo + "Aún no hay reencuentros. Sé el primero
   en cerrar un caso."
 
+## 26. Reencuentros visibles + cerrados en fila (v1.23 25/09/2026, solo UI)
+
+- REQ-UI-56 — Vista previa de los avisos elegidos bajo cada multiselect (miniaturas;
+  el desplegable no previsualiza al pasar el cursor: límite honesto de Streamlit).
+- REQ-UI-57 — Tarjeta unificada con marca ("Caso cerrado"/"En revisión") y pie
+  interior ("Resuelve X", alineado por construcción); "Cómo fue" vacío con placeholder.
+- REQ-UI-58 — Cerrados en horizontal, de 3 en 3 por fila (`st.columns`).
+
 ## 24. Misma pestaña, atrás, fechas admin e insignia XL (v1.21 25/09/2026, solo UI)
 
 - REQ-UI-43 — Carrusel y contadores con `target="_self"`: misma pestaña si el

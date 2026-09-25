@@ -540,6 +540,40 @@ def bloque_contacto(a: dict):
     st.markdown(contacto_details_html(a.get("contact_info")), unsafe_allow_html=True)
 
 
+def _prev_sel(ids: list, opts: list):
+    """Miniaturas de los avisos elegidos (el desplegable no previsualiza al hover)."""
+    if not ids:
+        return
+    cols = st.columns(min(5, len(ids)))
+    for cc, sid in zip(cols, ids[:5]):
+        with cc:
+            sa = next((x for x in opts if x["id"] == sid), None)
+            if sa:
+                show_image(sa["image_url"], caption=sid, width=120)
+    if len(ids) > 5:
+        st.caption(f"+{len(ids) - 5} más…")
+    st.caption("Vista previa de tu selección (el desplegable no previsualiza "
+               "al pasar el cursor).")
+
+
+def _datos_caso(con, r: dict):
+    """Primer aviso del caso + uri de su primera foto (para tarjetas)."""
+    av0 = None
+    for aid in r["aviso_ids"]:
+        try:
+            av0 = dbmod.get_aviso(con, aid)
+        except Exception:
+            av0 = None
+        if av0:
+            break
+    uri = ""
+    for fp in r["fotos"][:1]:
+        uri = thumb_uri(fp)
+        if uri:
+            break
+    return av0, uri
+
+
 def aplicar_filtros(lista: list, pref: str) -> list:
     """Filtros por animal + color + tamaño (tres columnas). Devuelve la lista filtrada."""
     c1, c2, c3 = st.columns(3)
@@ -1496,6 +1530,11 @@ div[class*="st-key-re_notif"] button { position:relative; }
 .huellas-cerrado-t { font-family:'Montserrat','Inter',sans-serif; font-weight:800;
   color:#23201B; font-size:1.05rem; margin-top:.5rem; }
 .huellas-cerrado-d { color:#57503F; margin:.2rem 0 .4rem; }
+.huellas-marca { display:inline-block; font-size:.72rem; font-weight:800;
+  padding:.2rem .7rem; border-radius:12px; margin-bottom:.5rem; }
+.huellas-marca.verde { background:#35AC46; color:#FFFFFF; }
+.huellas-marca.ambar { background:#E8A100; color:#23201B; }
+.huellas-cerrado-pie { color:#57503F; font-size:.8rem; margin-top:.4rem; }
 .huellas-vacio-heart { text-align:center; margin:.4rem 0; }
 /* Guardar como aviso: rebote suave continuo. */
 div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out infinite; }
@@ -2584,8 +2623,10 @@ if page == "reencuentro":
                                        (f"[{x['id']}] {animal_tag(x)}" for x in found_opts
                                         if x["id"] == i), i),
                                    key="re_found", placeholder="Elige una opción")
-        nota = st.text_area("Cómo fue el reencuentro", "Apareció en el portal de casa.",
-                            key="re_nota")
+        _prev_sel(sel_lost, perd_opts)
+        _prev_sel(sel_found, found_opts)
+        nota = st.text_area("Cómo fue el reencuentro", "", key="re_nota",
+                            placeholder="Ej. apareció en el portal de casa")
         fotos_r = st.file_uploader("Fotos del reencuentro", type=["jpg", "jpeg", "png"],
                                    accept_multiple_files=True, key="re_fotos")
     _re_n = st.session_state.get("re_shake_n", 0)
@@ -2651,41 +2692,38 @@ if page == "reencuentro":
             'fill="#E30613"/></svg></div>',
             unsafe_allow_html=True)
         st.info("Aún no hay reencuentros. Sé el primero en cerrar un caso.")
-    for idx, r in enumerate(cerrados):
-        _av0 = None
-        for _aid in r["aviso_ids"]:
-            try:
-                _av0 = dbmod.get_aviso(con, _aid)
-            except Exception:
-                _av0 = None
-            if _av0:
-                break
-        _tit = titulo_corto(_av0) if _av0 else "Aviso"
-        if _av0:
-            _eff = _av0.get("date_last_seen") or _av0.get("date_reported")
-            _dias = texto_dias_casa(dias_entre(_eff, r.get("created_at")))
-        else:
-            _dias = "Reencuentro cerrado"
-        _uri = ""
-        for _fp in r["fotos"][:1]:
-            _uri = thumb_uri(_fp)
-            if _uri:
-                break
-        st.markdown(build_cerrado_card_html(_uri, _tit, _dias, idx),
+    for base in range(0, len(cerrados), 3):
+        fila = cerrados[base:base + 3]
+        cols = st.columns(len(fila))
+        for j, (col, r) in enumerate(zip(cols, fila)):
+            with col:
+                _av0, _uri = _datos_caso(con, r)
+                _tit = titulo_corto(_av0) if _av0 else "Aviso"
+                if _av0:
+                    _eff = _av0.get("date_last_seen") or _av0.get("date_reported")
+                    _dias = texto_dias_casa(dias_entre(_eff, r.get("created_at")))
+                else:
+                    _dias = "Reencuentro cerrado"
+                st.markdown(build_cerrado_card_html(
+                    _uri, _tit, _dias, base + j, marca="Caso cerrado",
+                    pie=f"Resuelve {', '.join(r['aviso_ids'])}"),
                     unsafe_allow_html=True)
-        if r["nota"]:
-            st.write(r["nota"])
-        st.caption(f"Caso `{r['id']}` · resuelve "
-                   f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+                if r["nota"]:
+                    st.write(r["nota"])
     for r in pendientes:
+        _av0, _uri = _datos_caso(con, r)
+        _tit = titulo_corto(_av0) if _av0 else "Aviso"
         with st.container(border=True):
-            st.markdown(f"**EN REVISIÓN** · `{r['id']}` · resuelve "
-                        f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+            st.markdown(build_cerrado_card_html(
+                _uri, _tit, "En revisión por el administrador", 0,
+                marca="En revisión", marca_clase="ambar",
+                pie=f"Resuelve {', '.join(r['aviso_ids'])}"),
+                unsafe_allow_html=True)
             if r["nota"]:
                 st.write(r["nota"])
-            if r["fotos"]:
-                fcols = st.columns(min(3, len(r["fotos"])))
-                for fc, fp in zip(fcols, r["fotos"][:3]):
+            if len(r["fotos"]) > 1:
+                fcols = st.columns(min(3, len(r["fotos"]) - 1))
+                for fc, fp in zip(fcols, r["fotos"][1:4]):
                     with fc:
                         show_image(fp, caption="Reencuentro", width=220)
 
