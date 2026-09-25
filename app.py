@@ -388,7 +388,7 @@ div[class*="st-key-re_notif"] button { animation:huellas-shake .4s ease 1; }
 FOTO_PUB_STYLE = """<style>
 /* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca,
    con altura mínima para dar aire (compensa la huella y el caption retirados). */
-div[class*="st-key-foto_pub"] [data-testid="stFileUploader"] {
+div[class*="st-key-pub_foto"] [data-testid="stFileUploader"] {
   border:2px dashed #E30613;
   border-radius:12px;
   background:#FFFFFF;
@@ -663,6 +663,23 @@ def leyenda_mapa(mostrar_perdidos: bool = True, mostrar_avist: bool = True):
         unsafe_allow_html=True)
 
 
+def huella_mapa(con) -> str:
+    """Fingerprint de avisos (id+coords+estado): si cambia, el mapa remonta fresco.
+
+    st_folium con clave fija reutiliza el iframe y las chinchetas se quedaban
+    viejas al publicar/resolver. Con la huella en la clave, cualquier alta, baja,
+    edición o resolución regenera el mapa.
+    """
+    import hashlib
+
+    try:
+        rows = con.execute("SELECT id, lat, lng, status FROM avisos ORDER BY id").fetchall()
+        base = "|".join(f"{r['id']}:{r['lat']}:{r['lng']}:{r['status']}" for r in rows)
+    except Exception:
+        base = "x"
+    return hashlib.md5(base.encode()).hexdigest()[:8]
+
+
 def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | None = None,
                           zoom: int = 13):
     """Mapa Leaflet con chinchetas + leyenda en franja debajo.
@@ -709,7 +726,8 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                     popup_html(c, marca=marca, dist=it.get("dist_km")), max_width=260),
                 icon=folium.Icon(color=pin_color(c)),
             ).add_to(cl_found)
-        st_folium(fmap, key=key, height=450, use_container_width=True)
+        st_folium(fmap, key=f"{key}_{huella_mapa(con)}", height=450,
+                  use_container_width=True)
         tipos = {it.get("candidato", it).get("type") for it in items}
         leyenda_mapa(mostrar_perdidos=("lost" in tipos or bool(otros_lost)),
                      mostrar_avist=("found" in tipos))
@@ -1227,11 +1245,9 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   background:#FFFFFF !important;
   color:#23201B !important;
   font-weight:800 !important;
-  font-size:1.05rem !important;
   border:1px solid #57503F !important;
   border-radius:8px !important;
-  padding:18px 12px !important;
-  min-height:96px !important;
+  padding:10px 12px !important;
   white-space:pre-line !important;
   text-align:left !important;
   line-height:1.25 !important;
@@ -2212,7 +2228,7 @@ if page == "buscar":
                     tooltip=c["id"],
                     popup=folium.Popup(popup_html(c), max_width=260),
                     icon=folium.Icon(color=pin_color(c))).add_to(cl_av)
-            out = st_folium(fmap, key="cerca_map",
+            out = st_folium(fmap, key=f"cerca_map_{huella_mapa(con)}",
                             center=(st.session_state.q_lat, st.session_state.q_lon),
                             zoom=14, height=380, use_container_width=True)
             leyenda_mapa()
@@ -2469,6 +2485,7 @@ if page == "publicar":
                        "pub_color", "pub_size", "pub_collar", "reg_lat", "reg_lon",
                        "addr_in"):
                 st.session_state.pop(_k, None)
+            st.session_state.pub_foto_n = st.session_state.get("pub_foto_n", 0) + 1
             st.rerun()
     if "pub_collar" not in st.session_state:
         st.session_state.pub_collar = False
@@ -2486,7 +2503,7 @@ if page == "publicar":
                                                          "other": "Otro"}.get(a, "SELECCIONAR"))
             st.markdown(FOTO_PUB_STYLE, unsafe_allow_html=True)
             foto = st.file_uploader("Foto del animal", type=["jpg", "jpeg", "png"],
-                                    key="foto_pub")
+                                    key=f"pub_foto_{st.session_state.get('pub_foto_n', 0)}")
             if foto:
                 vista_previa_scan(foto)
             elif pre.get("qpath") and Path(pre["qpath"]).exists():
@@ -2555,7 +2572,7 @@ if page == "publicar":
                     tooltip=_c["id"],
                     popup=folium.Popup(popup_html(_c), max_width=260),
                     icon=folium.Icon(color=pin_color(_c))).add_to(_cl_av)
-            out = st_folium(fmap, key="reg_map",
+            out = st_folium(fmap, key=f"reg_map_{huella_mapa(con)}",
                             center=(st.session_state.reg_lat, st.session_state.reg_lon),
                             zoom=14, height=380, use_container_width=True)
             leyenda_mapa()
@@ -2701,16 +2718,19 @@ if page == "reencuentro":
         nota = st.text_area("Cómo fue el reencuentro", "", key="re_nota",
                             placeholder="Ej. apareció en el portal de casa")
         fotos_r = st.file_uploader("Fotos del reencuentro", type=["jpg", "jpeg", "png"],
-                                   accept_multiple_files=True, key="re_fotos")
+                                   accept_multiple_files=True,
+                                   key=f"re_fotos_{st.session_state.get('re_fotos_n', 0)}")
         if fotos_r:
             _fp_cols = st.columns(min(3, len(fotos_r)))
             for _fc, _f in zip(_fp_cols, fotos_r[:3]):
                 with _fc:
                     st.image(_f, caption=getattr(_f, "name", "foto"), width=150)
     if st.button("Empezar de cero", key="re_limpiar"):
-        for _k in ("re_lost", "re_found", "re_nota", "re_fotos", "re_shake_n",
+        for _k in ("re_lost", "re_found", "re_nota", "re_shake_n",
                    "re_shake_pending", "re_faltan"):
             st.session_state.pop(_k, None)
+        # El uploader no se vacía borrando su clave (quirk Streamlit): se rota.
+        st.session_state.re_fotos_n = st.session_state.get("re_fotos_n", 0) + 1
         st.rerun()
     _re_n = st.session_state.get("re_shake_n", 0)
     if st.session_state.pop("re_shake_pending", False):
@@ -2743,8 +2763,9 @@ if page == "reencuentro":
                     guardadas.append(dest)
                 rid = dbmod.save_reencuentro(con, elegidos, guardadas, nota)
                 admmod.log_action(f"REENCUENTRO {rid} pendiente: {', '.join(elegidos)}")
-                for _k in ("re_lost", "re_found", "re_nota", "re_fotos"):
+                for _k in ("re_lost", "re_found", "re_nota"):
                     st.session_state.pop(_k, None)
+                st.session_state.re_fotos_n = st.session_state.get("re_fotos_n", 0) + 1
                 _dt = _tr.time() - _t0
                 if _dt < 1.5:
                     _tr.sleep(1.5 - _dt)

@@ -94,7 +94,7 @@ def test_reencuentro_builders():
                                  "Volvió a casa", 0, foto2_uri="data:image/jpeg;base64,BBB")
     assert "huellas-cerrado-imgs" in c5
     assert c5.count("<img") == 2
-    assert c5.count("viewBox") == 21  # 20 lluvia + corazón
+    assert c5.count("viewBox") == 37  # 36 lluvia + corazón
     c2 = build_cerrado_card_html("", "Gato · naranja", "En revisión", 0,
                                  marca="En revisión", marca_clase="ambar",
                                  pie="Resuelve lost_002")

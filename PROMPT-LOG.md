@@ -536,6 +536,16 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.29: `requirements.md` §32 + REQ-UI-02 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 62/62, smoke 9 páginas OK, demo_check E2E OK.
 
+## S98 — 25/09/2026 — Mapas frescos, contadores y limpieza real v1.30 (Muse Spark)
+- REQ-UI-78: `huella_mapa()` en las 3 claves (st_folium con clave fija reutilizaba
+  el iframe con chinchetas viejas).
+- REQ-UI-79/80: contadores chicos (negro/negrita intactos); 36 corazones uniformes.
+- REQ-UI-81: causa del limpiar roto (uploader ignora el borrado; selects+texto sí
+  se limpiaban — reproducido con AppTest) + rotación de clave en reencuentro y
+  publicar + `tests/test_limpiar.py`.
+- Specs v1.30: `requirements.md` §33 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 63/63, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError

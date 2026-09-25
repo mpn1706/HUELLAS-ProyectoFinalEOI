@@ -135,7 +135,7 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..77, v1.29 25/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..81, v1.30 25/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
@@ -217,6 +217,8 @@ Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun
 - v1.28: revisión sin doble borde; solo preview de subidas; lluvia uniforme;
   contadores negros en negrita y altos.
 - v1.29: fuera DATOS DEMO (demo siempre instaurada; sidebar de 5).
+- v1.30: mapas con clave-fingerprint; contadores chicos; lluvia 36 uniforme;
+  limpieza con rotación de clave (quirk file_uploader).
 - Accesibilidad/móvil: todo CSS, sin JS ni libs; `prefers-reduced-motion: reduce`
   apaga `trk/up/pulse/subrayado/latido/sweep/peri`; inicio con botones reales (no links).
 - Trazabilidad: `tests/test_carousel.py` (sin contacto, letterbox 300×208, counts con

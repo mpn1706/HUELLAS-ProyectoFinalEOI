@@ -473,14 +473,15 @@ def build_cerrado_card_html(foto_uri: str, titulo: str, dias_txt: str,
         lluvia = ""
     else:
         corazones = "".join(
-            f'<svg viewBox="0 0 24 24" width="{14 + (i % 3) * 4}" '
-            f'height="{14 + (i % 3) * 4}" aria-hidden="true" '
-            f'style="left:{2 + i * 4.8:.1f}%;animation-delay:{i * 0.22:.2f}s">'
+            f'<svg viewBox="0 0 24 24" width="{12 + (i * 7) % 12}" '
+            f'height="{12 + (i * 7) % 12}" aria-hidden="true" '
+            f'style="left:{2 + (i * 37) % 94:.1f}%;'
+            f'animation-delay:{(i * 53) % 340 / 100:.2f}s">'
             '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 '
             '2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 '
             '16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 '
             '21.35z" fill="#E30613"/></svg>'
-            for i in range(20))
+            for i in range(36))
         lluvia = f'<div class="huellas-lluvia">{corazones}</div>'
         final = ('<svg class="huellas-heart" viewBox="0 0 24 24" width="26" height="26" '
                  'aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 '
