@@ -1935,9 +1935,10 @@ with st.sidebar:
     if st.session_state.get("side_punt", False):
         with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False,
                           key="exp_punt1"):
-            st.markdown("**0.40·VISUAL + 0.30·TEXTO + 0.20·TEMPORAL + 0.10·GEO**")
-            for _txt in ("≥80% · ALERTA", "≥65% · EN LISTA", "RADIO 15 KM",
-                         "VENTANA 30 DÍAS"):
+            st.markdown("**0.55·VISUAL + 0.25·TEXTO + 0.10·TEMPORAL + 0.10·GEO**")
+            for _txt in ("≥80% · ALERTA", "VISUAL ≥95% · ALERTA",
+                          "≥65% · EN LISTA", "RADIO 15 KM",
+                          "VENTANA 30 DÍAS"):
                 st.markdown('<div style="background:#000000;border-radius:8px;'
                             'padding:.4rem .2rem;margin-bottom:.4rem;'
                             'text-align:center;color:#FFFFFF;font-weight:800;font-size:.72rem;">'

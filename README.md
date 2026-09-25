@@ -30,11 +30,12 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 ### Fórmula (cerrada, `requirements.md` §8)
 
 ```
-score = 0.40·visual + 0.30·texto + 0.20·temporal + 0.10·geo
+score = 0.55·visual + 0.25·texto + 0.10·temporal + 0.10·geo
 geo   = max(0, 1 - km/15) · texto = 0.70·estructurado + 0.30·semántico
 temp  = max(0, 1 - días/30), fecha = last_seen si existe si no reported
 ```
-Umbrales: `>=80%` notifica + destaca · `>=65%` lista · `<65%` solo indexa.
+Umbrales: `>=80%` notifica + destaca · `visual>=95%` también notifica (misma foto) · `>=65%` lista · `<65%` solo indexa.
+Color/marcas se comparan sin tildes ni mayúsculas (Marrón=marron, Café=marrón).
 
 ## Stack
 

@@ -39,3 +39,17 @@ def test_score_distinto_actualiza(tmp_path):
 def test_bajo_umbral_no_registra(tmp_path):
     con = _con(tmp_path)
     assert notificar(con, "q", [_m("c1", 0.5)], log_path=str(tmp_path / "n.log")) == []
+
+
+def test_puerta_visual_registra_aunque_score_bajo(tmp_path):
+    con = _con(tmp_path)
+    log = str(tmp_path / "n.log")
+    m = {"candidato_id": "c1", "score": 0.55, "visual": 1.0, "notifica": True}
+    assert len(notificar(con, "q", [m], log_path=log)) == 1
+
+
+def test_sin_bandera_mantiene_criterio_score(tmp_path):
+    con = _con(tmp_path)
+    log = str(tmp_path / "n.log")
+    assert notificar(con, "q", [_m("c1", 0.79)], log_path=log) == []
+    assert len(notificar(con, "q", [_m("c2", 0.80)], log_path=log)) == 1

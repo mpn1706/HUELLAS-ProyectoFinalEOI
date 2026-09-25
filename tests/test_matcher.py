@@ -1,8 +1,15 @@
 """Tests Matcher — REQ-07 fórmula/pesos + REQ-08 umbrales >=."""
 from agents.matcher import (
+    PESO_GEO,
+    PESO_TEMP,
+    PESO_TEXTO,
+    PESO_VISUAL,
+    UMBRAL_GATE_VISUAL,
     UMBRAL_LISTA,
     UMBRAL_NOTIF,
+    canon_color,
     match_one,
+    normalizar_txt,
     proximidad_temporal,
     score_total,
     similitud_estructurada,
@@ -24,8 +31,13 @@ C = {
 
 
 def test_pesos_suman_uno():
-    assert abs((0.40 + 0.30 + 0.20 + 0.10) - 1.0) < 1e-9
+    assert abs((PESO_VISUAL + PESO_TEXTO + PESO_TEMP + PESO_GEO) - 1.0) < 1e-9
     assert abs(score_total(1, 1, 1, 1) - 1.0) < 1e-9
+
+
+def test_pesos_v13_visual_manda():
+    assert PESO_VISUAL == 0.55 and PESO_TEXTO == 0.25
+    assert PESO_TEMP == 0.10 and PESO_GEO == 0.10
 
 
 def test_estructurada_identica_es_uno():
@@ -53,3 +65,36 @@ def test_umbrales_borde_inclusivos():
     assert UMBRAL_NOTIF == 0.80 and UMBRAL_LISTA == 0.65
     # score exacto 0.65 debe listar (regla >=)
     assert 0.65 >= UMBRAL_LISTA
+
+
+def test_normalizar_ignora_tildes_mayusculas():
+    assert normalizar_txt("  MARRÓN ") == "marron"
+    assert canon_color("Marron") == canon_color("marrón") == "marron"
+    assert canon_color("Café") == "marron"  # alias
+    q = dict(Q, color_primary="MARRON", markings=["Pecho Blanco"])
+    c = dict(C, color_primary="marrón", markings=["pecho blanco"])
+    assert similitud_estructurada(q, c) == 1.0
+
+
+def test_gate_visual_alerta_aunque_total_bajo():
+    assert UMBRAL_GATE_VISUAL == 0.95
+    # Misma foto (visual 1.0) pero todo lo demás distinto: alerta igual
+    otro = {"id": "x", "color_primary": "negro", "size": "large",
+            "has_collar": False, "markings": ["oreja cortada"],
+            "location": {"lat": 37.0000, "lng": -6.5000},
+            "date_reported": "2026-01-01T10:00:00+02:00",
+            "date_last_seen": "2026-01-01T10:00:00+02:00"}
+    m = match_one(Q, otro, visual=1.0, semant=0.0)
+    assert m["visual"] == 1.0 and m["score"] < UMBRAL_NOTIF
+    assert m["notifica"] and m["lista"]
+
+
+def test_gate_no_dispara_con_visual_alta_pero_no_identica():
+    otro = {"id": "x", "color_primary": "negro", "size": "large",
+            "has_collar": False, "markings": ["oreja cortada"],
+            "location": {"lat": 37.0000, "lng": -6.5000},
+            "date_reported": "2026-01-01T10:00:00+02:00",
+            "date_last_seen": "2026-01-01T10:00:00+02:00"}
+    m = match_one(Q, otro, visual=0.90, semant=0.0)
+    assert m["score"] < UMBRAL_NOTIF
+    assert not m["notifica"] and not m["lista"]

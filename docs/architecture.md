@@ -100,8 +100,8 @@ Tabla `avisos` espejo 1:1 del esquema REQ-05:
 1. **Ingestor (`agents/ingestor.py`)**: valida tipos, genera UUID, normaliza strings (lower/trim), convierte ubicación a float, parsea ISO8601, guarda con `image_embedding=NULL`, `breed_guess=NULL`, `status=active`. Preserva `description_text` intacto. Valida `other`: exige `color_primary`, `size`, `description_text`. No llama a visión.
 2. **Vision Analyst (`agents/vision.py`)**: input `id`; carga imagen local `data/seed/images/`; devuelve `{animal, breed_guess (NULL si other), color_primary/secondary, markings, size, has_collar, collar_description, image_embedding CLIP 512}`; hace UPDATE con precedencia sobre atributos visuales.
 3. **Geo (`agents/geo.py`)**: `haversine_km(lat1,lng1,lat2,lng2)` + `proximidad = max(0, 1 - km/15)`. Constante `RADIO_MAX_KM=15`.
-4. **Matcher (`agents/matcher.py`)**: para `aviso_q` contra candidatos opuestos activos: `visual 0.40 + texto (0.70*estruct+0.30*semant) 0.30 + temporal max(0,1-dias/30) 0.20 + geo 0.10`, ordena desc, aplica `>=85 / >=65`. Expone `explain(match)` con 4 sub-scores para UI.
-5. **Notifier (`agents/notifier.py`)**: si `score>=85`, inserta en `notifications` + escribe log + marca panel. Sin Telegram.
+4. **Matcher (`agents/matcher.py`)**: para `aviso_q` contra candidatos opuestos activos: `visual 0.55 + texto (0.70*estruct+0.30*semant, color/marcas normalizados sin tildes) 0.25 + temporal max(0,1-dias/30) 0.10 + geo 0.10`, ordena desc, aplica `>=80 / >=65` o puerta visual `>=95%` (v1.40 S108). Expone `explain(match)` con 4 sub-scores para UI.
+5. **Notifier (`agents/notifier.py`)**: si `notifica` (score>=80 o visual>=95), inserta en `notifications` + escribe log + marca panel. Sin Telegram.
 
 Diagrama secuencia CU-01/CU-02:
 

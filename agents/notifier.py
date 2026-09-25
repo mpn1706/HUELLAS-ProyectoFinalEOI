@@ -13,10 +13,15 @@ from .matcher import UMBRAL_NOTIF
 
 
 def notificar(con, query_id: str, matches: list, log_path: str = "data/notifications.log") -> list:
-    """Registra solo novedades y devuelve las nuevas/actualizadas."""
+    """Registra solo novedades y devuelve las nuevas/actualizadas.
+
+    La decisión de alertar vive en Matcher (`m["notifica"]`: score>=80%
+    o puerta visual>=95%); aquí solo se respeta. Los dicts sin bandera
+    (tests viejos) caen al criterio clásico score<UMBRAL.
+    """
     nuevos = []
     for m in matches:
-        if m["score"] < UMBRAL_NOTIF:
+        if not m.get("notifica", m["score"] >= UMBRAL_NOTIF):
             continue
         row = con.execute(
             "SELECT score FROM notifications WHERE aviso_id=? AND candidato_id=?",

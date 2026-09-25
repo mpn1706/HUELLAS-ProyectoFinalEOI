@@ -630,3 +630,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S83 — 25/09/2026 — Boli sin marco (Muse Spark)
 - Fuera el borde punteado de `.huellas-penwrap` (`border:none`): sin marco.
 - Verificación: smoke 9 páginas OK.
+
+## S108 — 25/09/2026 — Matching v1.40: visual manda + puerta foto idéntica (Muse Spark)
+- Queja del alumno con pantallazos: misma foto daba 73% (visual 100% pero texto 23% vetaba la alerta) y distintos perros daban visual alta (histograma de colores en Cloud, no identidad).
+- Pesos (decisión alumno): 0.55 visual + 0.25 texto + 0.10 temporal + 0.10 geo (`matcher.py`, spec §8 v1.40, `architecture.md` x2, `README.md`, sidebar). Descartado 0.60 visual: medido, la demo E2E caía a 0.798 <0.80.
+- Puerta visual: `visual>=0.95` también notifica/lista (`UMBRAL_GATE_VISUAL`, spec §9 v1.40); `notifier.py` respeta la bandera `m["notifica"]` (fuente única en Matcher).
+- Texto frágil: `normalizar_txt()` (tildes/mayúsculas/espacios) + `COLOR_ALIAS` mínimos (café/canela/chocolate→marrón…) en `similitud_estructurada`.
+- Specs v1.40: `requirements.md` §8/§9 + §7.5 (`docs/`).
+- Verificación: pytest 71/71, demo_check E2E OK (found_011 top-1 80.8% ≥80%, found_001 72.4% ≥65%).
