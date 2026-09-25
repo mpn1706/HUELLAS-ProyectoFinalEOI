@@ -11,8 +11,8 @@ APP = str(Path("app.py").resolve())
 def test_marcha_duplica_pista_y_alterna():
     h = build_marcha_html()
     assert 'class="huellas-march"' in h and 'class="huellas-track"' in h
-    assert h.count('class="huellas-pet"') == 8  # 4 + 4 duplicada (bucle sin salto)
-    assert h.count("<svg") == 8
+    assert h.count('class="huellas-pet"') == 24  # 12 + 12 (pista larga, sin vacíos)
+    assert h.count("<svg") == 24
     assert "#23201B" in h and "#E30613" in h  # paleta negro/rojo
 
 

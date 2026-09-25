@@ -299,16 +299,19 @@ _GATO_MARCHA = (
 def build_marcha_html() -> str:
     """Tira de gatitos y perritos trotando en fila (solo CSS, bucle infinito).
 
-    Pista duplicada para giro continuo sin salto; cada figura trota con
-    retardo escalonado. Paleta de la web: negro y rojo alternos.
+    Miran a la derecha y avanzan hacia delante (`-50%→0`). Pista de 6
+    manadas (la mitad idéntica a la otra) para que nunca se vacíe ningún
+    lado aunque el sidebar sea ancho. Cada figura trota con retardo
+    escalonado. Paleta de la web: negro y rojo alternos.
     """
     manada = [(_PERRO_MARCHA.format(c="#23201B"), 0.0),
               (_GATO_MARCHA.format(c="#E30613"), 0.12),
               (_PERRO_MARCHA.format(c="#E30613"), 0.24),
               (_GATO_MARCHA.format(c="#23201B"), 0.36)]
-    mitad = "".join(
+    pack = "".join(
         f'<span class="huellas-pet" style="animation-delay:{d}s">{svg}</span>'
         for svg, d in manada)
+    mitad = pack * 3
     return ('<div class="huellas-march" aria-hidden="true">'
             f'<div class="huellas-track">{mitad}{mitad}</div></div>')
 

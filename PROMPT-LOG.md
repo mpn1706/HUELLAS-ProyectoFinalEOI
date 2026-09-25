@@ -647,3 +647,4 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S110 — 25/09/2026 — Desfile lateral tras Soporte (Muse Spark)
 - Tras la divisoria negra bajo el PayPal del sidebar: tira de gatitos y perritos (SVG negro/rojo) trotando en fila, bucle infinito sin salto (`build_marcha_html()` + `.huellas-track`/`.huellas-trote`, respeta `prefers-reduced-motion`).
 - Verificación: `test_sidebar_marcha.py` 2/2 + smoke 9 páginas OK.
+- Fix: pista x3 (24 figuras, mitades idénticas) para que no se vacíe ningún lado + dirección `-50%→0` (avanzan hacia donde miran).
