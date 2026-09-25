@@ -643,3 +643,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Texto frágil: `normalizar_txt()` (tildes/mayúsculas/espacios) + `COLOR_ALIAS` mínimos (café/canela/chocolate→marrón…) en `similitud_estructurada`.
 - Specs v1.40: `requirements.md` §8/§9 + §7.5 (`docs/`).
 - Verificación: pytest 71/71, demo_check E2E OK (found_011 top-1 80.8% ≥80%, found_001 72.4% ≥65%).
+
+## S110 — 25/09/2026 — Desfile lateral tras Soporte (Muse Spark)
+- Tras la divisoria negra bajo el PayPal del sidebar: tira de gatitos y perritos (SVG negro/rojo) trotando en fila, bucle infinito sin salto (`build_marcha_html()` + `.huellas-track`/`.huellas-trote`, respeta `prefers-reduced-motion`).
+- Verificación: `test_sidebar_marcha.py` 2/2 + smoke 9 páginas OK.

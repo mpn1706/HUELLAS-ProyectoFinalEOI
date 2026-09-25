@@ -37,6 +37,7 @@ from ui_home import (
     build_foto_scan_html,
     build_leyenda_html,
     build_match_card_html,
+    build_marcha_html,
     build_pen_html,
     build_radar_html,
     build_result_card_html,
@@ -1397,6 +1398,18 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   display:flex; align-items:center; justify-content:center; align-self:stretch; }
 .huellas-scanrow .huellas-flecha { width:56px; flex:none; margin-right:.55rem; }
 .huellas-scanrow .huellas-analizada { font-size:1.05rem; padding:.55rem .9rem; }
+/* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito). */
+.huellas-march { overflow:hidden; margin:.1rem 0 .3rem; }
+.huellas-track { display:inline-flex; white-space:nowrap;
+  animation:huellas-march 10s linear infinite; }
+.huellas-track .huellas-pet { display:inline-block; margin-right:16px;
+  animation:huellas-trote .38s ease-in-out infinite alternate; }
+@keyframes huellas-march {
+  from { transform:translateX(0); }
+  to { transform:translateX(-50%); } }
+@keyframes huellas-trote {
+  from { transform:translateY(0) rotate(-3deg); }
+  to { transform:translateY(-3px) rotate(3deg); } }
 
 @keyframes huellas-fadein {
   from { opacity:0; transform:translateY(4px); }
@@ -1676,6 +1689,7 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   div[class*="st-key-confirm_pub"] button::after,
   div[class*="st-key-b_buscar"] button,
   div[class*="st-key-re_notif"] button { animation:none !important; }
+  .huellas-track, .huellas-track .huellas-pet { animation:none !important; }
   .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
   .huellas-nodo, .huellas-sello { opacity:1 !important; }
   .huellas-tl-linea { transform:scaleX(1) !important; }
@@ -2215,6 +2229,8 @@ with st.sidebar:
         '<a href="https://paypal.me/mariop1706" style="color:#E30613;">'
         'https://paypal.me/mariop1706</a></div>',
         unsafe_allow_html=True)
+    st.divider()
+    st.markdown(build_marcha_html(), unsafe_allow_html=True)
 
 page = st.session_state.get("page", "inicio")
 
