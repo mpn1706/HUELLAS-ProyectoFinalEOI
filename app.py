@@ -560,27 +560,27 @@ def titulo_barrido(texto: str):
     """Título con barrido rojo continuo sobre letras negras (izq↔der). Solo CSS."""
     import html as _html
 
-    c1, c2 = st.columns([10, 1], vertical_alignment="center")
+    c1, c2 = st.columns([1, 10], vertical_alignment="center")
     with c1:
+        _boton_inicio(texto)
+    with c2:
         st.markdown(f'<h3 class="huellas-barrido">{_html.escape(texto)}</h3>',
                     unsafe_allow_html=True)
-    with c2:
-        _boton_inicio(texto)
 
 
 def titulo_perimetro(texto: str):
     """Título en caja con huella roja recorriendo su perímetro (velocidad media)."""
     import html as _html
 
-    c1, c2 = st.columns([10, 1], vertical_alignment="center")
+    c1, c2 = st.columns([1, 10], vertical_alignment="center")
     with c1:
+        _boton_inicio(texto)
+    with c2:
         st.markdown(
             f'<div class="huellas-peri-wrap"><span class="huellas-perimetro">'
             f'{_html.escape(texto)}'
             f'<span class="huellas-perimetro-paw">{PAW_ROJA_SVG}</span></span></div>',
             unsafe_allow_html=True)
-    with c2:
-        _boton_inicio(texto)
 
 
 def linea_chips_perdido(a: dict):
