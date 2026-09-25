@@ -1175,22 +1175,15 @@ section[data-testid="stSidebar"] div.block-container {
   background:#E30613 !important;
   color:#FFFFFF !important;
   border:none !important;
-  transition:transform .2s, background .2s !important;
+  transition:background .2s !important;
+  animation:huellas-beatbox 2.4s ease-in-out infinite !important;
 }
-[data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
-[data-testid="stAppViewContainer"] .st-key-hero_buscar button::after {
-  content:"" !important;
-  position:absolute !important;
-  inset:-2px !important;
-  border:2px solid #E30613 !important;
-  border-radius:8px !important;
-  animation:huellas-ring 2.2s ease-out infinite !important;
-  pointer-events:none !important;
+@keyframes huellas-beatbox {
+  0%,100% { transform:scale(1); }
+  50% { transform:scale(.94); }
 }
-@keyframes huellas-ring { 0% { transform:scale(1); opacity:.8; } 100% { transform:scale(1.12,1.4); opacity:0; } }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button:hover,
 [data-testid="stAppViewContainer"] .st-key-hero_buscar button:hover {
-  transform:translateX(3px) !important;
   background:rgba(227,6,19,0.85) !important;
 }
 [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
@@ -1226,6 +1219,8 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-cd-et.avis { background:#23201B; color:#FFFFFF; }
 .huellas-cd-et.rev { background:#E8A100; color:#23201B; }
 .huellas-cd-et.cerr { background:#35AC46; color:#FFFFFF; }
+.huellas-cd-et.rev, .huellas-cd-et.cerr {
+  display:block; margin-top:4px; text-align:center; }
 .huellas-vacio { background:#FFFFFF; border:1px solid #57503F; border-radius:10px; padding:1.2rem; text-align:center; }
 .huellas-vacio-t { font-weight:800; color:#23201B; margin:0 0 0.3rem; }
 .huellas-vacio-s { color:#57503F; margin:0; font-size:0.85rem; }
@@ -1251,6 +1246,25 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 [data-testid="stAppViewContainer"] .st-key-count_reencuentro button:hover {
   transform:translateY(-3px) !important;
   border-color:#E30613 !important;
+}
+/* Contadores con velo rojo parpadeante (relleno rojo↔blanco, velocidad media). */
+[data-testid="stAppViewContainer"] div[class*="st-key-count_"] button {
+  position:relative !important;
+  overflow:hidden !important;
+}
+[data-testid="stAppViewContainer"] div[class*="st-key-count_"] button::after {
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:8px !important;
+  background:#E30613 !important;
+  opacity:0 !important;
+  animation:huellas-fillblink 1.8s ease-in-out infinite !important;
+  pointer-events:none !important;
+}
+@keyframes huellas-fillblink {
+  0%,100% { opacity:0; }
+  50% { opacity:.75; }
 }
 .huellas-count { background:#FFFFFF; border:1px solid #57503F; border-radius:8px; padding:10px 12px; }
 .huellas-count-v { font-family:'Montserrat','Inter',sans-serif; font-size:1.4rem; font-weight:800; color:#23201B; }
@@ -1581,8 +1595,9 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
 @keyframes huellas-draw { to { stroke-dashoffset:0; } }
 @media (prefers-reduced-motion:reduce) {
   .huellas-trk, .huellas-up, .huellas-barrido, .huellas-perimetro-paw,
-  [data-testid="stAppViewContainer"] .st-key-hero_publicar button::after,
-  [data-testid="stAppViewContainer"] .st-key-hero_buscar button::after,
+  [data-testid="stAppViewContainer"] .st-key-hero_publicar button,
+  [data-testid="stAppViewContainer"] .st-key-hero_buscar button,
+  [data-testid="stAppViewContainer"] div[class*="st-key-count_"] button::after,
   em.u::after, .huellas-heart { animation:none !important; }
   em.u::after { width:100% !important; }
   /* Tanda Publicar con vida: todo queda en su estado final estático. */
@@ -1890,7 +1905,7 @@ with st.sidebar:
               use_container_width=True, type="tertiary",
               on_click=_toggle, args=("side_demo",))
     if st.session_state.get("side_demo", False):
-        if st.button("Cargar seed Jerez (19 avisos activos)", key="demo_seed",
+        if st.button("Cargar seed Jerez (20 avisos activos)", key="demo_seed",
                      use_container_width=True):
             import json as _json
 
@@ -1907,12 +1922,12 @@ with st.sidebar:
             _bf(con2)
             _sy(con2)
             retirar_alerta_demo(con2)
-            st.success(f"Seed cargada: 19 avisos activos "
-                       f"(6 perdidos + 13 avistamientos, +1 resuelto demo).")
+            st.success(f"Seed cargada: 20 avisos activos "
+                       f"(7 perdidos + 13 avistamientos).")
             st.rerun()
-        if st.button("Expirar avisos >30 días", key="demo_expire",
+        if st.button("Expirar avisos de más de 1 año", key="demo_expire",
                      use_container_width=True):
-            n = dbmod.expire_old(get_con(), 30)
+            n = dbmod.expire_old(get_con(), 365)
             st.info(f"Avisos expirados: {n}")
     st.button("Más", key="tgl_mas", icon=":material/add:",
               use_container_width=True, type="tertiary",
@@ -1959,6 +1974,63 @@ with st.sidebar:
                 if st.button("Salir"):
                     st.session_state.admin_ok = False
                     st.rerun()
+                st.subheader("Reencuentros")
+                _re_est = st.selectbox(
+                    "Reencuentros por estado",
+                    ["pendiente", "validada", "rechazada", "todos"],
+                    key="adm_re_est",
+                    format_func=lambda s: {"pendiente": "Pendientes",
+                                           "validada": "Validados",
+                                           "rechazada": "Rechazados",
+                                           "todos": "Todos"}.get(s, s))
+                _reencs = (dbmod.list_reencuentros(con) if _re_est == "todos"
+                           else dbmod.list_reencuentros(con, _re_est))
+                with st.expander(f"Revisar reencuentros ({len(_reencs)})",
+                                 expanded=True):
+                    if not _reencs:
+                        st.caption("Nada que mostrar con ese filtro.")
+                    for r in _reencs:
+                        st.markdown(f"**`{r['id']}`** [{r['estado']}] · resuelve "
+                                    f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
+                        if r["nota"]:
+                            st.write(r["nota"])
+                        for fp in r["fotos"][:2]:
+                            show_image(fp, caption="Prueba", fluido=True)
+                        if r["estado"] == "pendiente":
+                            c_ok, c_no = st.columns(2)
+                            with c_ok:
+                                if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}",
+                                             type="primary"):
+                                    for aid in r["aviso_ids"]:
+                                        admmod.resolve_aviso(con, aid)
+                                    dbmod.set_reencuentro(con, r["id"], "validada")
+                                    admmod.log_action(
+                                        f"REENCUENTRO {r['id']} validado; "
+                                        f"resueltos {', '.join(r['aviso_ids'])}")
+                                    st.success("Caso cerrado.")
+                                    st.rerun()
+                            with c_no:
+                                if st.button("Rechazar", key=f"rv_no_{r['id']}"):
+                                    dbmod.set_reencuentro(con, r["id"], "rechazada")
+                                    admmod.log_action(
+                                        f"REENCUENTRO {r['id']} rechazado "
+                                        "(posible vandalismo); avisos intactos")
+                                    st.info("Rechazado: los avisos siguen activos.")
+                                    st.rerun()
+                        if st.session_state.get("confirm_renc") == r["id"]:
+                            if st.button("Confirmar eliminación", key=f"rc_{r['id']}",
+                                         type="primary"):
+                                dbmod.delete_reencuentro(con, r["id"])
+                                admmod.log_action(
+                                    f"REENCUENTRO {r['id']} eliminado "
+                                    f"(estaba {r['estado']}); avisos intactos")
+                                st.session_state.pop("confirm_renc", None)
+                                st.success(f"Reencuentro {r['id']} eliminado.")
+                                st.rerun()
+                        elif st.button("Eliminar", key=f"rd_{r['id']}"):
+                            st.session_state.confirm_renc = r["id"]
+                            st.rerun()
+                st.subheader("Avisos")
                 for a in admmod.list_avisos(con, tipo=f_tipo, texto=f_txt):
                     with st.container(border=True):
                         show_image(a["image_url"], caption=a["id"], fluido=True)
@@ -2061,60 +2133,6 @@ with st.sidebar:
                                 except Exception as e:
                                     st.error(f"Error: {e}")
                 loga = Path("data/admin.log")
-                _re_est = st.selectbox(
-                    "Reencuentros por estado",
-                    ["pendiente", "validada", "rechazada", "todos"],
-                    key="adm_re_est",
-                    format_func=lambda s: {"pendiente": "Pendientes",
-                                           "validada": "Validados",
-                                           "rechazada": "Rechazados",
-                                           "todos": "Todos"}.get(s, s))
-                _reencs = (dbmod.list_reencuentros(con) if _re_est == "todos"
-                           else dbmod.list_reencuentros(con, _re_est))
-                with st.expander(f"Reencuentros ({len(_reencs)})"):
-                    if not _reencs:
-                        st.caption("Nada que mostrar con ese filtro.")
-                    for r in _reencs:
-                        st.markdown(f"**`{r['id']}`** [{r['estado']}] · resuelve "
-                                    f"{', '.join(f'`{x}`' for x in r['aviso_ids'])}")
-                        if r["nota"]:
-                            st.write(r["nota"])
-                        for fp in r["fotos"][:2]:
-                            show_image(fp, caption="Prueba", fluido=True)
-                        if r["estado"] == "pendiente":
-                            c_ok, c_no = st.columns(2)
-                            with c_ok:
-                                if st.button("Validar y cerrar", key=f"rv_ok_{r['id']}",
-                                             type="primary"):
-                                    for aid in r["aviso_ids"]:
-                                        admmod.resolve_aviso(con, aid)
-                                    dbmod.set_reencuentro(con, r["id"], "validada")
-                                    admmod.log_action(
-                                        f"REENCUENTRO {r['id']} validado; "
-                                        f"resueltos {', '.join(r['aviso_ids'])}")
-                                    st.success("Caso cerrado.")
-                                    st.rerun()
-                            with c_no:
-                                if st.button("Rechazar", key=f"rv_no_{r['id']}"):
-                                    dbmod.set_reencuentro(con, r["id"], "rechazada")
-                                    admmod.log_action(
-                                        f"REENCUENTRO {r['id']} rechazado "
-                                        "(posible vandalismo); avisos intactos")
-                                    st.info("Rechazado: los avisos siguen activos.")
-                                    st.rerun()
-                        if st.session_state.get("confirm_renc") == r["id"]:
-                            if st.button("Confirmar eliminación", key=f"rc_{r['id']}",
-                                         type="primary"):
-                                dbmod.delete_reencuentro(con, r["id"])
-                                admmod.log_action(
-                                    f"REENCUENTRO {r['id']} eliminado "
-                                    f"(estaba {r['estado']}); avisos intactos")
-                                st.session_state.pop("confirm_renc", None)
-                                st.success(f"Reencuentro {r['id']} eliminado.")
-                                st.rerun()
-                        elif st.button("Eliminar", key=f"rd_{r['id']}"):
-                            st.session_state.confirm_renc = r["id"]
-                            st.rerun()
                 if loga.exists():
                     with st.expander("Ver registro de administración"):
                         st.code(loga.read_text(encoding="utf-8")[-2000:])

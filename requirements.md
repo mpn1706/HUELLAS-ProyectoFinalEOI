@@ -51,7 +51,7 @@ Actor: dueño o quien avista. Flujo: elige canal (avistamientos si perdió, perd
 Actor: dueño. Ve lado a lado fotos, distancia km, diferencia días, atributos coincidentes/divergentes, y aviso legal de no-identidad. Decide contactar fuera del sistema.
 
 ### CU-05 — Resolver / expirar aviso / reencuentro
-Actor: dueño. Marca aviso como `resolved` mediante botón manual "Marcar como resuelto". Función `expire_old()` marca `expired` a los avisos con más de 30 días (invocable bajo demanda, sin cron). Los no-`active` no entran en matching.
+Actor: dueño. Marca aviso como `resolved` mediante botón manual "Marcar como resuelto". Función `expire_old()` marca `expired` a los avisos con más de 1 año sin cerrarse (invocable bajo demanda, sin cron; los resueltos viven en reencuentros y no expiran). Los no-`active` no entran en matching.
 Actor: cualquiera que presencie el reencuentro. En VOLVIÓ A CASA selecciona el perdido y/o avistamiento que se resuelve, sube fotos del reencuentro y lo notifica: queda pendiente y el administrador lo valida (resuelve los avisos y cierra el caso visible) o lo rechaza (posible vandalismo: los avisos siguen activos). Toda decisión queda en `data/admin.log`.
 
 Fuera de MVP: CU-07 ingesta automática externa, CU-08 chat asistente, CU-09 impresión cartel.
@@ -383,6 +383,19 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-61 — La nota del reencuentro va justo bajo "Especie · color" (dentro de
   la tarjeta, en cursiva).
 
+## 29. Inicio vivo + expiración anual + lost_006 (v1.26 25/09/2026, solo UI)
+
+- REQ-UI-66 — Contadores de Inicio con velo rojo parpadeante (relleno rojo↔blanco a
+  velocidad media, `::after` con `huellas-fillblink 1.8s`).
+- REQ-UI-67 — CTAs del hero con pulso de escala (encogen al 94% y vuelven, 2.4 s);
+  fuera el anillo expansivo.
+- REQ-UI-68 — Expiración a 1 año (`expire_old(365)` + botón); `lost_006` vuelve a
+  perdidos activos (los resueltos viven en reencuentros) + SEED v9 (20 activos:
+  7 perdidos + 13 avistamientos).
+- REQ-UI-69 — Segunda etiqueta del carrusel en bloque (sin cortes).
+- REQ-UI-70 — Gestor de reencuentros arriba del admin (subheaders + abierto por
+  defecto): visible sin scroll.
+
 ## 28. Admin fluida + reencuentros + 3 demo + carrusel (v1.25 25/09/2026)
 
 - REQ-UI-62 — Fotos del admin fluidas (`use_container_width` + guarda CSS): se adaptan
@@ -442,6 +455,6 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 8. `image_url`: ruta local `data/seed/images/`. ✅
 9. Notifier: panel/tabla Streamlit + log, sin Telegram. ✅
 10. Conflicto: manda Vision para `color_primary`; `description_text` intacto. ✅
-11. `status`: botón "Marcar como resuelto" + `expire_old()` 30d bajo demanda, sin cron. ✅
+11. `status`: botón "Marcar como resuelto" + `expire_old()` 365d bajo demanda, sin cron (v1.26, antes 30d). ✅
 12. `other`: obligatorios `color_primary`, `size`, `description_text`; opcionales `markings`, `has_collar`; `breed_guess` NULL. ✅
 13. Idioma: solo español. ✅

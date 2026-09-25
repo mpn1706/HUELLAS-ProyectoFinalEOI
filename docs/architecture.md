@@ -52,7 +52,7 @@ Aviso legal único en el sidebar (expander AVISO LEGAL): "Este análisis no prom
 | Temporal | `max(0, 1 - dias/30)`, fecha = `date_last_seen` si existe si no `date_reported` | Ventana 30d |
 | Notifier MVP | Panel/tabla Streamlit + `data/notifications.log` + tabla `notifications` | Sin Telegram |
 | Seed | `data/seed/lost/*.json` + `found/*.json` + `images/*` + `scripts/load_seed.py` | 15-20 avisos Jerez |
-| Estado | Botón "Marcar como resuelto" + `expire_old()` 30d bajo demanda | Sin cron |
+| Estado | Botón "Marcar como resuelto" + `expire_old()` 365d bajo demanda | Sin cron |
 
 ## 3. Estructura de carpetas (propuesta)
 
@@ -135,7 +135,7 @@ sequenceDiagram
 - Retrieval: filtro duro `status=active AND type != query.type` → puntuación → orden.
 - Sin LLM generativo: retrieval + ranking explicable + plantilla determinista en español.
 
-## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..65, v1.25 25/09/2026)
+## 8. Capa UI Inicio / navegación lateral (REQ-UI-01..70, v1.26 25/09/2026)
 
 Solo `app.py` + `ui_home.py` puro (testeable sin Streamlit). Sin cambios en
 `agents/`, `rag/`, matcher ni esquema BD.
@@ -210,6 +210,8 @@ Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun
 - v1.24: lluvia/ruleta por estado, tarjeta translúcida, nota bajo especie·color.
 - v1.25: admin fluido + gestor de reencuentros (`delete_reencuentro()`); seed 20
   avisos (SEED v8, siamés como `lost_007`); carrusel con etiqueta de reencuentro.
+- v1.26: velo en contadores + pulso en CTAs; expiración 365d; `lost_006` activo
+  (SEED v9); etiqueta en bloque; gestor arriba del admin.
 - Accesibilidad/móvil: todo CSS, sin JS ni libs; `prefers-reduced-motion: reduce`
   apaga `trk/up/pulse/subrayado/latido/sweep/peri`; inicio con botones reales (no links).
 - Trazabilidad: `tests/test_carousel.py` (sin contacto, letterbox 300×208, counts con

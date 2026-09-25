@@ -15,7 +15,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 - **5 agentes**: Ingestor (normaliza) → Vision Analyst (atributos + embedding CLIP 512) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=80%`).
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
-- **Automatización**: al registrar o buscar, si un candidato supera el 80% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos >30 días" (`expire_old()`, sin cron).
+- **Automatización**: al registrar o buscar, si un candidato supera el 80% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos de más de 1 año" (`expire_old()`, sin cron).
 - **Administración** (sidebar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. Contraseña: Secrets `ADMIN_PASSWORD` en Cloud, o variable `HUELLAS_ADMIN_PASSWORD`, o defecto local `huellas123`.
 - Las alertas no se duplican: un par (aviso, candidato) genera una sola fila (se actualiza si cambia el score).
 
@@ -25,7 +25,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 2. `pip install torch --index-url https://download.pytorch.org/whl/cpu` + `pip install transformers pillow` (solo local).
 3. `python scripts/compute_embeddings.py` → genera `data/seed/embeddings.json` (vectores CLIP reales, viajan en git; Cloud los usa sin torch).
 4. Commit de imágenes + JSONs + `embeddings.json`.
-- Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, 19 activos + 1 resuelto demo), sin scraping (fuera de alcance por decisión de diseño).
+- Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, todos activos), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)
 

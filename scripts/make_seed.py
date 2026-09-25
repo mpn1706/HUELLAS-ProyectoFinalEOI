@@ -55,9 +55,9 @@ A = [
     ("lost_005.json", "lost", "dog", "pitbull", "marrón", "blanco", ["pecho blanco"], "medium", False, None,
      "Pitbull marrón y blanco perdido en Vallesequillo. Mediano, fuerte, con el pecho blanco. No es agresivo.",
      36.67981, -6.1261, "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera", "2026-09-16T10:00:00+02:00", "2026-09-15T19:00:00+02:00", "perrete 12.jpg", "active"),
-    ("lost_006.json", "lost", "cat", "europeo", "gris", "blanco", ["rayas"], "small", False, None,  # RESUELTO demo (id ocupado: el nuevo siamés es lost_007)
+    ("lost_006.json", "lost", "cat", "europeo", "gris", "blanco", ["rayas"], "small", False, None,  # Vuelve a perdidos (S94): el siamés demo es lost_007
      "Gatito gris atigrado que se perdió en La Granja. Apareció al día siguiente en casa.",
-     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-11T10:00:00+02:00", "2026-09-10T09:00:00+02:00", "gato 3.jpg", "resolved"),
+     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-11T10:00:00+02:00", "2026-09-10T09:00:00+02:00", "gato 3.jpg", "active"),
     ("found_001.json", "found", "cat", "europeo", "naranja", "blanco", ["pecho blanco"], "small", False, None,
      "Gata naranja y blanca encontrada en la calle Larga. Joven, con el pecho blanco, maúlla mucho. Está a salvo.",
      36.68366, -6.13661, "Calle Larga, San Pedro, Jerez de la Frontera", "2026-09-20T12:00:00+02:00", None, "gato 5.jpg", "active"),

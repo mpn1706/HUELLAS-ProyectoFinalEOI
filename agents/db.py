@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
-SEED_VERSION = 8
+SEED_VERSION = 9
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
@@ -128,7 +128,7 @@ def set_resolved(con: sqlite3.Connection, aviso_id: str):
     con.commit()
 
 
-def expire_old(con: sqlite3.Connection, dias: int = 30) -> int:
+def expire_old(con: sqlite3.Connection, dias: int = 365) -> int:
     """Marca expired si date_reported < hoy-dias. Retorna nº afectados."""
     corte = (datetime.now().astimezone() - timedelta(days=dias)).isoformat()
     cur = con.execute(

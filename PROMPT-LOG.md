@@ -504,6 +504,16 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.25: `requirements.md` §28 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 62/62, smoke 9 páginas OK, demo_check E2E OK.
 
+## S94 — 25/09/2026 — Inicio vivo + expiración anual + lost_006 v1.26 (Muse Spark)
+- REQ-UI-66/67: velo rojo en contadores (`::after`, evita el `!important` de la base)
+  y pulso de escala en CTAs (fuera el anillo).
+- REQ-UI-68: `expire_old(365)` + botón anual; `lost_006` a active + SEED v9
+  (20 activos: 7 + 13); CU-05 y decisión 11 actualizadas.
+- REQ-UI-69/70: etiqueta en bloque; gestor de reencuentros arriba del admin
+  (estaba tras 20 tarjetas: invisible sin scroll).
+- Specs v1.26: `requirements.md` §29 + CU-05 + `architecture.md` §8 (root + `docs/`).
+- Verificación: pytest 62/62, smoke 9 páginas OK, demo_check E2E OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError
