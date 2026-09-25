@@ -450,6 +450,8 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   y enlaces legibles.
 - REQ-UI-98 — Pie centrado (métricas, badge, soporte), segundo divisor tras el badge
   y un solo enlace de donación.
+- REQ-UI-99 — Badge contenido (punto 8px, texto .72rem, aire superior) y soporte en
+  formato CONTACTO/URL con https rojos clicables (v1.38).
 
 ## 38. Contraste MÁS + puntúa vertical + pie visible (v1.35 25/09/2026, solo UI)
 

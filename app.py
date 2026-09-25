@@ -1510,7 +1510,7 @@ div[class*="st-key-b_buscar"] button { position:relative; }
 .huellas-dot { display:inline-block; width:9px; height:9px; border-radius:50%;
   background:#E30613; margin-right:.35rem;
   animation:huellas-dot 1.2s ease-in-out infinite; }
-.huellas-dotv { display:inline-block; width:10px; height:10px; border-radius:50%;
+.huellas-dotv { display:inline-block; width:8px; height:8px; border-radius:50%;
   background:#35AC46; margin-right:.4rem;
   animation:huellas-dot 1.6s ease-in-out infinite; }
 @keyframes huellas-dot {
@@ -2154,21 +2154,25 @@ with st.sidebar:
     stat_box(_n_sem, "Avistamientos 7 días", mini=True)
     stat_box(_urg, "Casos urgentes ≥7 días", mini=True)
     st.markdown(
-        '<div style="margin-top:.5rem;text-align:center;">'
+        '<div style="margin-top:.8rem;text-align:center;">'
         '<span class="huellas-dotv"></span>'
-        '<span style="font-weight:800;font-size:.8rem;">'
+        '<span style="font-weight:800;font-size:.72rem;">'
         'Estado del Servicio: Activo (Jerez)</span></div>',
         unsafe_allow_html=True)
     st.divider()
     st.markdown('<div style="text-align:center;font-weight:800;">Soporte</div>',
                 unsafe_allow_html=True)
-    st.markdown('<div style="text-align:center;">'
-                '[Instagram @mariop.17](https://instagram.com/mariop.17)</div>',
-                unsafe_allow_html=True)
-    st.markdown('<div style="text-align:center;">'
-                '[Aporta para mantener los servidores: paypal.me/mariop1706]'
-                '(https://paypal.me/mariop1706)</div>',
-                unsafe_allow_html=True)
+    st.markdown(
+        '<div style="text-align:center;font-size:.8rem;">CONTACTO: '
+        '<a href="https://instagram.com/mariop.17" style="color:#E30613;">'
+        'https://instagram.com/mariop.17</a></div>',
+        unsafe_allow_html=True)
+    st.markdown(
+        '<div style="text-align:center;font-size:.8rem;">Aporta para mantener '
+        'los servidores: '
+        '<a href="https://paypal.me/mariop1706" style="color:#E30613;">'
+        'https://paypal.me/mariop1706</a></div>',
+        unsafe_allow_html=True)
 
 page = st.session_state.get("page", "inicio")
 

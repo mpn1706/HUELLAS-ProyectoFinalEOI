@@ -602,6 +602,11 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Specs v1.37: `requirements.md` §40 + `architecture.md` §8 (root + `docs/`).
 - Verificación: pytest 65/65, smoke 9 páginas OK, demo_check E2E OK.
 
+## S106 — 25/09/2026 — Badge contenido + soporte URL v1.38 (Muse Spark)
+- REQ-UI-99: badge pequeño con aire + CONTACTO/https rojos clicables.
+- Specs v1.38: `requirements.md` + `architecture.md` §8 (root + `docs/`).
+- Verificación: smoke 9 páginas OK.
+
 ## S85 — 25/09/2026 — Fix ImportError atascado en Cloud (Muse Spark)
 - Causa raíz (2ª vez): el pull de Cloud actualiza ficheros sin reiniciar el proceso;
   el autoreload re-ejecuta `app.py` nuevo con `ui_home` cacheado viejo y el ImportError
