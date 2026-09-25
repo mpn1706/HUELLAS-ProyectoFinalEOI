@@ -6,6 +6,22 @@ from streamlit.testing.v1 import AppTest
 from ui_home import build_marcha_html
 
 APP = str(Path("app.py").resolve())
+SRC = Path("app.py").read_text(encoding="utf-8")
+
+
+def test_marcha_duplica_pista_y_alterna():
+    h = build_marcha_html()
+    assert 'class="huellas-march"' in h and 'class="huellas-track"' in h
+    assert h.count('class="huellas-pet"') == 24  # 12 + 12 (pista larga, sin vacíos)
+    assert h.count("<svg") == 24
+    assert "#23201B" in h and "#E30613" in h  # paleta negro/rojo
+
+
+def test_marcha_no_colisiona_con_tira_digitos():
+    # La tira de dígitos (.huellas-track suelta, display:block) pisaba el
+    # desfile: las reglas van acotadas a .huellas-march (más especificidad).
+    assert ".huellas-march .huellas-track" in SRC
+    assert ".huellas-march .huellas-pet" in SRC
 
 
 def test_marcha_duplica_pista_y_alterna():

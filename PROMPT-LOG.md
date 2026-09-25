@@ -650,3 +650,4 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Fix: pista x3 (24 figuras, mitades idénticas) para que no se vacíe ningún lado + dirección `-50%→0` (avanzan hacia donde miran).
 - Siluetas estilo B "Corre" elegidas por el alumno (hoja siluetas.html con 4 estilos): zancada extendida.
 - Cambio a estilo C "Chibi" (cabezón sentado) + tira más rápida (12s→7s).
+- Fix tirones: la tira de dígitos pisaba `.huellas-track` con `display:block`; reglas acotadas a `.huellas-march` + velocidad 4s + `will-change:transform`.

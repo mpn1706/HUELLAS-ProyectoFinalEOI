@@ -1398,11 +1398,14 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   display:flex; align-items:center; justify-content:center; align-self:stretch; }
 .huellas-scanrow .huellas-flecha { width:56px; flex:none; margin-right:.55rem; }
 .huellas-scanrow .huellas-analizada { font-size:1.05rem; padding:.55rem .9rem; }
-/* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito). */
+/* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
+   Reglas acotadas a .huellas-march: la tira de dígitos (.huellas-track
+   suelta) usa display:block y no debe pisarlas. */
 .huellas-march { overflow:hidden; margin:.1rem 0 .3rem; }
-.huellas-track { display:inline-flex; white-space:nowrap;
-  animation:huellas-march 7s linear infinite; }
-.huellas-track .huellas-pet { display:inline-block; margin-right:16px;
+.huellas-march .huellas-track { display:inline-flex; white-space:nowrap;
+  will-change:transform;
+  animation:huellas-march 4s linear infinite; }
+.huellas-march .huellas-pet { display:inline-block; margin-right:16px;
   animation:huellas-trote .38s ease-in-out infinite alternate; }
 @keyframes huellas-march {
   from { transform:translateX(-50%); }
@@ -1689,7 +1692,7 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   div[class*="st-key-confirm_pub"] button::after,
   div[class*="st-key-b_buscar"] button,
   div[class*="st-key-re_notif"] button { animation:none !important; }
-  .huellas-track, .huellas-track .huellas-pet { animation:none !important; }
+  .huellas-march .huellas-track, .huellas-march .huellas-pet { animation:none !important; }
   .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
   .huellas-nodo, .huellas-sello { opacity:1 !important; }
   .huellas-tl-linea { transform:scaleX(1) !important; }
