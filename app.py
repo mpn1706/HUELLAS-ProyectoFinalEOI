@@ -547,12 +547,16 @@ PAW_ROJA_SVG = ('<svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="
                 '<circle cx="59" cy="25" r="10"/><circle cx="76" cy="36" r="10"/></g></svg>')
 
 
-def _boton_inicio(texto: str):
-    """Botón rojo ⏪ junto al título: vuelve a Inicio (nav_to)."""
+def _boton_inicio(texto: str, caja: bool = False):
+    """Botón rojo ⏪ junto al título: vuelve a Inicio (nav_to).
+
+    `caja=True` (viñetas en caja) usa clave propia para 1px extra abajo.
+    """
     import hashlib as _hl
 
     slug = _hl.md5(texto.encode("utf-8")).hexdigest()[:6]
-    st.button("", icon=":material/fast_rewind:", key=f"home_{slug}",
+    clave = f"homebox_{slug}" if caja else f"home_{slug}"
+    st.button("", icon=":material/fast_rewind:", key=clave,
               help="Volver al inicio", on_click=nav_to, args=("inicio",))
 
 
@@ -574,7 +578,7 @@ def titulo_perimetro(texto: str):
 
     c1, c2 = st.columns([1, 30], gap="small", vertical_alignment="center")
     with c1:
-        _boton_inicio(texto)
+        _boton_inicio(texto, caja=True)
     with c2:
         st.markdown(
             f'<div class="huellas-peri-wrap"><span class="huellas-perimetro">'
@@ -1432,7 +1436,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   to { transform:translateY(-3px) rotate(3deg); } }
 /* Botón volver al inicio junto a títulos de sección: cuadrado rojo con
    flecha blanca (estilo rewind de la imagen de referencia). */
-div[class*="st-key-home_"] button {
+div[class*="st-key-home"] button {
   background:#E30613 !important;
   border:none !important;
   border-radius:10px !important;
@@ -1441,15 +1445,17 @@ div[class*="st-key-home_"] button {
   padding:.2rem .3rem !important;
   min-height:2.2rem;
 }
-div[class*="st-key-home_"] button:hover {
+div[class*="st-key-home"] button:hover {
   background:rgba(227,6,19,0.85) !important;
 }
-div[class*="st-key-home_"] button p,
-div[class*="st-key-home_"] button span {
+div[class*="st-key-home"] button p,
+div[class*="st-key-home"] button span {
   color:#FFFFFF !important;
 }
-/* El glifo queda ~1px alto respecto a la mitad del texto: se baja el bloque. */
+/* El glifo queda ~1px alto respecto a la mitad del texto: se baja el bloque.
+   Las viñetas en caja llevan 1px extra (clave homebox_*). */
 div[class*="st-key-home_"] { padding-top:1px; }
+div[class*="st-key-homebox_"] { padding-top:2px; }
 /* Segunda tira en sentido contrario: figuras espejadas (miran a la
    izquierda) y pista al revés (`0→-50%`). */
 .huellas-march.inv .huellas-track { animation-direction:reverse; }

@@ -4,6 +4,7 @@ from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 APP = str(Path("app.py").resolve())
+SRC = Path("app.py").read_text(encoding="utf-8")
 PAGES = ["buscar", "publicar", "perdidos", "encontrados", "reencuentro"]
 
 
@@ -15,15 +16,29 @@ def _ir(pagina):
     return at
 
 
+def _home_keys(at):
+    return [b.key for b in at.button
+            if (b.key or "").startswith(("home_", "homebox_"))]
+
+
 def test_titulos_llevan_boton_inicio():
     for page in PAGES:
         at = _ir(page)
-        assert any(b.key.startswith("home_") for b in at.button), page
+        assert len(_home_keys(at)) == 1, page
+
+
+def test_caja_lleva_clave_propia_con_extra():
+    at = _ir("perdidos")  # viñeta en caja
+    assert any(k.startswith("homebox_") for k in _home_keys(at))
+    at = _ir("publicar")  # barrido normal
+    assert any(k.startswith("home_") and not k.startswith("homebox_")
+               for k in _home_keys(at))
+    assert "st-key-homebox_" in SRC  # 1px extra abajo solo en caja
 
 
 def test_boton_inicio_navega():
     at = _ir("publicar")
-    key = next(b.key for b in at.button if b.key.startswith("home_"))
+    key = _home_keys(at)[0]
     at.button(key=key).click()
     at.run(timeout=120)
     assert not at.exception, at.exception
