@@ -1453,9 +1453,10 @@ div[class*="st-key-home"] button span {
   color:#FFFFFF !important;
 }
 /* El glifo queda ~1px alto respecto a la mitad del texto: se baja el bloque.
-   Las viñetas en caja llevan 1px extra (clave homebox_*). */
+   Las viñetas en caja llevan extra (clave homebox_*). OJO: con la columna
+   centrada, el padding solo baja la mitad; aquí position+top (exacto). */
 div[class*="st-key-home_"] { padding-top:1px; }
-div[class*="st-key-homebox_"] { padding-top:2px; }
+div[class*="st-key-homebox_"] { position:relative; top:2px; }
 /* Segunda tira en sentido contrario: figuras espejadas (miran a la
    izquierda) y pista al revés (`0→-50%`). */
 .huellas-march.inv .huellas-track { animation-direction:reverse; }

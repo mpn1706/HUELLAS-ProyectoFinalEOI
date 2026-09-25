@@ -34,6 +34,7 @@ def test_caja_lleva_clave_propia_con_extra():
     assert any(k.startswith("home_") and not k.startswith("homebox_")
                for k in _home_keys(at))
     assert "st-key-homebox_" in SRC  # 1px extra abajo solo en caja
+    assert "top:2px" in SRC  # desplazamiento exacto (el padding se recentra)
 
 
 def test_boton_inicio_navega():
