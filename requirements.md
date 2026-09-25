@@ -452,6 +452,8 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   y un solo enlace de donación.
 - REQ-UI-99 — Badge contenido (punto 8px, texto .72rem, aire superior) y soporte en
   formato CONTACTO/URL con https rojos clicables (v1.38).
+- REQ-UI-100 — Métricas compactas de sidebar (`stat_side()`) y soporte con URLs
+  que parten (`huellas-sup` con `break-all`) (v1.39).
 
 ## 38. Contraste MÁS + puntúa vertical + pie visible (v1.35 25/09/2026, solo UI)
 

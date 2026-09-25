@@ -177,6 +177,36 @@ def inject_background():
         .huellas-stat-mini .huellas-stat-value {{
             font-size: 1.4rem;
         }}
+        .huellas-stat-side {{
+            background: #000000;
+            border: 3px solid #000000;
+            border-radius: 0;
+            padding: .45rem .3rem;
+            margin-top: .45rem;
+            text-align: center;
+        }}
+        .huellas-stat-side-v {{
+            font-family: 'Montserrat', 'Inter', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.1;
+        }}
+        .huellas-stat-side-l {{
+            font-size: .65rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            color: #F5F1EA;
+            margin-top: .2rem;
+        }}
+        .huellas-sup {{
+            text-align: center;
+            font-size: .8rem;
+            overflow-wrap: break-word;
+            word-break: break-all;
+            line-height: 1.5;
+            margin-top: .45rem;
+        }}
         [data-testid="stAppViewContainer"] {{
             background: linear-gradient(rgba(255,255,255,0.90), rgba(255,255,255,0.90)),
                         url("data:{mime};base64,{b64}");
@@ -365,6 +395,12 @@ def stat_box(value, label: str, mini: bool = False):
     cls = "huellas-stat huellas-stat-mini" if mini else "huellas-stat"
     st.markdown(f'<div class="{cls}"><div class="huellas-stat-value">{value}</div>'
                 f'<div class="huellas-stat-label">{label}</div></div>', unsafe_allow_html=True)
+
+
+def stat_side(value, label: str):
+    """Mini-caja compacta para el sidebar (no tapa títulos vecinos)."""
+    st.markdown(f'<div class="huellas-stat-side"><div class="huellas-stat-side-v">{value}</div>'
+                f'<div class="huellas-stat-side-l">{label}</div></div>', unsafe_allow_html=True)
 
 
 PULSE_CONFIRM_STYLE = """<style>
@@ -2151,8 +2187,8 @@ with st.sidebar:
             _a.get("date_last_seen"), _a.get("date_reported")) >= 7)
     except Exception:
         _n_sem, _urg = 0, 0
-    stat_box(_n_sem, "Avistamientos 7 días", mini=True)
-    stat_box(_urg, "Casos urgentes ≥7 días", mini=True)
+    stat_side(_n_sem, "Avistamientos 7 días")
+    stat_side(_urg, "Casos urgentes ≥7 días")
     st.markdown(
         '<div style="margin-top:.8rem;text-align:center;">'
         '<span class="huellas-dotv"></span>'
@@ -2163,12 +2199,12 @@ with st.sidebar:
     st.markdown('<div style="text-align:center;font-weight:800;">Soporte</div>',
                 unsafe_allow_html=True)
     st.markdown(
-        '<div style="text-align:center;font-size:.8rem;">CONTACTO: '
+        '<div class="huellas-sup">CONTACTO: '
         '<a href="https://instagram.com/mariop.17" style="color:#E30613;">'
         'https://instagram.com/mariop.17</a></div>',
         unsafe_allow_html=True)
     st.markdown(
-        '<div style="text-align:center;font-size:.8rem;">Aporta para mantener '
+        '<div class="huellas-sup">Aporta para mantener '
         'los servidores: '
         '<a href="https://paypal.me/mariop1706" style="color:#E30613;">'
         'https://paypal.me/mariop1706</a></div>',
