@@ -1302,8 +1302,11 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-cd-z { font-size:0.75rem; color:#57503F; margin:2px 0 6px; }
 .huellas-cd-et { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; }
 /* Las etiquetas van dentro del enlace de la tarjeta: sin subrayado azul
-   (el resto de enlaces de la tarjeta lo conservan). */
+   (el resto de enlaces de la tarjeta lo conservan). Selectores reforzados
+   por si el tema de Streamlit pisa la regla simple. */
+[data-testid="stAppViewContainer"] .huellas-cd-link .huellas-cd-et,
 .huellas-cd-link .huellas-cd-et { text-decoration:none !important;
+  text-decoration-line:none !important;
   border-bottom:none !important; box-shadow:none !important; }
 .huellas-cd-et.perd { background:#E30613; color:#FFFFFF; }
 .huellas-cd-et.avis { background:#23201B; color:#FFFFFF; }
