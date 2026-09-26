@@ -694,6 +694,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Esas dos páginas "bailaban" a los lados en móvil. `VISTA_FIJA_STYLE` recorta el desborde lateral del contenedor, emitido SOLO en esas dos páginas y SOLO bajo 640px (escritorio y resto de páginas intactos; sin `min-width:0` global esta vez).
 - Verificación: `test_movil.py` 4/4 (incluye que inicio/buscar/publicar/reencuentro NO reciben el estilo).
 
+## S139 — 26/09/2026 — Header sin corte a 100% con sidebar abierto (Muse Spark)
+- Aire global mínimo (0.5rem) + extra (2.5rem) solo con sidebar desplegado (`aria-expanded`), sin tocar plegado ni móvil.
+- Verificación: `test_sidebar_marcha.py` 6/6.
+
 ## S137 — 26/09/2026 — Aire en inicio solo móvil (Muse Spark)
 - Cabecera-hero y carrusel-contadores con aire (`margin-top:0`, `margin-bottom:1rem`) solo bajo 640px. Escritorio intacto.
 - Verificación: `test_movil.py` 5/5.

@@ -46,3 +46,13 @@ def test_sidebar_compacto():
     # Todo el sidebar reducido en proporción (zoom), ocupando igual el ancho.
     assert '[data-testid="stSidebar"]' in SRC
     assert "zoom:0.85" in SRC
+
+
+def test_header_sin_corte_con_sidebar_abierto():
+    # Aire global mínimo + extra solo con sidebar desplegado (aria-expanded),
+    # sin tocar plegado ni móvil.
+    assert "padding-top: 0.5rem !important" in SRC
+    assert 'section[data-testid="stSidebar"][aria-expanded="true"]' in SRC
+    assert "padding-top:2.5rem !important" in SRC
+    i_desk = SRC.index("@media (min-width:641px)")
+    assert 'aria-expanded="true"' in SRC[i_desk:]

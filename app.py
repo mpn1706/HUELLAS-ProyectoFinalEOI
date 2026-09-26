@@ -305,7 +305,15 @@ def inject_background():
         }}
         /* Contenido pegado arriba, justo bajo el >> */
         [data-testid="stAppViewContainer"] .block-container {{
-            padding-top: 0.2rem !important;
+            padding-top: 0.5rem !important;
+        }}
+        /* Header sin corte a 100% con sidebar abierto: aire extra solo en
+           ese caso (sin efecto plegado ni en móvil). */
+        @media (min-width:641px) {{
+            section[data-testid="stSidebar"][aria-expanded="true"]
+            ~ div[data-testid="stAppViewContainer"] .block-container {{
+                padding-top:2.5rem !important;
+            }}
         }}
         /* Fuera el botón de fullscreen de las imágenes */
         [data-testid="stImage"] button {{
