@@ -1277,14 +1277,17 @@ section[data-testid="stSidebar"] div.block-container {
 .huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.15; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.1rem 0 0; }
 .huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 0.25rem; position:relative; top:-2rem; }
 /* Subtítulo en tira: una sola copia que cruza todo el ancho (sale por la
-   derecha cortada y vuelve a entrar por la izquierda, en bucle). */
+   derecha cortada y vuelve a entrar por la izquierda). La entrada es 4
+   veces más rápida que el crucero (tramos 0→20% y 20→100%) para acortar
+   el hueco sin acelerar el viaje. */
 .huellas-tira { display:block; overflow:hidden; }
 .huellas-tira-track { display:block; white-space:nowrap; }
 .huellas-tira-track span { display:inline-block; position:relative;
   animation:huellas-tira 8s linear infinite; }
 @keyframes huellas-tira {
-  from { left:-100%; }
-  to { left:100%; } }
+  0% { left:-100%; }
+  20% { left:0; }
+  100% { left:100%; } }
 .huellas-up { animation:huellas-up .7s ease-out both; }
 @keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
 em.u { font-style:normal; color:#E30613; position:relative; }
