@@ -2366,6 +2366,7 @@ with st.sidebar:
     st.markdown(build_marcha_html(), unsafe_allow_html=True)
     st.markdown(build_marcha_html(invertida=True), unsafe_allow_html=True)
     st.markdown(build_marcha_html(), unsafe_allow_html=True)
+    st.markdown(build_marcha_html(invertida=True), unsafe_allow_html=True)
 
 page = st.session_state.get("page", "inicio")
 
