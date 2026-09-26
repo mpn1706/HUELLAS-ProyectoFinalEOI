@@ -424,6 +424,19 @@ SHAKE_RE_STYLE = """<style>
 div[class*="st-key-re_notif"] button { animation:huellas-shake .4s ease 1; }
 </style>"""
 
+VISTA_FIJA_STYLE = """<style>
+/* Perdidos/Avistamientos en móvil: algún elemento ensancha la página y la
+   vista "baila" a los lados al desplazar. Se recorta el desborde lateral del
+   contenedor. Solo se emite en estas dos páginas y solo en móvil (≤640px):
+   el resto de páginas y el escritorio quedan intactos. */
+@media (max-width:640px) {
+  div[data-testid="stAppViewContainer"] .block-container {
+    overflow-x:hidden;
+    overflow-x:clip;
+  }
+}
+</style>"""
+
 FOTO_PUB_STYLE = """<style>
 /* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca,
    con altura mínima para dar aire (compensa la huella y el caption retirados). */
@@ -2606,6 +2619,7 @@ if page == "buscar":
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":
     titulo_perimetro("Mascotas desaparecidas")
+    st.markdown(VISTA_FIJA_STYLE, unsafe_allow_html=True)
     lost_list = [dbmod.get_aviso(con, r["id"]) for r in
                  con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
     lost_list = [a for a in lost_list if a]
@@ -2634,6 +2648,7 @@ if page == "perdidos":
 # ── Página: Encontrados ───────────────────────────────────────────────
 if page == "encontrados":
     titulo_perimetro("Rastros compartidos")
+    st.markdown(VISTA_FIJA_STYLE, unsafe_allow_html=True)
     found = dbmod.get_active_opuestos(con, "lost")
     if not found:
         st.info("Aún no hay rastros compartidos.")

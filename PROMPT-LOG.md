@@ -689,3 +689,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S117 — 26/09/2026 — Botón inicio al lado del título en móvil (Muse Spark)
 - En pantallas estrechas Streamlit apila las columnas y el botón caía ENCIMA del título. Solo en cabeceras con botón home se fuerza fila (`flex-direction:row` + `nowrap` vía `:has()`) y la columna del botón se ajusta a su contenido (`flex:0 0 auto`). Escritorio intacto.
 - Verificación: `test_movil.py` 3/3.
+
+## S119 — 26/09/2026 — Vista fija en Perdidos/Avistamientos móvil (Muse Spark)
+- Esas dos páginas "bailaban" a los lados en móvil. `VISTA_FIJA_STYLE` recorta el desborde lateral del contenedor, emitido SOLO en esas dos páginas y SOLO bajo 640px (escritorio y resto de páginas intactos; sin `min-width:0` global esta vez).
+- Verificación: `test_movil.py` 4/4 (incluye que inicio/buscar/publicar/reencuentro NO reciben el estilo).

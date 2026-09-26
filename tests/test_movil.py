@@ -30,11 +30,36 @@ def test_fichas_usan_foto_fluida_en_perdidos_y_encontrados():
         assert not at.exception, (pagina, at.exception)
 
 
+def test_vista_fija_solo_en_perdidos_y_encontrados_movil():
+    # Esas dos páginas "bailaban" a los lados en móvil. El recorte lateral
+    # solo se emite en ellas y solo bajo 640px: ni escritorio ni el resto
+    # de páginas lo reciben.
+    assert SRC.count("VISTA_FIJA_STYLE, unsafe_allow_html=True") == 2
+    assert "@media (max-width:640px)" in SRC
+    assert "overflow-x:clip" in SRC
+    for pagina in ("perdidos", "encontrados"):
+        at = AppTest.from_file(APP)
+        at.session_state["page"] = pagina
+        at.run(timeout=120)
+        assert not at.exception, (pagina, at.exception)
+        md = " ".join(str(m.value) for m in at.markdown)
+        assert "overflow-x:clip" in md
+    for pagina in ("inicio", "buscar", "publicar", "reencuentro"):
+        at = AppTest.from_file(APP)
+        at.session_state["page"] = pagina
+        at.run(timeout=120)
+        assert not at.exception, (pagina, at.exception)
+        md = " ".join(str(m.value) for m in at.markdown)
+        assert "VISTA_FIJA_STYLE" not in md and "overflow-x:clip" not in md
+
+
 def test_boton_inicio_al_lado_del_titulo_en_movil():
     # Estado 1d8706b: hueco mediano en las filas de título (móvil y escritorio
     # iguales) + fila forzada en móvil para que el botón no caiga encima.
     assert SRC.count('[1, 30], gap="medium"') == 2
-    assert "column-gap" not in SRC
+    i_mob = SRC.index("@media (max-width:640px)")
+    i_desk = SRC.index("@media (min-width:641px)")
+    assert "column-gap" not in SRC[i_mob:i_desk]  # en móvil manda la fila, no el hueco
     assert "@media (max-width:640px)" in SRC
     assert 'stHorizontalBlock"]:has(div[class*="st-key-home"])' in SRC
     assert "flex-direction:row" in SRC
