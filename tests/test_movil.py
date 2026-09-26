@@ -16,16 +16,15 @@ def test_pausa_carrusel_solo_con_hover_real():
     assert "touch-action:pan-y" in SRC  # el scroll vertical no lucha con el marquee
 
 
-def test_fichas_ciñen_foto_solo_en_perdidos_y_encontrados():
+def test_fichas_usan_foto_fluida_en_perdidos_y_encontrados():
     # La foto fija de 380px desbordaba la columna en el móvil y la página se
-    # podía mover en horizontal. El estilo solo se emite en esas dos páginas
-    # (el resto, que va bien, queda intacto).
-    assert SRC.count("FICHA_IMG_STYLE, unsafe_allow_html=True") == 2
-    assert "[data-testid=\"stImage\"] img" in SRC
+    # podía mover en horizontal. Las fichas usan show_image(fluido=True), que
+    # ocupa el ancho de la columna sin desbordar. Sin CSS global: el header,
+    # los filtros y las descripciones quedan intactos.
+    assert "FICHA_IMG_STYLE" not in SRC
+    assert SRC.count('caption=f"Foto · {a[\'id\']}", fluido=True') == 2
     for pagina in ("perdidos", "encontrados"):
         at = AppTest.from_file(APP)
         at.session_state["page"] = pagina
         at.run(timeout=120)
         assert not at.exception, (pagina, at.exception)
-        md = " ".join(str(m.value) for m in at.markdown)
-        assert "max-width:100%" in md

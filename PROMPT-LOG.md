@@ -678,5 +678,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Verificación: `test_movil.py` 1/1.
 
 ## S116 — 26/09/2026 — Fichas sin deriva lateral en Perdidos/Avistamientos (Muse Spark)
-- Esas dos páginas se podían mover en horizontal en el móvil: la foto fija de 380px desbordaba la columna estrecha. `FICHA_IMG_STYLE` ciñe la foto (`max-width:100%`) y deja encoger columnas, emitido SOLO en esas dos páginas (el resto, que va bien, intacto).
-- Verificación: `test_movil.py` 2/2 (una página renderiza el estilo sin excepción).
+- Esas dos páginas se podían mover en horizontal en el móvil: la foto fija de 380px desbordaba la columna estrecha. Primer intento con CSS global (`FICHA_IMG_STYLE` + `min-width:0`) colapsó filtros y descripciones: revertido; header, filtros y descripciones intactos.
+- Fix definitivo en Python: las fichas usan `show_image(..., fluido=True)` (ocupa el ancho de la columna, sin desbordar). Nada de CSS global.
+- Verificación: `test_movil.py` 2/2 (ambas páginas renderizan sin excepción).
