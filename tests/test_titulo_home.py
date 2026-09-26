@@ -53,5 +53,5 @@ def test_aire_titulo_solo_segun_viewport():
     assert "@media (min-width:641px)" in SRC
     i_mob = SRC.index("@media (max-width:640px)")
     i_desk = SRC.index("@media (min-width:641px)")
-    assert "column-gap:0.25rem" in SRC[i_desk:]
+    assert "column-gap:0.1rem" in SRC[i_desk:]
     assert "column-gap" not in SRC[i_mob:SRC.index("@media (min-width:641px)")]

@@ -1446,7 +1446,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
    en pantalla ancha). Solo vista de navegador PC; el móvil no se toca. */
 @media (min-width:641px) {
   div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
-    column-gap:0.25rem !important;
+    column-gap:0.1rem !important;
   }
 }
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
