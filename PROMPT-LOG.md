@@ -697,6 +697,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S139 — 26/09/2026 — Header sin corte a 100% con sidebar abierto (Muse Spark)
 - Aire global mínimo (0.5rem) + extra (2.5rem) solo con sidebar desplegado (`aria-expanded`), sin tocar plegado ni móvil.
 - Verificación: `test_sidebar_marcha.py` 6/6.
+- Fix causa raíz: el sidebar va DENTRO del AppViewContainer (verificado en el bundle JS de Streamlit 1.64): el selector de hermanos `~` nunca casaba; se detecta con `:has()` desde el ancestro.
 
 ## S137 — 26/09/2026 — Aire en inicio solo móvil (Muse Spark)
 - Cabecera-hero y carrusel-contadores con aire (`margin-top:0`, `margin-bottom:1rem`) solo bajo 640px. Escritorio intacto.

@@ -308,10 +308,11 @@ def inject_background():
             padding-top: 0.5rem !important;
         }}
         /* Header sin corte a 100% con sidebar abierto: aire extra solo en
-           ese caso (sin efecto plegado ni en móvil). */
+           ese caso (el sidebar va DENTRO del AppViewContainer: se detecta
+           con :has desde el ancestro; el selector de hermanos nunca casaba).
+           Sin efecto plegado ni en móvil. */
         @media (min-width:641px) {{
-            section[data-testid="stSidebar"][aria-expanded="true"]
-            ~ div[data-testid="stAppViewContainer"] .block-container {{
+            div[data-testid="stAppViewContainer"]:has(section[data-testid="stSidebar"][aria-expanded="true"]) .block-container {{
                 padding-top:2.5rem !important;
             }}
         }}
