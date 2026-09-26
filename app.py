@@ -564,7 +564,7 @@ def titulo_barrido(texto: str):
     """Título con barrido rojo continuo sobre letras negras (izq↔der). Solo CSS."""
     import html as _html
 
-    c1, c2 = st.columns([1, 30], gap="medium", vertical_alignment="center")
+    c1, c2 = st.columns([1, 30], gap="small", vertical_alignment="center")
     with c1:
         _boton_inicio(texto)
     with c2:
@@ -576,7 +576,7 @@ def titulo_perimetro(texto: str):
     """Título en caja con huella roja recorriendo su perímetro (velocidad media)."""
     import html as _html
 
-    c1, c2 = st.columns([1, 30], gap="medium", vertical_alignment="center")
+    c1, c2 = st.columns([1, 30], gap="small", vertical_alignment="center")
     with c1:
         _boton_inicio(texto, caja=True)
     with c2:
@@ -1436,6 +1436,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
     flex-direction:row !important;
     flex-wrap:nowrap !important;
+    column-gap:1.25rem !important;
   }
   div[data-testid="stColumn"]:has(div[class*="st-key-home"]) {
     flex:0 0 auto !important;

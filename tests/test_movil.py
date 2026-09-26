@@ -38,3 +38,4 @@ def test_boton_inicio_al_lado_del_titulo_en_movil():
     assert 'stHorizontalBlock"]:has(div[class*="st-key-home"])' in SRC
     assert "flex-direction:row" in SRC
     assert 'stColumn"]:has(div[class*="st-key-home"])' in SRC
+    assert "column-gap:1.25rem" in SRC  # aire extra SOLO en móvil (escritorio: small)
