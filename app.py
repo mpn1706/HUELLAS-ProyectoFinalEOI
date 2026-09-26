@@ -1301,6 +1301,10 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-cd-t { font-size:0.82rem; font-weight:700; color:#23201B; }
 .huellas-cd-z { font-size:0.75rem; color:#57503F; margin:2px 0 6px; }
 .huellas-cd-et { font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; }
+/* Las etiquetas van dentro del enlace de la tarjeta: sin subrayado azul
+   (el resto de enlaces de la tarjeta lo conservan). */
+.huellas-cd-link .huellas-cd-et { text-decoration:none !important;
+  border-bottom:none !important; box-shadow:none !important; }
 .huellas-cd-et.perd { background:#E30613; color:#FFFFFF; }
 .huellas-cd-et.avis { background:#23201B; color:#FFFFFF; }
 .huellas-cd-et.rev { background:#E8A100; color:#23201B; }

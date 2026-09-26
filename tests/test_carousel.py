@@ -1,6 +1,7 @@
 """Tests carrusel Inicio — REQ-UI-06 (privacidad: nunca contacto)."""
 import base64
 import io
+from pathlib import Path
 
 from ui_home import (
     build_carousel_html,
@@ -100,3 +101,13 @@ def test_counts_con_links_y_sin_contacto():
     assert "perdidos activos" in out and "avistamientos" in out and "reencuentros" in out
     assert "contact" not in out.lower()
     assert out.count('target="_self"') == 3
+
+
+def test_etiquetas_sin_subrayado_azul():
+    # Las etiquetas van dentro del <a> de la tarjeta: el CSS les quita el
+    # subrayado de enlace (el resto de textos lo conservan).
+    css = Path("app.py").read_text(encoding="utf-8")
+    i = css.index(".huellas-cd-link .huellas-cd-et")
+    bloque = css[i:i + 200]
+    assert "text-decoration:none" in bloque
+    assert "border-bottom:none" in bloque
