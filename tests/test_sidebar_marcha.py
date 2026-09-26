@@ -40,3 +40,9 @@ def test_sidebar_muestra_divisoria_y_desfile():
     assert md.count("huellas-march") >= 2  # tira + contratiira
     assert "huellas-march inv" in md
     assert len(at.divider) >= 1  # divisoria(s) negra(s) del sidebar
+
+
+def test_sidebar_compacto():
+    # Todo el sidebar reducido en proporción (zoom), ocupando igual el ancho.
+    assert '[data-testid="stSidebar"]' in SRC
+    assert "zoom:0.85" in SRC

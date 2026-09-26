@@ -1246,6 +1246,11 @@ section[data-testid="stSidebar"] div.block-container {
   padding-left:0.5rem !important;
   padding-right:0.5rem !important;
 }
+/* Sidebar compacto: todo el contenido (botones, badges, widgets) reducido
+   en proporción, ocupando igual todo el ancho. */
+[data-testid="stSidebar"] {
+  zoom:0.85;
+}
 /* Botones principales más altos y juntos (sin estirado flex). */
 [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
   gap:6px !important;
