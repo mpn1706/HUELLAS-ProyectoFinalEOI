@@ -1429,6 +1429,19 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   .huellas-scanrow .huellas-flecha { width:34px; }
   .huellas-scanrow .huellas-analizada { font-size:.95rem; padding:.45rem .6rem; }
 }
+/* Móvil: Streamlit apila las columnas en vertical y el botón de inicio caía
+   ENCIMA del título. Solo en cabeceras con botón home se fuerza la fila y la
+   columna del botón se ajusta a su contenido. */
+@media (max-width:640px) {
+  div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+  }
+  div[data-testid="stColumn"]:has(div[class*="st-key-home"]) {
+    flex:0 0 auto !important;
+    min-width:0;
+  }
+}
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
    Reglas acotadas a .huellas-march: la tira de dígitos (.huellas-track
    suelta) usa display:block y no debe pisarlas. */

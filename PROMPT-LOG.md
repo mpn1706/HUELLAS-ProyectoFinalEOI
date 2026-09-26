@@ -681,3 +681,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Esas dos páginas se podían mover en horizontal en el móvil: la foto fija de 380px desbordaba la columna estrecha. Primer intento con CSS global (`FICHA_IMG_STYLE` + `min-width:0`) colapsó filtros y descripciones: revertido; header, filtros y descripciones intactos.
 - Fix definitivo en Python: las fichas usan `show_image(..., fluido=True)` (ocupa el ancho de la columna, sin desbordar). Nada de CSS global.
 - Verificación: `test_movil.py` 2/2 (ambas páginas renderizan sin excepción).
+
+## S117 — 26/09/2026 — Botón inicio al lado del título en móvil (Muse Spark)
+- En pantallas estrechas Streamlit apila las columnas y el botón caía ENCIMA del título. Solo en cabeceras con botón home se fuerza fila (`flex-direction:row` + `nowrap` vía `:has()`) y la columna del botón se ajusta a su contenido (`flex:0 0 auto`). Escritorio intacto.
+- Verificación: `test_movil.py` 3/3.
