@@ -1940,6 +1940,12 @@ def sync_page_from_url() -> None:
 def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     """Hero + botones grandes + carrusel + contadores [REQ-UI-01/03/05/06]."""
     st.markdown(
+        """<style>
+        /* Solo inicio: bloques más juntos para subir el contenido tras el hero. */
+        [data-testid="stAppViewContainer"] [data-testid="stVerticalBlock"] { gap:0.5rem !important; }
+        </style>""",
+        unsafe_allow_html=True)
+    st.markdown(
         '<div class="huellas-hero">'
         '<h1 class="huellas-title">'
         '<span class="huellas-up" style="display:block">ESTOS PELUDOS</span>'

@@ -112,3 +112,16 @@ def test_etiquetas_sin_subrayado_azul():
     assert "a.huellas-cd-link *" in css
     assert "text-decoration:none" in css
     assert "border-bottom:none" in css
+
+
+def test_inicio_compacto_tras_hero():
+    # Todo lo que cuelga del hero (botones, carrusel, contadores) sube con
+    # bloques más juntos, solo en inicio.
+    from streamlit.testing.v1 import AppTest
+
+    css = Path("app.py").read_text(encoding="utf-8")
+    assert "Solo inicio: bloques más juntos" in css
+    at = AppTest.from_file(str(Path("app.py").resolve()))
+    at.session_state["page"] = "inicio"
+    at.run(timeout=120)
+    assert not at.exception, at.exception
