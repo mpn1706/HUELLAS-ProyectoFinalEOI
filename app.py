@@ -1448,6 +1448,10 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
     column-gap:0.1rem !important;
   }
+  div[data-testid="stColumn"]:has(div[class*="st-key-home"]) {
+    flex:0 0 auto !important;
+    min-width:0;
+  }
 }
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
    Reglas acotadas a .huellas-march: la tira de dígitos (.huellas-track
