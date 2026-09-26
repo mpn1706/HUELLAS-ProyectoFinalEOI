@@ -64,3 +64,14 @@ def test_boton_inicio_al_lado_del_titulo_en_movil():
     assert 'stHorizontalBlock"]:has(div[class*="st-key-home"])' in SRC
     assert "flex-direction:row" in SRC
     assert 'stColumn"]:has(div[class*="st-key-home"])' in SRC
+
+
+def test_aire_inicio_solo_en_movil():
+    # El compactado dejó pegados cabecera-hero y carrusel-contadores: se
+    # devuelve aire solo bajo 640px (escritorio intacto).
+    moviles = SRC.split("@media (max-width:640px)")[1:]
+    assert any(".huellas-hero { margin-top:0; }" in b
+               and ".huellas-vp { margin-bottom:1rem; }" in b for b in moviles)
+    i_desk = SRC.index("@media (min-width:641px)")
+    assert ".huellas-hero { margin-top:0; }" not in SRC[i_desk:]
+    assert ".huellas-vp { margin-bottom:1rem; }" not in SRC[i_desk:]

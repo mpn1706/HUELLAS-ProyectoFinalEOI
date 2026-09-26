@@ -1467,6 +1467,12 @@ a.huellas-cd-link, a.huellas-cd-link * { text-decoration:none !important;
   .huellas-scanrow .huellas-flecha { width:34px; }
   .huellas-scanrow .huellas-analizada { font-size:.95rem; padding:.45rem .6rem; }
 }
+/* Móvil: el compactado general dejó pegados cabecera-hero y carrusel-contadores
+   en inicio. Se devuelve aire solo aquí; escritorio intacto. */
+@media (max-width:640px) {
+  .huellas-hero { margin-top:0; }
+  .huellas-vp { margin-bottom:1rem; }
+}
 /* Móvil: Streamlit apila las columnas en vertical y el botón de inicio caía
    ENCIMA del título. Solo en cabeceras con botón home se fuerza la fila y la
    columna del botón se ajusta a su contenido. */
