@@ -442,7 +442,7 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 - REQ-UI-90 — Protectoras/Tiempo inline con contraste (fondo claro) y perrito por
   iframe probado (el SVG por markdown no renderiza: sale como texto).
 - REQ-UI-91 — Pie de admin tras divisor: avistamientos 7 días + urgentes ≥7 días,
-  badge verde pulsante "Estado del Servicio: Activo (Jerez)" e Instagram/paypal.
+  badge naranja pulsante "Estado del Servicio: MODO DEMO (Jerez)" e Instagram/paypal.
 
 ## 39. MÁS en negro + pie en sidebar (v1.36 25/09/2026, solo UI)
 

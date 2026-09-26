@@ -1492,6 +1492,7 @@ a.huellas-cd-link, a.huellas-cd-link * { text-decoration:none !important;
   div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
     column-gap:0.25rem !important;
   }
+  .huellas-vp { margin-bottom:0.75rem; }
 }
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
    Reglas acotadas a .huellas-march: la tira de dígitos (.huellas-track
@@ -1690,7 +1691,7 @@ div[class*="st-key-b_buscar"] button { position:relative; }
   background:#E30613; margin-right:.35rem;
   animation:huellas-dot 1.2s ease-in-out infinite; }
 .huellas-dotv { display:inline-block; width:8px; height:8px; border-radius:50%;
-  background:#35AC46; margin-right:.4rem;
+  background:#E8720C; margin-right:.4rem;
   animation:huellas-dot 1.6s ease-in-out infinite; }
 @keyframes huellas-dot {
   0%,100% { transform:scale(1); opacity:1; }
@@ -2352,7 +2353,7 @@ with st.sidebar:
         '<div style="margin-top:.8rem;text-align:center;">'
         '<span class="huellas-dotv"></span>'
         '<span style="font-weight:800;font-size:.72rem;">'
-        'Estado del Servicio: Activo (Jerez)</span></div>',
+        'Estado del Servicio: MODO DEMO (Jerez)</span></div>',
         unsafe_allow_html=True)
     st.divider()
     st.markdown('<div style="text-align:center;font-weight:800;">Soporte</div>',

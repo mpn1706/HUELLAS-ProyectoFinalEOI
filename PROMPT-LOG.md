@@ -698,6 +698,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Cabecera-hero y carrusel-contadores con aire (`margin-top:0`, `margin-bottom:1rem`) solo bajo 640px. Escritorio intacto.
 - Verificación: `test_movil.py` 5/5.
 
+## S138 — 26/09/2026 — Aire carrusel-contadores PC + MODO DEMO naranja (Muse Spark)
+- Escritorio: `.huellas-vp` con `margin-bottom:0.75rem` solo en `@media (min-width:641px)`.
+- Métricas rápidas: "Estado del Servicio: MODO DEMO (Jerez)" con punto naranja (#E8720C); specs actualizadas.
+
 ## S133 — 26/09/2026 — Sidebar compacto al 85% (Muse Spark)
 - Todo el contenido lateral reducido en proporción (`zoom:0.85` solo en el sidebar), ocupando igual el ancho.
 - Verificación: `test_sidebar_marcha.py` 5/5.

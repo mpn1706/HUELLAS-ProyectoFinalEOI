@@ -75,3 +75,4 @@ def test_aire_inicio_solo_en_movil():
     i_desk = SRC.index("@media (min-width:641px)")
     assert ".huellas-hero { margin-top:0; }" not in SRC[i_desk:]
     assert ".huellas-vp { margin-bottom:1rem; }" not in SRC[i_desk:]
+    assert ".huellas-vp { margin-bottom:0.75rem; }" in SRC[i_desk:]  # aire contadores solo PC
