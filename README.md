@@ -47,14 +47,41 @@ Color/marcas se comparan sin tildes ni mayúsculas (Marrón=marron, Café=marró
 
 Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + histograma) para ejecutar sin GPU ni claves. Solo español.
 
-## Cómo ejecutarlo (profesor, <10 min)
+## Cómo ejecutarlo desde cero (profesor, <10 min)
+
+Requisitos: Git y **Python 3.11 o superior** (el entorno de desarrollo del proyecto usa Python 3.11). Ejecuta los comandos desde la carpeta raíz del repositorio. El entorno virtual evita mezclar las dependencias del proyecto con las del sistema.
+
+### Windows (PowerShell)
+
+```powershell
+git clone https://github.com/mpn1706/HUELLAS-ProyectoFinalEOI.git
+cd HUELLAS-ProyectoFinalEOI
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python scripts/make_seed.py
+python scripts/load_seed.py
+python -m streamlit run app.py
+```
+
+### macOS / Linux
 
 ```bash
-pip install -r requirements.txt
-python scripts/make_seed.py      # genera data/seed (20 avisos JSON; las fotos ya viajan en git)
-python scripts/load_seed.py      # carga SQLite data/huellas.db
-streamlit run app.py             # abre la app en el navegador
+git clone https://github.com/mpn1706/HUELLAS-ProyectoFinalEOI.git
+cd HUELLAS-ProyectoFinalEOI
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python scripts/make_seed.py
+python scripts/load_seed.py
+python -m streamlit run app.py
 ```
+
+Streamlit mostrará la dirección local en la terminal (normalmente `http://localhost:8501`). `make_seed.py` genera los 20 JSON del corpus; las fotos y los embeddings precalculados ya están incluidos en Git. `load_seed.py` crea y carga la base local `data/huellas.db`. Para empezar con la demo desde una base vacía, ejecuta estos pasos una vez.
+
+En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instalaron las dependencias fijadas y se comprobó la generación/carga de los 20 avisos en una SQLite temporal. La suite de 92 pruebas y los scripts `eval_match.py`, `demo_check.py` y `smoke_app.py` también se verificaron en el entorno de auditoría. El proyecto mantiene como versión mínima Python 3.11 y fija Streamlit 1.64.0.
 
 Verificación extra:
 
