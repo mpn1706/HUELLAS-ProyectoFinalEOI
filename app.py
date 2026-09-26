@@ -1270,21 +1270,10 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 @keyframes huellas-ul { 0%,15% { width:0; } 45%,85% { width:100%; } 100% { width:0; } }
 .huellas-heart { display:inline-block; vertical-align:-3px; animation:huellas-bt 1.4s ease-in-out infinite; }
 @keyframes huellas-bt { 0%,100% { transform:scale(1); } 50% { transform:scale(1.25); } }
-.huellas-vp { overflow:hidden; padding:4px 0; touch-action:pan-y; }
+.huellas-vp { overflow:hidden; padding:4px 0; }
 .huellas-trk { display:flex; width:max-content; animation:huellas-mv 32s linear infinite; }
-/* La pausa al pasar el cursor solo en dispositivos con hover real (ratón):
-   en táctil el toque deja :hover "enganchado" y el carrusel se quedaba parado. */
-@media (hover:hover) and (pointer:fine) {
-  .huellas-vp:hover .huellas-trk { animation-play-state:paused; }
-}
+.huellas-vp:hover .huellas-trk { animation-play-state:paused; }
 @keyframes huellas-mv { to { transform:translateX(-50%); } }
-/* Móvil: la página no se desplaza en horizontal (queda fija) y nada desborda:
-   las fotos de st.image (fijas a 380px) se ciñen a su columna y las columnas
-   flex pueden encoger. */
-[data-testid="stAppViewContainer"] { overflow-x:hidden; overflow-x:clip; }
-[data-testid="stAppViewContainer"] .block-container { overflow-x:hidden; overflow-x:clip; max-width:100%; }
-[data-testid="stColumn"] { min-width:0; }
-[data-testid="stImage"] img { max-width:100% !important; height:auto !important; }
 .huellas-cd-link { text-decoration:none; color:inherit; }
 .huellas-cd { width:150px; flex:none; margin-right:12px; background:#FFFFFF; border:1px solid #57503F; border-radius:10px; overflow:hidden; transition:transform .2s; }
 .huellas-cd:hover { transform:translateY(-4px); }

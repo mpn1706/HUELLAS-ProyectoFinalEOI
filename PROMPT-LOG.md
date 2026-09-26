@@ -662,12 +662,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Alineación por prueba visual: barrido perfecto con 1px; viñetas en caja con clave propia `homebox_*` y `top:4px` (el padding se recentraba a la mitad; el diagnóstico temporal de 8px confirmó que el deploy llegaba).
 - Verificación: `test_titulo_home.py` 3/3.
 
-## S114 — 25/09/2026 — Fixes móvil: carrusel, fotos e scroll lateral (Muse Spark)
-- Carrusel trabado al tocar: la pausa `:hover` se quedaba "enganchada" en táctil; ahora solo en `@media (hover:hover) and (pointer:fine)` + `touch-action:pan-y` en la pista.
-- Fotos de Perdidos/Avistamientos sobresaliendo a la derecha: `show_image()` fija 380px en columnas de ~160px; CSS `[data-testid="stImage"] img{max-width:100%}` + `min-width:0` en columnas (sin tocar Python).
-- Vista que se descuadra al deslizar en horizontal: `overflow-x:clip` (con fallback `hidden`) en el contenedor y `block-container` — la página queda fija.
-- Verificación: `test_movil.py` 3/3 + suite completa + smoke 9 páginas OK.
-
 ## S113 — 25/09/2026 — Auditoría final (Gemini/Claude/ChatGPT) + higiene (Muse Spark)
 - **Admin**: fuera `DEFAULT_ADMIN_PASSWORD` ("huellas123") del código, README y specs (REQ-11.1 v1.40); sin `ADMIN_PASSWORD` (Secrets) ni `HUELLAS_ADMIN_PASSWORD` (env), la administración queda desactivada con aviso. `.streamlit/secrets.toml` local creado (gitignored) para no perder el flujo local.
 - **requirements.txt**: versiones fijadas (numpy 2.5.3, pillow 12.3.0, scikit-learn 1.9.1, pytest 9.1.1; streamlit/folium ya estaban ==).
