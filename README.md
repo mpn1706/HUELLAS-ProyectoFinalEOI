@@ -21,13 +21,17 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 - **Administración** (sidebar, CU-06): un único admin con contraseña elimina duplicados/vandalismo (con confirmación) o marca resueltos; todo queda en `data/admin.log`. La contraseña se configura en Secrets `ADMIN_PASSWORD` (Cloud) o en la variable `HUELLAS_ADMIN_PASSWORD` (local, p. ej. vía `.streamlit/secrets.toml`, que no viaja a git). **Sin contraseña configurada, la administración queda desactivada** (no existe contraseña por defecto en el código).
 - Las alertas no se duplican: un par (aviso, candidato) genera una sola fila (se actualiza si cambia el score).
 
-## Fotos reales del seed
+## Fotos del seed
 
-1. Consigue JPG propias o de licencia libre (no valen fotos ajenas de redes), ≤800px y <500KB, nombradas por aviso (`found_001.jpg`…) en `data/seed/images/`, y apunta `image_url` en su JSON.
+1. Entre ≤800px y <500KB, nombradas por aviso (found_001.jpg, lost_001.jpg, …) en `data/seed/images/`, y apunta `image_url` en su JSON.
+
 2. `pip install torch --index-url https://download.pytorch.org/whl/cpu` + `pip install transformers pillow` (solo local).
+
 3. `python scripts/compute_embeddings.py` → genera `data/seed/embeddings.json` (vectores CLIP reales, viajan en git).
+
 4. Commit de imágenes + JSONs + `embeddings.json`.
-- Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, todos activos), sin scraping (fuera de alcance por decisión de diseño).
+
+• Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, todos activos), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)
 
@@ -63,7 +67,7 @@ python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
 
 ## Despliegue
 
-- Local (evaluación oficial): `streamlit run app.py` — ver instrucciones arriba.
+- Local: `streamlit run app.py` — ver instrucciones arriba.
 - Nube: **<https://huellas.streamlit.app>** — Streamlit Community Cloud sobre este repo, rama `main`, fichero `app.py`. La app **auto-carga el seed de Jerez** si la DB está vacía (el filesystem cloud es efímero y `data/huellas.db` no viaja en git): cero comandos tras el deploy.
 
 ### Limitaciones conocidas (importante para la demo en vivo)
