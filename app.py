@@ -309,12 +309,6 @@ def inject_background():
         [data-testid="stAppViewContainer"] .block-container {{
             padding-top: 0.75rem !important;
         }}
-        /* Zoom general al 75% (equivale al zoom del navegador, S123).
-           Revertible: borrar este bloque lo deja todo al 100%. */
-        [data-testid="stAppViewContainer"],
-        [data-testid="stSidebar"] {{
-            zoom: 0.75;
-        }}
         /* Fuera el botón de fullscreen de las imágenes */
         [data-testid="stImage"] button {{
             display: none !important;
