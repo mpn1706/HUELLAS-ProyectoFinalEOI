@@ -1270,9 +1270,13 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 @keyframes huellas-ul { 0%,15% { width:0; } 45%,85% { width:100%; } 100% { width:0; } }
 .huellas-heart { display:inline-block; vertical-align:-3px; animation:huellas-bt 1.4s ease-in-out infinite; }
 @keyframes huellas-bt { 0%,100% { transform:scale(1); } 50% { transform:scale(1.25); } }
-.huellas-vp { overflow:hidden; padding:4px 0; }
+.huellas-vp { overflow:hidden; padding:4px 0; touch-action:pan-y; }
 .huellas-trk { display:flex; width:max-content; animation:huellas-mv 32s linear infinite; }
-.huellas-vp:hover .huellas-trk { animation-play-state:paused; }
+/* La pausa al pasar el cursor solo en dispositivos con hover real (ratón):
+   en táctil el toque deja :hover "enganchado" y el carrusel se quedaba parado. */
+@media (hover:hover) and (pointer:fine) {
+  .huellas-vp:hover .huellas-trk { animation-play-state:paused; }
+}
 @keyframes huellas-mv { to { transform:translateX(-50%); } }
 .huellas-cd-link { text-decoration:none; color:inherit; }
 .huellas-cd { width:150px; flex:none; margin-right:12px; background:#FFFFFF; border:1px solid #57503F; border-radius:10px; overflow:hidden; transition:transform .2s; }

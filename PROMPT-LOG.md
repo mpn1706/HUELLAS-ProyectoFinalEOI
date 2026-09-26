@@ -671,3 +671,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - **Móvil**: media query ≤480px para la fila foto+insignia del escaneo.
 - Nota: `App.py` no existe como archivo distinto (NTFS case-insensitive; git solo lleva `app.py`). INFORME.md (del alumno) mantiene datos históricos — no se toca por decisión.
 - Verificación: pytest 81/81, smoke 9 páginas, demo_check E2E, eval_match OK.
+
+## S115 — 26/09/2026 — Fix móvil carrusel táctil, solo (Muse Spark)
+- El lote S114 se revirtió entero porque los otros dos fixes (imágenes, scroll lateral) empeoraron el móvil; el del carrusel sí estaba bien y se reaplica aislado.
+- Pausa `:hover` del carrusel solo en `@media (hover:hover) and (pointer:fine)` + `touch-action:pan-y`: en táctil el toque dejaba el hover "enganchado" y lo trababa.
+- Verificación: `test_movil.py` 1/1.
