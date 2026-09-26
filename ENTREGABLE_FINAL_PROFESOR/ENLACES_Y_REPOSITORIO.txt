@@ -1,0 +1,20 @@
+HUELLAS — enlaces y ejecución local
+Fecha de preparación: 26/09/2026
+
+REPOSITORIO GITHUB
+https://github.com/mpn1706/HUELLAS-ProyectoFinalEOI
+Rama de entrega: main
+
+DEMO DESPLEGADA
+https://huellas.streamlit.app
+
+EJECUCIÓN LOCAL (Python 3.11+)
+1. Clonar: git clone https://github.com/mpn1706/HUELLAS-ProyectoFinalEOI.git
+2. Entrar: cd HUELLAS-ProyectoFinalEOI
+3. Crear y activar un entorno virtual (instrucciones PowerShell y macOS/Linux en README.md).
+4. Instalar: python -m pip install -r requirements.txt
+5. Generar el seed: python scripts/make_seed.py
+6. Cargarlo en SQLite: python scripts/load_seed.py
+7. Ejecutar: python -m streamlit run app.py
+
+Las instrucciones completas para PowerShell y macOS/Linux están en README.md. Para comprobar la instalación: python -m pytest tests -q.
