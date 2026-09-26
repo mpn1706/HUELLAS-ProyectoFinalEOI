@@ -1436,7 +1436,7 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
   div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
     flex-direction:row !important;
     flex-wrap:nowrap !important;
-    column-gap:1.25rem !important;
+    column-gap:1rem !important;
   }
   div[data-testid="stColumn"]:has(div[class*="st-key-home"]) {
     flex:0 0 auto !important;
