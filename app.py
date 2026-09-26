@@ -1283,7 +1283,8 @@ section[data-testid="stSidebar"] div.block-container {
 .huellas-tira { display:block; overflow:hidden; contain:layout; }
 .huellas-tira-track { display:block; white-space:nowrap; }
 .huellas-tira-track span { display:inline-block; position:relative;
-  animation:huellas-tira 8s linear infinite; }
+  animation:huellas-tira 8s linear infinite; animation-delay:1.5s;
+  animation-fill-mode:backwards; }
 @keyframes huellas-tira {
   0% { left:-100%; animation-timing-function:ease-out; }
   20% { left:0; animation-timing-function:linear; }
