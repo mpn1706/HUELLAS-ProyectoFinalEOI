@@ -1275,7 +1275,7 @@ section[data-testid="stSidebar"] div.block-container {
 }
 .huellas-hero { padding:0 0 0.15rem; margin-top:-3rem; }
 .huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.15; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.1rem 0 0; }
-.huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 0.25rem; }
+.huellas-sub { font-size:0.95rem; color:#57503F; margin:-1.5rem 0 0.25rem; }
 .huellas-up { animation:huellas-up .7s ease-out both; }
 @keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
 em.u { font-style:normal; color:#E30613; position:relative; }
