@@ -424,6 +424,14 @@ SHAKE_RE_STYLE = """<style>
 div[class*="st-key-re_notif"] button { animation:huellas-shake .4s ease 1; }
 </style>"""
 
+FICHA_IMG_STYLE = """<style>
+/* Perdidos/Avistamientos: las fotos (fijas a 380px) se ciñen a su columna
+   para que la página no se pueda mover en horizontal en el móvil.
+   Solo se emite en esas dos páginas: el resto queda intacto. */
+[data-testid="stImage"] img { max-width:100% !important; height:auto !important; }
+[data-testid="stColumn"] { min-width:0; }
+</style>"""
+
 FOTO_PUB_STYLE = """<style>
 /* Zona de foto de Publicar: borde discontinuo rojo sobre tarjeta blanca,
    con altura mínima para dar aire (compensa la huella y el caption retirados). */
@@ -2586,6 +2594,7 @@ if page == "buscar":
 # ── Página: Perdidos activos ──────────────────────────────────────────
 if page == "perdidos":
     titulo_perimetro("Mascotas desaparecidas")
+    st.markdown(FICHA_IMG_STYLE, unsafe_allow_html=True)
     lost_list = [dbmod.get_aviso(con, r["id"]) for r in
                  con.execute("SELECT id FROM avisos WHERE status='active' AND type='lost'").fetchall()]
     lost_list = [a for a in lost_list if a]
@@ -2614,6 +2623,7 @@ if page == "perdidos":
 # ── Página: Encontrados ───────────────────────────────────────────────
 if page == "encontrados":
     titulo_perimetro("Rastros compartidos")
+    st.markdown(FICHA_IMG_STYLE, unsafe_allow_html=True)
     found = dbmod.get_active_opuestos(con, "lost")
     if not found:
         st.info("Aún no hay rastros compartidos.")

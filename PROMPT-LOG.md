@@ -676,3 +676,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - El lote S114 se revirtió entero porque los otros dos fixes (imágenes, scroll lateral) empeoraron el móvil; el del carrusel sí estaba bien y se reaplica aislado.
 - Pausa `:hover` del carrusel solo en `@media (hover:hover) and (pointer:fine)` + `touch-action:pan-y`: en táctil el toque dejaba el hover "enganchado" y lo trababa.
 - Verificación: `test_movil.py` 1/1.
+
+## S116 — 26/09/2026 — Fichas sin deriva lateral en Perdidos/Avistamientos (Muse Spark)
+- Esas dos páginas se podían mover en horizontal en el móvil: la foto fija de 380px desbordaba la columna estrecha. `FICHA_IMG_STYLE` ciñe la foto (`max-width:100%`) y deja encoger columnas, emitido SOLO en esas dos páginas (el resto, que va bien, intacto).
+- Verificación: `test_movil.py` 2/2 (una página renderiza el estilo sin excepción).
