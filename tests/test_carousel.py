@@ -115,16 +115,30 @@ def test_etiquetas_sin_subrayado_azul():
 
 
 def test_subtitulo_en_tira_hacia_la_derecha():
-    # Una sola copia que cruza todo el ancho; entrada con ease-out para
-    # enlazar suave con el crucero lineal (sin tirón) + congelado reducido.
+    # Una sola copia que cruza todo el ancho; entrada en S (sin latigazo)
+    # + congelado con movimiento reducido.
     css = Path("app.py").read_text(encoding="utf-8")
     assert "huellas-tira-track" in css
     assert css.count("Mira quién te está esperando. Si reconoces a alguno, avisa.</span>") == 1
     assert "@keyframes huellas-tira" in css
     assert "contain:layout" in css  # recalcula solo la tira, sin tocar tiempos
-    assert "animation-timing-function:ease-out" in css
+    assert "cubic-bezier(0.25, 0, 0.7, 0.85)" in css  # S suave: sin latigazo
+    assert "30% { left:0;" in css
     assert "8s linear infinite" in css
     assert ".huellas-tira-track { animation:none !important; }" in css
+
+
+def test_pergaminos_se_desenrollan_por_turnos():
+    from ui_home import build_pergaminos_html
+
+    h = build_pergaminos_html()
+    assert 'class="huellas-perg"' in h
+    assert h.count("<img") == 3
+    assert "animation-delay:0s" in h and "animation-delay:4s" in h and "animation-delay:8s" in h
+    css = Path("app.py").read_text(encoding="utf-8")
+    assert "@keyframes huellas-perg" in css
+    assert "scaleY(0)" in css and "transform-origin:top center" in css
+    assert ".huellas-perg img { animation:none !important;" in css
 
 
 def test_inicio_compacto_tras_hero():

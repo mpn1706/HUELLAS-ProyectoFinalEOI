@@ -39,6 +39,7 @@ from ui_home import (
     build_match_card_html,
     build_marcha_html,
     build_pen_html,
+    build_pergaminos_html,
     build_radar_html,
     build_result_card_html,
     build_revision_html,
@@ -1285,9 +1286,20 @@ section[data-testid="stSidebar"] div.block-container {
 .huellas-tira-track span { display:inline-block; position:relative;
   animation:huellas-tira 8s linear infinite; }
 @keyframes huellas-tira {
-  0% { left:-100%; animation-timing-function:ease-out; }
-  20% { left:0; animation-timing-function:linear; }
+  0% { left:-100%; animation-timing-function:cubic-bezier(0.25, 0, 0.7, 0.85); }
+  30% { left:0; animation-timing-function:linear; }
   100% { left:100%; } }
+/* Carteles MOST WANTED junto al hero: se desenrollan de arriba abajo por
+   turnos (12s, uno cada 4s) y vuelven a enrollarse. Solo CSS. */
+.huellas-perg { position:relative; width:100%; aspect-ratio:694/1024; }
+.huellas-perg img { position:absolute; inset:0; width:100%; height:100%;
+  object-fit:contain; transform-origin:top center; opacity:0;
+  animation:huellas-perg 12s ease-in-out infinite; }
+@keyframes huellas-perg {
+  0% { opacity:0; transform:scaleY(0); }
+  4% { opacity:1; transform:scaleY(1); }
+  29% { opacity:1; transform:scaleY(1); }
+  33%, 100% { opacity:0; transform:scaleY(0); } }
 .huellas-up { animation:huellas-up .7s ease-out both; }
 @keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
 em.u { font-style:normal; color:#E30613; position:relative; }
@@ -1805,6 +1817,8 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   div[class*="st-key-re_notif"] button { animation:none !important; }
   .huellas-march .huellas-track, .huellas-march .huellas-pet { animation:none !important; }
   .huellas-tira-track { animation:none !important; }
+  .huellas-perg img { animation:none !important; opacity:0; }
+  .huellas-perg img:first-of-type { opacity:1 !important; }
   .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
   .huellas-nodo, .huellas-sello { opacity:1 !important; }
   .huellas-tl-linea { transform:scaleX(1) !important; }
@@ -1958,23 +1972,29 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
         [data-testid="stAppViewContainer"] [data-testid="stVerticalBlock"] { gap:0.5rem !important; }
         </style>""",
         unsafe_allow_html=True)
-    st.markdown(
-        '<div class="huellas-hero">'
-        '<h1 class="huellas-title">'
-        '<span class="huellas-up" style="display:block">ESTOS PELUDOS</span>'
-        '<span class="huellas-up" style="display:block;animation-delay:.25s">QUIEREN VOLVER A '
-        '<em class="u">CASA</em> '
-        '<svg class="huellas-heart" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">'
-        '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 '
-        '3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 '
-        '6.86-8.55 11.54L12 21.35z" fill="#E30613"/></svg>'
-        '</span></h1>'
-        '<p class="huellas-up huellas-sub" style="animation-delay:.5s">'
-        '<span class="huellas-tira"><span class="huellas-tira-track">'
-        '<span>Mira quién te está esperando. Si reconoces a alguno, avisa.</span>'
-        '</span></span></p>'
-        '</div>',
-        unsafe_allow_html=True)
+    ht, hp = st.columns([3, 1], vertical_alignment="center")
+    with ht:
+        st.markdown(
+            '<div class="huellas-hero">'
+            '<h1 class="huellas-title">'
+            '<span class="huellas-up" style="display:block">ESTOS PELUDOS</span>'
+            '<span class="huellas-up" style="display:block;animation-delay:.25s">QUIEREN VOLVER A '
+            '<em class="u">CASA</em> '
+            '<svg class="huellas-heart" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">'
+            '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 '
+            '3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 '
+            '6.86-8.55 11.54L12 21.35z" fill="#E30613"/></svg>'
+            '</span></h1>'
+            '<p class="huellas-up huellas-sub" style="animation-delay:.5s">'
+            '<span class="huellas-tira"><span class="huellas-tira-track">'
+            '<span>Mira quién te está esperando. Si reconoces a alguno, avisa.</span>'
+            '</span></span></p>'
+            '</div>',
+            unsafe_allow_html=True)
+    with hp:
+        _perg = build_pergaminos_html()
+        if _perg:
+            st.markdown(_perg, unsafe_allow_html=True)
     h1, h2 = st.columns(2)
     with h1:
         st.button("Publicar aviso", key="hero_publicar", type="primary",

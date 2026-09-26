@@ -8,11 +8,13 @@ teléfonos, correos ni RRSS. Solo: id, tipo, especie, color, zona y foto.
 """
 
 import html as _html
+from pathlib import Path as _Path
 
 ANIMAL_ES = {"dog": "Perro", "cat": "Gato", "other": "Otro"}
 MAX_ITEMS = 12
 THUMB_W, THUMB_H = 300, 208  # ratio 150×104 de la tarjeta: el cover no recorta
 THUMB_BG = (245, 241, 234)  # crema #F5F1EA: misma que imagen_cuadrada en app.py
+PERG_DIR = _Path(__file__).resolve().parent / "data" / "seed" / "images" / "animacion_pergamino"
 
 
 def _titulo(a: dict) -> str:
@@ -686,3 +688,37 @@ def build_carousel_html(cards: list) -> str:
     pista = "".join(piezas)
     # Pista con contenido duplicado para bucle continuo translateX(-50%).
     return (f'<div class="huellas-vp"><div class="huellas-trk">{pista}{pista}</div></div>')
+
+
+def _pergamino_uri(fp: _Path, alto: int = 480) -> str:
+    """Data-URI JPEG vertical (conserva proporción, aligera la página)."""
+    import base64 as _b64
+    import io as _io
+
+    from PIL import Image as _Image
+
+    img = _Image.open(fp).convert("RGB")
+    img.thumbnail((694, alto))
+    buf = _io.BytesIO()
+    img.save(buf, format="JPEG", quality=70)
+    return "data:image/jpeg;base64," + _b64.b64encode(buf.getvalue()).decode()
+
+
+def build_pergaminos_html() -> str:
+    """Tres carteles MOST WANTED que se desenrollan por turnos (solo CSS).
+
+    Pura (sin Streamlit ni BD): si faltan las fotos, cadena vacía y la app
+    no muestra nada (no rompe).
+    """
+    piezas = []
+    for i, fp in enumerate(sorted(PERG_DIR.glob("pergamino_*.jpg"))[:3]):
+        try:
+            uri = _pergamino_uri(fp)
+        except Exception:
+            continue
+        piezas.append(
+            f'<img src="{uri}" alt="Se busca" style="animation-delay:{i * 4}s">')
+    if not piezas:
+        return ""
+    return ('<div class="huellas-perg" aria-hidden="true">'
+            + "".join(piezas) + "</div>")
