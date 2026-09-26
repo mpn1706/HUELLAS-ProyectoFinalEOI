@@ -1,4 +1,4 @@
-"""Genera el seed Jerez v3 (17 avisos con fotos reales: 6 lost + 11 found).
+"""Genera el seed Jerez v3 (20 avisos con fotos reales: 7 lost + 13 found).
 
 Cada foto se asigna a un aviso con atributos según rasgos visibles y una
 ubicación exacta reciclada del pool validado (Nominatim, S28).

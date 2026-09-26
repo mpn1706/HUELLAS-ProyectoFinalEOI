@@ -51,7 +51,7 @@ Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cer
 
 ```bash
 pip install -r requirements.txt
-python scripts/make_seed.py      # genera data/seed (20 avisos + imágenes)
+python scripts/make_seed.py      # genera data/seed (20 avisos JSON; las fotos ya viajan en git)
 python scripts/load_seed.py      # carga SQLite data/huellas.db
 streamlit run app.py             # abre la app en el navegador
 ```
@@ -59,7 +59,7 @@ streamlit run app.py             # abre la app en el navegador
 Verificación extra:
 
 ```bash
-python -m pytest tests -q          # 81 tests (fórmula, umbrales, geo, ingestor, UI…)
+python -m pytest tests -q          # 92 tests (fórmula, umbrales, geo, ingestor, UI…)
 python scripts/eval_match.py       # ÉXITO-01/03 con vectores fijos
 python scripts/demo_check.py       # E2E: lost_001 → found_011 top-1 ≥80% (alerta real)
 python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
@@ -100,9 +100,12 @@ HUELLAS-ProyectoFinalEOI/
 │   ├── images/ # fotos reales + backup demo reencuentros/
 │   └── embeddings.json # vectores CLIP precalculados (20 avisos)
 ├── scripts/ # utilidades (compute/load/make seed, checks, smoke)
-├── tests/ # 18 ficheros, 91 tests (pytest + AppTest headless)
+├── tests/ # 17 ficheros, 92 tests (pytest + AppTest headless)
 ├── assets/ # logo.png + fondo.png
 ├── .streamlit/ # config.toml (tema); secrets.toml solo local (no viaja)
+├── docs/ # copias de specs (architecture/requirements) + export memoria IA
+├── .devcontainer/ # entorno Codespaces/VS Code (Python 3.11)
+├── .gitignore # excluye DB local, logs, secrets y caches
 ├── requirements.md # spec fuente de verdad (v1.40)
 ├── architecture.md # agentes, flujos y diagramas
 ├── PROMPT-LOG.md # bitácora de sesiones con la IA (S01…)
