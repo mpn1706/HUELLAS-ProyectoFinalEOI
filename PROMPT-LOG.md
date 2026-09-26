@@ -701,3 +701,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S124 — 26/09/2026 — Subtítulo en tira hacia la derecha (Muse Spark)
 - "Mira quién te está esperando…" avanza a la derecha, sale y vuelve a entrar en bucle sin salto (pista duplicada, 12s) + congelado con `prefers-reduced-motion`.
 - Verificación: `test_carousel.py` 10/10.
+
+## S125 — 26/09/2026 — Tira de subtítulo de una sola pasada (Muse Spark)
+- Sin texto duplicado: una copia cruza todo el ancho (sale cortada por la derecha, vuelve por la izquierda) a 8s.
