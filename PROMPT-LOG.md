@@ -694,6 +694,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Esas dos páginas "bailaban" a los lados en móvil. `VISTA_FIJA_STYLE` recorta el desborde lateral del contenedor, emitido SOLO en esas dos páginas y SOLO bajo 640px (escritorio y resto de páginas intactos; sin `min-width:0` global esta vez).
 - Verificación: `test_movil.py` 4/4 (incluye que inicio/buscar/publicar/reencuentro NO reciben el estilo).
 
+## S122 — 26/09/2026 — Header sin corte, punto medio 0.75rem (Muse Spark)
+- Con el sidebar abierto el header se cortaba (0.2rem) y 1rem ensanchaba de más (revertido): punto medio 0.75rem.
+- Verificación: aserción en `test_sidebar_marcha.py`.
+
 ## S120 — 26/09/2026 — Etiquetas del carrusel sin subrayado (Muse Spark)
 - Perdido/avistado/en revisión/caso cerrado mostraban la línea azul del enlace: `.huellas-cd-link .huellas-cd-et` sin `text-decoration`, `border-bottom` ni `box-shadow`. El resto de textos subrayados, intactos.
 - Verificación: `test_carousel.py` 8/8.

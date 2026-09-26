@@ -303,9 +303,11 @@ def inject_background():
             color: #FFFFFF !important;
             min-height: 3.2rem;
         }}
-        /* Contenido pegado arriba, justo bajo el >> */
+        /* Contenido arriba pero sin quedar bajo la barra fija: con el
+           sidebar abierto la página se desplaza unos píxeles y el header se
+           cortaba (0.2rem); 1rem ensanchaba de más. Punto medio 0.75rem. */
         [data-testid="stAppViewContainer"] .block-container {{
-            padding-top: 0.2rem !important;
+            padding-top: 0.75rem !important;
         }}
         /* Fuera el botón de fullscreen de las imágenes */
         [data-testid="stImage"] button {{
