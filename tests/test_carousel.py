@@ -104,10 +104,11 @@ def test_counts_con_links_y_sin_contacto():
 
 
 def test_etiquetas_sin_subrayado_azul():
-    # Las etiquetas van dentro del <a> de la tarjeta: el CSS les quita el
-    # subrayado de enlace (el resto de textos lo conservan).
+    # Toda la tarjeta es un <a>: se anula el subrayado en el ancla Y en los
+    # descendientes (la línea puede propagarse desde el <a> y el none en el
+    # hijo solo no la quita).
     css = Path("app.py").read_text(encoding="utf-8")
-    i = css.index(".huellas-cd-link .huellas-cd-et")
-    bloque = css[i:i + 200]
-    assert "text-decoration:none" in bloque
-    assert "border-bottom:none" in bloque
+    assert "a.huellas-cd-link" in css
+    assert "a.huellas-cd-link *" in css
+    assert "text-decoration:none" in css
+    assert "border-bottom:none" in css
