@@ -1280,7 +1280,7 @@ section[data-testid="stSidebar"] div.block-container {
    por la derecha, vuelve a entrar por la izquierda). La entrada usa
    ease-out (arranca rápido y enlaza suave con el crucero lineal): sin el
    tirón del cambio brusco de velocidad. */
-.huellas-tira { display:block; overflow:hidden; }
+.huellas-tira { display:block; overflow:hidden; contain:layout; }
 .huellas-tira-track { display:block; white-space:nowrap; }
 .huellas-tira-track span { display:inline-block; position:relative;
   animation:huellas-tira 8s linear infinite; }
