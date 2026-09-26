@@ -77,13 +77,37 @@ python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
 - **Privacidad**: el contacto se muestra tras el desplegable "Ver contacto" (no en abierto); la ubicación se muestra a nivel de calle/zona.
 - **Administración en Cloud**: requiere configurar el secret `ADMIN_PASSWORD` en el panel de Secrets de la app; si no, el apartado queda desactivado.
 
-## Estructura
+## Estructura del proyecto
 
 ```
-app.py  agents/{ingestor,vision,matcher,geo,notifier,db,admin}.py
-rag/{embeddings,retrieval}.py  data/seed/{lost,found,images}/
-scripts/{make_seed,load_seed,eval_match,demo_check,smoke_app}.py  tests/
-requirements.md  architecture.md  PROMPT-LOG.md
+HUELLAS-ProyectoFinalEOI/
+├── app.py # app Streamlit (UI + páginas + CSS)
+├── ui_home.py # constructores HTML puros de Inicio (testeables)
+├── agents/ # 5 agentes + persistencia
+│   ├── ingestor.py # normaliza avisos al esquema
+│   ├── vision.py # CLIP 512-dim (fallback histograma sin torch)
+│   ├── matcher.py # score 0.55/0.25/0.10/0.10 + umbrales >=80/>=65
+│   ├── geo.py # haversine, proximidad max(0,1-km/15)
+│   ├── notifier.py # panel + log + tabla notifications
+│   ├── db.py # SQLite (avisos, notifications, reencuentros)
+│   └── admin.py # listar, borrar, resolver (con contraseña)
+├── rag/ # texto: MiniLM (fallback TF-IDF/Jaccard) + retrieval
+│   ├── embeddings.py # similitud semántica description_text
+│   └── retrieval.py # filtra active/opuestos, ordena por score
+├── data/seed/ # corpus demo Jerez (viaja en git; Cloud recarga de aquí)
+│   ├── lost/ # 7 avisos lost_001…lost_007 (.json)
+│   ├── found/ # 13 avisos found_001…found_013 (.json)
+│   ├── images/ # fotos reales + backup demo reencuentros/
+│   └── embeddings.json # vectores CLIP precalculados (20 avisos)
+├── scripts/ # utilidades (compute/load/make seed, checks, smoke)
+├── tests/ # 18 ficheros, 91 tests (pytest + AppTest headless)
+├── assets/ # logo.png + fondo.png
+├── .streamlit/ # config.toml (tema); secrets.toml solo local (no viaja)
+├── requirements.md # spec fuente de verdad (v1.40)
+├── architecture.md # agentes, flujos y diagramas
+├── PROMPT-LOG.md # bitácora de sesiones con la IA (S01…)
+├── INFORME.md # informe de reflexión del alumno
+└── requirements.txt # dependencias fijadas (sin torch: va en local)
 ```
 
 Specs (`requirements.md` v1.40, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.
