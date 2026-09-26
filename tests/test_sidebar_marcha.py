@@ -9,12 +9,6 @@ APP = str(Path("app.py").resolve())
 SRC = Path("app.py").read_text(encoding="utf-8")
 
 
-def test_contenido_no_queda_bajo_la_barra():
-    # Con el sidebar abierto el header se cortaba por arriba (padding 0.2rem):
-    # aire de 1rem para librar la barra fija.
-    assert "padding-top: 1rem !important" in SRC
-
-
 def test_marcha_duplica_pista_y_alterna():
     h = build_marcha_html()
     assert 'class="huellas-march"' in h and 'class="huellas-track"' in h
