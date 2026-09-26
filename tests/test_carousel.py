@@ -121,11 +121,7 @@ def test_subtitulo_en_tira_hacia_la_derecha():
     assert "huellas-tira-track" in css
     assert css.count("Mira quién te está esperando. Si reconoces a alguno, avisa.</span>") == 1
     assert "@keyframes huellas-tira" in css
-    assert "contain:layout" in css  # recalcula solo la tira, sin tirones
-    assert "animation-delay:1.5s" in css  # arranca tras la tormenta de carga
-    assert "animation-fill-mode:backwards" in css  # espera oculta, sin salto
-    assert "cubic-bezier(0.25, 0, 0.7, 0.85)" in css  # S suave: sin latigazo
-    assert "30% { left:0;" in css
+    assert "animation-timing-function:ease-out" in css
     assert "8s linear infinite" in css
     assert ".huellas-tira-track { animation:none !important; }" in css
 

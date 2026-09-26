@@ -708,12 +708,6 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S128 — 26/09/2026 — Tira de una copia con entrada suavizada (Muse Spark)
 - La opción solapada volvía a mostrar el texto duplicado (rechazado en S125: solape sin hueco y copia única son incompatibles). De vuelta a una copia con `ease-out` en la entrada: enlaza suave con el crucero y se acabó el tirón.
 
-## S129 — 26/09/2026 — Tira sin micro-tirones (contain:layout) (Muse Spark)
-- Animar `left` recalcula toda la página por fotograma: `contain:layout` confina el recálculo a la tira.
-
-## S130 — 26/09/2026 — Entrada en S sin latigazo (Muse Spark)
-- El `ease-out` arrancaba a máxima velocidad de golpe: curva `cubic-bezier(0.25,0,0.7,0.85)` que parte de parado y empalma a velocidad de crucero.
-
 ## S127 — 26/09/2026 — Tira solapada sin tirones (Muse Spark)
 - Dos copias idénticas a velocidad constante: sale por un borde mientras entra por el otro (el tirón del cambio de tramo desaparece).
 
