@@ -1286,8 +1286,8 @@ section[data-testid="stSidebar"] div.block-container {
   animation:huellas-tira 8s linear infinite; animation-delay:1.5s;
   animation-fill-mode:backwards; }
 @keyframes huellas-tira {
-  0% { left:-100%; animation-timing-function:ease-out; }
-  20% { left:0; animation-timing-function:linear; }
+  0% { left:-100%; animation-timing-function:cubic-bezier(0.25, 0, 0.7, 0.85); }
+  30% { left:0; animation-timing-function:linear; }
   100% { left:100%; } }
 .huellas-up { animation:huellas-up .7s ease-out both; }
 @keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
