@@ -1276,18 +1276,16 @@ section[data-testid="stSidebar"] div.block-container {
 .huellas-hero { padding:0 0 0.15rem; margin-top:-3rem; }
 .huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.15; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.1rem 0 0; }
 .huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 0.25rem; position:relative; top:-2rem; }
-/* Subtítulo en tira: una sola copia que cruza todo el ancho (sale por la
-   derecha cortada y vuelve a entrar por la izquierda). La entrada es 4
-   veces más rápida que el crucero (tramos 0→20% y 20→100%) para acortar
-   el hueco sin acelerar el viaje. */
+/* Subtítulo en tira solapada: dos copias idénticas; mientras la cola sale
+   por un borde, la cabeza entra por el otro (velocidad constante, sin
+   tirones). Sentido hacia la derecha, como hasta ahora. */
 .huellas-tira { display:block; overflow:hidden; }
-.huellas-tira-track { display:block; white-space:nowrap; }
-.huellas-tira-track span { display:inline-block; position:relative;
-  animation:huellas-tira 8s linear infinite; }
+.huellas-tira-track { display:inline-flex; white-space:nowrap; will-change:transform;
+  animation:huellas-tira 4s linear infinite; }
+.huellas-tira-track > span { padding-right:4rem; }
 @keyframes huellas-tira {
-  0% { left:-100%; }
-  20% { left:0; }
-  100% { left:100%; } }
+  from { transform:translateX(-50%); }
+  to { transform:translateX(0); } }
 .huellas-up { animation:huellas-up .7s ease-out both; }
 @keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
 em.u { font-style:normal; color:#E30613; position:relative; }
@@ -1972,6 +1970,7 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
         '<p class="huellas-up huellas-sub" style="animation-delay:.5s">'
         '<span class="huellas-tira"><span class="huellas-tira-track">'
         '<span>Mira quién te está esperando. Si reconoces a alguno, avisa.</span>'
+        '<span aria-hidden="true">Mira quién te está esperando. Si reconoces a alguno, avisa.</span>'
         '</span></span></p>'
         '</div>',
         unsafe_allow_html=True)

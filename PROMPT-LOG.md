@@ -705,5 +705,8 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S126 — 26/09/2026 — Tira con entrada rápida y crucero intacto (Muse Spark)
 - Tramos desiguales (0→20% entra, 20→100% cruza): la entrada es 4x más rápida y el viaje no se acelera.
 
+## S127 — 26/09/2026 — Tira solapada sin tirones (Muse Spark)
+- Dos copias idénticas a velocidad constante: sale por un borde mientras entra por el otro (el tirón del cambio de tramo desaparece).
+
 ## S125 — 26/09/2026 — Tira de subtítulo de una sola pasada (Muse Spark)
 - Sin texto duplicado: una copia cruza todo el ancho (sale cortada por la derecha, vuelve por la izquierda) a 8s.

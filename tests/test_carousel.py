@@ -115,14 +115,14 @@ def test_etiquetas_sin_subrayado_azul():
 
 
 def test_subtitulo_en_tira_hacia_la_derecha():
-    # Una sola copia que cruza todo el ancho (sale cortada por la derecha y
-    # vuelve a entrar por la izquierda) + congelado con movimiento reducido.
+    # Tira solapada (dos copias): sale por un borde mientras entra por el
+    # otro, velocidad constante sin tirones + congelado con movimiento reducido.
     css = Path("app.py").read_text(encoding="utf-8")
     assert "huellas-tira-track" in css
-    assert css.count("Mira quién te está esperando. Si reconoces a alguno, avisa.</span>") == 1
+    assert css.count("Mira quién te está esperando. Si reconoces a alguno, avisa.</span>") == 2
     assert "@keyframes huellas-tira" in css
-    assert "20% { left:0; }" in css  # entrada rápida, crucero intacto
-    assert "8s linear infinite" in css
+    assert "translateX(-50%)" in css
+    assert "4s linear infinite" in css
     assert ".huellas-tira-track { animation:none !important; }" in css
 
 
