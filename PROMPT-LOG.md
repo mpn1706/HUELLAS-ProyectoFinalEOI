@@ -697,3 +697,7 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 ## S120 — 26/09/2026 — Etiquetas del carrusel sin subrayado (Muse Spark)
 - Perdido/avistado/en revisión/caso cerrado mostraban la línea azul del enlace: `.huellas-cd-link .huellas-cd-et` sin `text-decoration`, `border-bottom` ni `box-shadow`. El resto de textos subrayados, intactos.
 - Verificación: `test_carousel.py` 8/8.
+
+## S124 — 26/09/2026 — Subtítulo en tira hacia la derecha (Muse Spark)
+- "Mira quién te está esperando…" avanza a la derecha, sale y vuelve a entrar en bucle sin salto (pista duplicada, 12s) + congelado con `prefers-reduced-motion`.
+- Verificación: `test_carousel.py` 10/10.

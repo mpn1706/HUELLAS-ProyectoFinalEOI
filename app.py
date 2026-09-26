@@ -1276,6 +1276,15 @@ section[data-testid="stSidebar"] div.block-container {
 .huellas-hero { padding:0 0 0.15rem; margin-top:-3rem; }
 .huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.15; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.1rem 0 0; }
 .huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 0.25rem; position:relative; top:-2rem; }
+/* Subtítulo en tira: el texto avanza hacia la derecha, sale y vuelve a
+   entrar en bucle sin salto (pista duplicada). */
+.huellas-tira { display:block; overflow:hidden; }
+.huellas-tira-track { display:inline-flex; white-space:nowrap; will-change:transform;
+  animation:huellas-tira 12s linear infinite; }
+.huellas-tira-track span { padding-right:4rem; }
+@keyframes huellas-tira {
+  from { transform:translateX(-50%); }
+  to { transform:translateX(0); } }
 .huellas-up { animation:huellas-up .7s ease-out both; }
 @keyframes huellas-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
 em.u { font-style:normal; color:#E30613; position:relative; }
@@ -1792,6 +1801,7 @@ div[class*="st-key-ir_publicar"] button { animation:huellas-bob 2.6s ease-in-out
   div[class*="st-key-b_buscar"] button,
   div[class*="st-key-re_notif"] button { animation:none !important; }
   .huellas-march .huellas-track, .huellas-march .huellas-pet { animation:none !important; }
+  .huellas-tira-track { animation:none !important; }
   .huellas-nodo, .huellas-tl-linea, .huellas-sello { animation:none !important; }
   .huellas-nodo, .huellas-sello { opacity:1 !important; }
   .huellas-tl-linea { transform:scaleX(1) !important; }
@@ -1957,7 +1967,10 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
         '6.86-8.55 11.54L12 21.35z" fill="#E30613"/></svg>'
         '</span></h1>'
         '<p class="huellas-up huellas-sub" style="animation-delay:.5s">'
-        'Mira quién te está esperando. Si reconoces a alguno, avisa.</p>'
+        '<span class="huellas-tira"><span class="huellas-tira-track">'
+        '<span>Mira quién te está esperando. Si reconoces a alguno, avisa.</span>'
+        '<span aria-hidden="true">Mira quién te está esperando. Si reconoces a alguno, avisa.</span>'
+        '</span></span></p>'
         '</div>',
         unsafe_allow_html=True)
     h1, h2 = st.columns(2)

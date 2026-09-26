@@ -114,6 +114,16 @@ def test_etiquetas_sin_subrayado_azul():
     assert "border-bottom:none" in css
 
 
+def test_subtitulo_en_tira_hacia_la_derecha():
+    # El subtítulo avanza a la derecha, sale y vuelve a entrar en bucle sin
+    # salto (pista duplicada) + congelado con movimiento reducido.
+    css = Path("app.py").read_text(encoding="utf-8")
+    assert "huellas-tira-track" in css
+    assert css.count("Mira quién te está esperando. Si reconoces a alguno, avisa.</span>") == 2
+    assert "@keyframes huellas-tira" in css
+    assert ".huellas-tira-track { animation:none !important; }" in css
+
+
 def test_inicio_compacto_tras_hero():
     # Todo lo que cuelga del hero (botones, carrusel, contadores) sube con
     # bloques más juntos, solo en inicio.
