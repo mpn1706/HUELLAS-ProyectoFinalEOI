@@ -1280,7 +1280,7 @@ section[data-testid="stSidebar"] div.block-container {
 }
 .huellas-hero { padding:0 0 0.15rem; margin-top:-3rem; }
 .huellas-title { font-family:'Montserrat','Inter',sans-serif; font-weight:800; color:#23201B; line-height:1.15; letter-spacing:0.01em; font-size:clamp(1.6rem,4vw,2rem); margin:0.1rem 0 0; }
-.huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 0.25rem; position:relative; top:-2rem; }
+.huellas-sub { font-size:0.95rem; color:#57503F; margin:0 0 -1rem; position:relative; top:-2rem; }
 /* Subtítulo en tira de una sola copia: cruza todo el ancho (sale cortada
    por la derecha, vuelve a entrar por la izquierda). La entrada usa
    ease-out (arranca rápido y enlaza suave con el crucero lineal): sin el
@@ -1960,7 +1960,7 @@ def render_inicio(con, n_lost: int, n_found: int, n_reenc: int) -> None:
     st.markdown(
         """<style>
         /* Solo inicio: bloques más juntos para subir el contenido tras el hero. */
-        [data-testid="stAppViewContainer"] [data-testid="stVerticalBlock"] { gap:0.5rem !important; }
+        [data-testid="stAppViewContainer"] [data-testid="stVerticalBlock"] { gap:0.25rem !important; }
         </style>""",
         unsafe_allow_html=True)
     st.markdown(

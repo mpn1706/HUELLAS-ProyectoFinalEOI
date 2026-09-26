@@ -134,6 +134,8 @@ def test_inicio_compacto_tras_hero():
 
     css = Path("app.py").read_text(encoding="utf-8")
     assert "Solo inicio: bloques más juntos" in css
+    assert "gap:0.25rem !important" in css
+    assert "margin:0 0 -1rem" in css  # colapsa el hueco del subtítulo desplazado
     at = AppTest.from_file(str(Path("app.py").resolve()))
     at.session_state["page"] = "inicio"
     at.run(timeout=120)
