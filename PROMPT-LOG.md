@@ -662,6 +662,10 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Alineación por prueba visual: barrido perfecto con 1px; viñetas en caja con clave propia `homebox_*` y `top:4px` (el padding se recentraba a la mitad; el diagnóstico temporal de 8px confirmó que el deploy llegaba).
 - Verificación: `test_titulo_home.py` 3/3.
 
+## S118 — 26/09/2026 — Títulos pegados al botón solo en escritorio (Muse Spark)
+- En PC el hueco mediano quedaba excesivo: `column-gap:0.5rem` solo en `@media (min-width:641px)` para filas con botón home. Móvil intacto (prohibido tocarlo sin petición expresa).
+- Verificación: `test_titulo_home.py` 4/4.
+
 ## S113 — 25/09/2026 — Auditoría final (Gemini/Claude/ChatGPT) + higiene (Muse Spark)
 - **Admin**: fuera `DEFAULT_ADMIN_PASSWORD` ("huellas123") del código, README y specs (REQ-11.1 v1.40); sin `ADMIN_PASSWORD` (Secrets) ni `HUELLAS_ADMIN_PASSWORD` (env), la administración queda desactivada con aviso. `.streamlit/secrets.toml` local creado (gitignored) para no perder el flujo local.
 - **requirements.txt**: versiones fijadas (numpy 2.5.3, pillow 12.3.0, scikit-learn 1.9.1, pytest 9.1.1; streamlit/folium ya estaban ==).

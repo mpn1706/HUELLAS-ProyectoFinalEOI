@@ -1,4 +1,4 @@
-"""Títulos con botón rojo ⏪ a Inicio (S111)."""
+"""Títulos con botón rojo ⏪ a Inicio (S111) + aire por viewport (S118)."""
 from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
@@ -44,3 +44,14 @@ def test_boton_inicio_navega():
     at.run(timeout=120)
     assert not at.exception, at.exception
     assert at.session_state["page"] == "inicio"
+
+
+def test_aire_titulo_solo_segun_viewport():
+    # Móvil (≤640px): fila forzada + columna ajustada; escritorio (≥641px):
+    # hueco estrecho 0.5rem. Ninguna regla pisa a la otra.
+    assert "@media (max-width:640px)" in SRC
+    assert "@media (min-width:641px)" in SRC
+    i_mob = SRC.index("@media (max-width:640px)")
+    i_desk = SRC.index("@media (min-width:641px)")
+    assert "column-gap:0.5rem" in SRC[i_desk:]
+    assert "column-gap" not in SRC[i_mob:SRC.index("@media (min-width:641px)")]

@@ -1442,6 +1442,13 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
     min-width:0;
   }
 }
+/* Escritorio: acerca los títulos al botón (el hueco mediano queda excesivo
+   en pantalla ancha). Solo vista de navegador PC; el móvil no se toca. */
+@media (min-width:641px) {
+  div[data-testid="stHorizontalBlock"]:has(div[class*="st-key-home"]) {
+    column-gap:0.5rem !important;
+  }
+}
 /* Desfile lateral: gatitos y perritos trotando en fila (bucle infinito).
    Reglas acotadas a .huellas-march: la tira de dígitos (.huellas-track
    suelta) usa display:block y no debe pisarlas. */
