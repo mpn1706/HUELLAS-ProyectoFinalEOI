@@ -31,11 +31,11 @@ def test_fichas_usan_foto_fluida_en_perdidos_y_encontrados():
 
 
 def test_boton_inicio_al_lado_del_titulo_en_movil():
-    # Streamlit apila las columnas en vertical en pantallas estrechas y el
-    # botón caía ENCIMA del título: solo en cabeceras con botón home se
-    # fuerza la fila y la columna del botón se ajusta a su contenido.
+    # Estado 1d8706b: hueco mediano en las filas de título (móvil y escritorio
+    # iguales) + fila forzada en móvil para que el botón no caiga encima.
+    assert SRC.count('[1, 30], gap="medium"') == 2
+    assert "column-gap" not in SRC
     assert "@media (max-width:640px)" in SRC
     assert 'stHorizontalBlock"]:has(div[class*="st-key-home"])' in SRC
     assert "flex-direction:row" in SRC
     assert 'stColumn"]:has(div[class*="st-key-home"])' in SRC
-    assert "column-gap:1rem" in SRC  # aire extra SOLO en móvil (escritorio: small)
