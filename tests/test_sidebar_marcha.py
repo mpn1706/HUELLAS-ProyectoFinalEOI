@@ -37,7 +37,7 @@ def test_sidebar_muestra_divisoria_y_desfile():
     at.run(timeout=120)
     assert not at.exception, at.exception
     md = " ".join(str(m.value) for m in at.markdown)
-    assert md.count("huellas-march") >= 2  # tira + contratiira
+    assert md.count("huellas-march") >= 3  # tira + contratiira + tira
     assert "huellas-march inv" in md
     assert len(at.divider) >= 1  # divisoria(s) negra(s) del sidebar
 

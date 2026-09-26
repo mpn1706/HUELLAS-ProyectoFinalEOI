@@ -698,6 +698,9 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Todo el contenido lateral reducido en proporción (`zoom:0.85` solo en el sidebar), ocupando igual el ancho.
 - Verificación: `test_sidebar_marcha.py` 5/5.
 
+## S135 — 26/09/2026 — Tercera tira a la derecha al fondo del sidebar (Muse Spark)
+- Orden: derecha, izquierda, derecha.
+
 ## S120 — 26/09/2026 — Etiquetas del carrusel sin subrayado (Muse Spark)
 - Perdido/avistado/en revisión/caso cerrado mostraban la línea azul del enlace: `.huellas-cd-link .huellas-cd-et` sin `text-decoration`, `border-bottom` ni `box-shadow`. El resto de textos subrayados, intactos.
 - Verificación: `test_carousel.py` 8/8.
