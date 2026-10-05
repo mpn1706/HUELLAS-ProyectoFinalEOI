@@ -1111,10 +1111,12 @@ def dialogo_buscar_primero():
     c1, c2 = st.columns(2)
     with c1:
         if st.button("Buscar coincidencias", type="primary", key="dlg_ir_buscar"):
+            st.session_state.pub_dialog_ok = True
             nav_to("buscar")
             st.rerun()
     with c2:
         if st.button("Seguir publicando", key="dlg_seguir"):
+            st.session_state.pub_dialog_ok = True
             st.rerun()
 
 
@@ -2744,11 +2746,12 @@ if page == "encontrados":
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
     titulo_barrido("Publica un aviso de perdido o avistamiento")
-    if (not st.session_state.get("pub_dialog_visto")
+    if (not st.session_state.get("pub_dialog_ok")
             and not st.session_state.get("pub_prefill")):
         # Recomendación al entrar (una vez por sesión; si vienes de Buscar
-        # con datos precargados ya buscaste y no se muestra).
-        st.session_state.pub_dialog_visto = True
+        # con datos precargados ya buscaste y no se muestra). Se re-emite en
+        # cada rerun hasta que elijas: si no, el rerun que provoca el mapa al
+        # cargar se la traga antes de que puedas pulsar.
         dialogo_buscar_primero()
     # Los widgets se borran rotando la época (el navegador restaura valores
     # aunque se vacíe su clave: solo una clave nueva garantiza un campo limpio).
@@ -2883,8 +2886,11 @@ if page == "publicar":
                     if _rev:
                         st.session_state[f"reg_addr_pending_{_pe}"] = _rev[:120]
                     st.rerun()
-            if st.session_state.pop(f"reg_pin_nuevo_{_pe}", False):
-                # La chincheta "cae" con rebote + anillo pulsante (como en Buscar).
+            if st.session_state.get(f"reg_pin_nuevo_{_pe}"):
+                # La chincheta "cae" con rebote + anillo pulsante (como en
+                # Buscar). Sin pop: el mensaje sobrevive a reruns (si no, el
+                # re-render del mapa se lo traga); se limpia al publicar o
+                # empezar de cero (rotan la época y las claves).
                 st.markdown(
                     '<div class="huellas-pinok"><span class="huellas-pinwrap">'
                     '<span class="huellas-pinring"></span>'

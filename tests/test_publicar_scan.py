@@ -30,7 +30,7 @@ def _ir_publicar(**state):
 def test_confirmacion_abajo_sin_analisis():
     # Publicar solo registra: éxito abajo del todo, sin tarjeta de
     # coincidencia ni alertas (eso vive solo en Buscar).
-    at = _ir_publicar(pub_dialog_visto=True, pub_ok="av_x")
+    at = _ir_publicar(pub_dialog_ok=True, pub_ok="av_x")
     ok = " ".join(str(s.value) for s in at.success)
     assert "av_x" in ok and "publicado" in ok
     assert "alerta" not in ok
@@ -39,7 +39,7 @@ def test_confirmacion_abajo_sin_analisis():
 
 
 def test_publicar_otro_limpia_confirmacion():
-    at = _ir_publicar(pub_dialog_visto=True, pub_ok="av_y")
+    at = _ir_publicar(pub_dialog_ok=True, pub_ok="av_y")
     at.button(key="pub_otro").click()
     at.run(timeout=120)
     assert not at.exception, at.exception
@@ -52,3 +52,19 @@ def test_dialog_buscar_primero_no_rompe():
     at = _ir_publicar()
     md = " ".join(str(m.value) for m in at.markdown)
     assert "Publica un aviso" in md
+
+
+def test_dialog_no_se_autoconsume():
+    # El popup sobrevive a reruns hasta que elijas: la entrada fresca NO
+    # deja el flag puesto (antes se lo tragaba el rerun del mapa).
+    at = _ir_publicar()
+    assert "pub_dialog_ok" not in at.session_state
+
+
+def test_pin_fijado_sobrevive_rerun():
+    # Tras clicar el mapa, el mensaje con la chincheta y el anillo sigue
+    # visible (no se lo traga el re-render del mapa).
+    at = _ir_publicar(pub_dialog_ok=True, reg_pin_nuevo_0=True)
+    md = " ".join(str(m.value) for m in at.markdown)
+    assert "Punto fijado" in md and "huellas-pinok" in md
+    assert at.session_state.get("reg_pin_nuevo_0") is True
