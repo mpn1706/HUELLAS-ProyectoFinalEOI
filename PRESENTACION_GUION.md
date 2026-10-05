@@ -49,9 +49,9 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 
 **Acciones en vivo, 03:40–04:20 (40 segundos):**
 1. Mostrar la pestaña de `huellas.streamlit.app` ya cargada en **Buscar**.
-2. Usar el formulario preparado con una consulta tipo `lost_001` (foto `data/seed/images/gato 1.jpg`; canal «Entre avistamientos»; gato, color naranja y descripción correspondiente).
+2. Usar el formulario preparado con una consulta tipo `lost_001` (foto `data/seed/images/lost_001.jpg`; canal «Entre avistamientos»; gato, color naranja y descripción correspondiente).
 3. Pulsar **Buscar coincidencias**; señalar el candidato mejor clasificado y su desglose visual/textual/temporal/geográfico.
-4. Recordar que `demo_check.py` valida en E2E que `found_011` sea top-1 con 80.8% en el escenario de prueba. El porcentaje de la interacción en vivo puede variar con fecha y zona.
+4. Recordar que `demo_check.py` valida en E2E que `found_011` sea top-1 con ≥80% en el escenario de prueba. El porcentaje de la interacción en vivo puede variar con fecha y zona.
 
 **Preparación y contingencia:** abrir la demo antes de empezar, precargar la imagen y los campos antes de la diapositiva 6, y tener una captura del resultado por si falla la red o el despliegue.
 

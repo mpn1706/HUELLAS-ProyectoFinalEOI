@@ -11,8 +11,8 @@
   ],
   "size": "medium",
   "has_collar": true,
-  "collar_description": "collar rosa con correa",
-  "description_text": "Perra blanca mediana con una mancha negra sobre el ojo. Lleva collar rosa con correa. Se escapó por la zona de Chapín. Muy dócil.",
+  "collar_description": "collar oscuro",
+  "description_text": "Perra blanca mediana con una mancha negra sobre el ojo. Lleva collar oscuro. Se escapó por la zona de Chapín. Muy dócil.",
   "location": {
     "lat": 36.68934,
     "lng": -6.12052,
@@ -20,7 +20,7 @@
   },
   "date_reported": "2026-09-15T12:00:00+02:00",
   "date_last_seen": "2026-09-14T18:00:00+02:00",
-  "image_url": "data/seed/images/perrete 4.jpg",
+  "image_url": "data/seed/images/lost_002.png",
   "image_embedding": null,
   "contact_info": "lucia.chapin.2741@gmail.com",
   "status": "active"

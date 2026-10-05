@@ -26,3 +26,31 @@ def test_contactos_con_formato_valido():
         c = str(d.get("contact_info") or "").strip()
         assert c, fp.name
         assert "@" in c or any(ch.isdigit() for ch in c), f"{fp.name}: {c!r}"
+
+
+CANONICOS_LOST = {
+    "lost_001": "data/seed/images/lost_001.jpg",
+    "lost_002": "data/seed/images/lost_002.png",
+    "lost_003": "data/seed/images/lost_003.jpg",
+    "lost_004": "data/seed/images/lost_004.jpg",
+    "lost_005": "data/seed/images/lost_005.jpg",
+}
+
+
+def test_lost_usan_fotos_canonicas():
+    """Los lost_001..005 apuntan a las fotos de 'losts changes'.
+
+    Regresión: make_seed.py es la única fuente de verdad; si alguien
+    regenera el seed, estas 5 fotos deben sobrevivir (Cloud incluido).
+    """
+    for aid, img in CANONICOS_LOST.items():
+        d = json.loads((SEED / "lost" / f"{aid}.json").read_text(encoding="utf-8"))
+        assert d["image_url"] == img, f"{aid}: {d['image_url']!r} != {img!r}"
+        assert (Path(img).exists()), f"{aid}: falta {img}"
+    gen = Path("scripts/make_seed.py").read_text(encoding="utf-8")
+    for img in CANONICOS_LOST.values():
+        nombre = img.rsplit("/", 1)[-1]
+        assert nombre in gen, f"make_seed.py ya no referencia {nombre}"
+    for vieja in ("gato 1.jpg", "perrete 4.jpg", "perrete 3.jpg",
+                  "gato 4.jpg", "perrete 12.jpg"):
+        assert vieja not in gen, f"make_seed.py reintroduce foto antigua {vieja}"

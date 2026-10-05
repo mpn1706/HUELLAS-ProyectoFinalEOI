@@ -9,9 +9,9 @@
     "atigrado"
   ],
   "size": "medium",
-  "has_collar": false,
-  "collar_description": null,
-  "description_text": "Perro marrón atigrado de tamaño mediano perdido en Santiago. Delgado, sin collar, algo asustadizo.",
+  "has_collar": true,
+  "collar_description": "collar negro con correa",
+  "description_text": "Perro marrón atigrado de tamaño mediano perdido en Santiago. Lleva collar negro con correa, algo asustadizo.",
   "location": {
     "lat": 36.68787,
     "lng": -6.14329,
@@ -19,7 +19,7 @@
   },
   "date_reported": "2026-09-02T12:00:00+02:00",
   "date_last_seen": "2026-09-01T18:00:00+02:00",
-  "image_url": "data/seed/images/perrete 3.jpg",
+  "image_url": "data/seed/images/lost_003.jpg",
   "image_embedding": null,
   "contact_info": "656 903 274",
   "status": "active"

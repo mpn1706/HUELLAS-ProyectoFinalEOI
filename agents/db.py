@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
-SEED_VERSION = 9
+# v10: lost_001..005 fijados a fotos canónicas lost_00X ("losts changes").
+SEED_VERSION = 10
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (

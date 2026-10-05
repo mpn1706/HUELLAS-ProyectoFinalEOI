@@ -2,6 +2,11 @@
 
 Cada foto se asigna a un aviso con atributos según rasgos visibles y una
 ubicación exacta reciclada del pool validado (Nominatim, S28).
+Fuente única de verdad: los lost_001..005 usan SIEMPRE las fotos canónicas
+data/seed/images/lost_001.jpg, lost_002.png, lost_003.jpg, lost_004.jpg y
+lost_005.jpg (copias con nombre estable de la carpeta "losts changes").
+No reintroducir las fotos antiguas (gato 1, perrete 4/3, gato 4, perrete 12):
+siguen en disco solo como resto histórico sin referenciar.
 Trazable a REQ-03.8.
 """
 import json
@@ -42,19 +47,19 @@ CONTACTOS = {
 A = [
     ("lost_001.json", "lost", "cat", "europeo", "naranja", None, ["rayas", "cola anillada"], "small", False, None,
      "Gatito naranja atigrado perdido cerca de la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable.",
-     36.68152, -6.13829, "Plaza del Arenal, San Miguel, Jerez de la Frontera", "2026-09-20T10:00:00+02:00", "2026-09-19T18:00:00+02:00", "gato 1.jpg", "active"),
-    ("lost_002.json", "lost", "dog", "bodeguero", "blanco", "negro", ["mancha negra", "ojo"], "medium", True, "collar rosa con correa",
-     "Perra blanca mediana con una mancha negra sobre el ojo. Lleva collar rosa con correa. Se escapó por la zona de Chapín. Muy dócil.",
-     36.68934, -6.12052, "Estadio Municipal de Chapín, Avenida Chema Rodríguez, Jerez de la Frontera", "2026-09-18T10:00:00+02:00", "2026-09-17T20:00:00+02:00", "perrete 4.jpg", "active"),
-    ("lost_003.json", "lost", "dog", "mestizo", "marrón", None, ["atigrado"], "medium", False, None,
-     "Perro marrón atigrado de tamaño mediano perdido en Santiago. Delgado, sin collar, algo asustadizo.",
-     36.68787, -6.14329, "Plaza Santiago, Santiago, Jerez de la Frontera", "2026-09-17T10:00:00+02:00", "2026-09-16T19:00:00+02:00", "perrete 3.jpg", "active"),
+     36.68152, -6.13829, "Plaza del Arenal, San Miguel, Jerez de la Frontera", "2026-09-20T10:00:00+02:00", "2026-09-19T18:00:00+02:00", "lost_001.jpg", "active"),
+    ("lost_002.json", "lost", "dog", "bodeguero", "blanco", "negro", ["mancha negra", "ojo"], "medium", True, "collar oscuro",
+     "Perra blanca mediana con una mancha negra sobre el ojo. Lleva collar oscuro. Se escapó por la zona de Chapín. Muy dócil.",
+     36.68934, -6.12052, "Estadio Municipal de Chapín, Avenida Chema Rodríguez, Jerez de la Frontera", "2026-09-18T10:00:00+02:00", "2026-09-17T20:00:00+02:00", "lost_002.png", "active"),
+    ("lost_003.json", "lost", "dog", "mestizo", "marrón", None, ["atigrado"], "medium", True, "collar negro con correa",
+     "Perro marrón atigrado de tamaño mediano perdido en Santiago. Lleva collar negro con correa, algo asustadizo.",
+     36.68787, -6.14329, "Plaza Santiago, Santiago, Jerez de la Frontera", "2026-09-17T10:00:00+02:00", "2026-09-16T19:00:00+02:00", "lost_003.jpg", "active"),
     ("lost_004.json", "lost", "cat", "mestizo", "blanco", None, ["ojos azules"], "small", False, None,
      "Gatito blanco de ojos azules perdido en San Joaquín. Pequeño, de pelo claro, muy cariñoso.",
-     36.69125, -6.13173, "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera", "2026-09-19T09:00:00+02:00", "2026-09-18T20:00:00+02:00", "gato 4.jpg", "active"),
+     36.69125, -6.13173, "Calle Santo Domingo, Plaza del Caballo, Jerez de la Frontera", "2026-09-19T09:00:00+02:00", "2026-09-18T20:00:00+02:00", "lost_004.jpg", "active"),
     ("lost_005.json", "lost", "dog", "pitbull", "marrón", "blanco", ["pecho blanco"], "medium", False, None,
      "Pitbull marrón y blanco perdido en Vallesequillo. Mediano, fuerte, con el pecho blanco. No es agresivo.",
-     36.67981, -6.1261, "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera", "2026-09-16T10:00:00+02:00", "2026-09-15T19:00:00+02:00", "perrete 12.jpg", "active"),
+     36.67981, -6.1261, "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera", "2026-09-16T10:00:00+02:00", "2026-09-15T19:00:00+02:00", "lost_005.jpg", "active"),
     ("lost_006.json", "lost", "cat", "europeo", "gris", "blanco", ["rayas"], "small", False, None,  # Vuelve a perdidos (S94): el siamés demo es lost_007
      "Gatito gris atigrado que se perdió en La Granja. Apareció al día siguiente en casa.",
      36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-11T10:00:00+02:00", "2026-09-10T09:00:00+02:00", "gato 3.jpg", "active"),
