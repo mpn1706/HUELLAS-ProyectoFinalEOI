@@ -6,7 +6,8 @@ from pathlib import Path
 
 # Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
 # v10: lost_001..005 fijados a fotos canónicas lost_00X ("losts changes").
-SEED_VERSION = 10
+# v11: lost_006 (gato gris que ya había vuelto a casa) pasa a avistamiento found_014.
+SEED_VERSION = 11
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (

@@ -1,4 +1,4 @@
-"""Genera el seed Jerez v3 (20 avisos con fotos reales: 7 lost + 13 found).
+"""Genera el seed Jerez v3 (20 avisos con fotos reales: 6 lost + 14 found).
 
 Cada foto se asigna a un aviso con atributos según rasgos visibles y una
 ubicación exacta reciclada del pool validado (Nominatim, S28).
@@ -28,7 +28,7 @@ CONTACTOS = {
     "lost_003.json": "656 903 274",
     "lost_004.json": "marcos.soto.8390@gmail.com",
     "lost_005.json": "682 417 930",
-    "lost_006.json": "carmen.gris.5517@gmail.com",
+    "found_014.json": "carmen.gris.5517@gmail.com",
     "found_001.json": "617 552 086",
     "found_002.json": "pepe.avista.1974@gmail.com",
     "found_003.json": "ana.torres.6682@gmail.com",
@@ -60,9 +60,9 @@ A = [
     ("lost_005.json", "lost", "dog", "pitbull", "marrón", "blanco", ["pecho blanco"], "medium", False, None,
      "Pitbull marrón y blanco perdido en Vallesequillo. Mediano, fuerte, con el pecho blanco. No es agresivo.",
      36.67981, -6.1261, "Avenida de Medina Sidonia, Vallesequillo, Jerez de la Frontera", "2026-09-16T10:00:00+02:00", "2026-09-15T19:00:00+02:00", "lost_005.jpg", "active"),
-    ("lost_006.json", "lost", "cat", "europeo", "gris", "blanco", ["rayas"], "small", False, None,  # Vuelve a perdidos (S94): el siamés demo es lost_007
-     "Gatito gris atigrado que se perdió en La Granja. Apareció al día siguiente en casa.",
-     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-11T10:00:00+02:00", "2026-09-10T09:00:00+02:00", "gato 3.jpg", "active"),
+    ("found_014.json", "found", "cat", "europeo", "gris", "blanco", ["rayas"], "small", False, None,
+     "Gatito gris atigrado visto en La Granja. Pequeño, con rayas y algo de blanco. Se deja ver pero no coger; sigue por la zona.",
+     36.69331, -6.1034, "Avenida de Arcos de la Frontera, La Granja, Jerez de la Frontera", "2026-09-11T10:00:00+02:00", None, "gato 3.jpg", "active"),
     ("found_001.json", "found", "cat", "europeo", "naranja", "blanco", ["pecho blanco"], "small", False, None,
      "Gata naranja y blanca encontrada en la calle Larga. Joven, con el pecho blanco, maúlla mucho. Está a salvo.",
      36.68366, -6.13661, "Calle Larga, San Pedro, Jerez de la Frontera", "2026-09-20T12:00:00+02:00", None, "gato 5.jpg", "active"),
