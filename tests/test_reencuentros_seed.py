@@ -38,6 +38,15 @@ def test_casos_esperados_con_forma_valida():
         assert str(d.get("created_at") or "").strip(), f"{d['id']} sin fecha"
 
 
+def test_notas_en_revision_con_voz_del_dueno():
+    # Las fotos de prueba las tomaron los dueños ya en casa: la nota lo
+    # cuenta en primera persona (no como quien avistó en la calle).
+    n12 = json.loads((SEED / "reencuentros" / "renc_012.json").read_text(encoding="utf-8"))["nota"]
+    assert "ya está en casa" in n12 and "plantas" in n12
+    n13 = json.loads((SEED / "reencuentros" / "renc_013.json").read_text(encoding="utf-8"))["nota"]
+    assert "cinta roja" in n13 and "quien lo encontró" not in n13
+
+
 def test_casos_enlazan_avisos_y_fotos_reales():
     ids = _avisos_ids()
     for rid, (aviso_ids, _, foto) in ESPERADOS.items():

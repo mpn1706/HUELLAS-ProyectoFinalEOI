@@ -9,7 +9,8 @@ from pathlib import Path
 # v11: lost_006 (gato gris que ya había vuelto a casa) pasa a avistamiento found_014.
 # v12: siamesa lost_007 renombrada a lost_006 + 3 reencuentros demo sembrados.
 # v13: los avisos de casos validados nacen resueltos (ocultos de sus pestañas).
-SEED_VERSION = 13
+# v14: notas de renc_012/013 redactadas por los dueños (fotos en casa).
+SEED_VERSION = 14
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
