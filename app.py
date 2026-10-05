@@ -463,13 +463,12 @@ def vista_previa_scan(foto):
     retardo 1.5s. Sin caché a propósito (cada subida remonta y re-anima).
     """
     import base64
-    import html as _html
 
     raw = foto.getvalue()
     mime = "image/png" if raw[:8] == b"\x89PNG\r\n\x1a\n" else "image/jpeg"
     b64 = base64.b64encode(raw).decode()
     st.markdown(
-        f'<div class="huellas-scanrow">'
+        '<div class="huellas-scanrow">'
         + build_foto_scan_html(f"data:{mime};base64,{b64}",
                                getattr(foto, "name", "tu foto"))
         + badge_lateral_html("Foto analizada") + '</div>',

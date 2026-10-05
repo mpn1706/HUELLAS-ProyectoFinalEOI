@@ -13,7 +13,6 @@ la demo E2E caía a 0.798 <0.80.
 v1.2 (S51): geo 0.30→0.10, texto 0.20→0.30, temporal 0.10→0.20 —
 decisión del alumno: la ubicación lejana penalizaba demasiado.
 """
-import math
 import unicodedata
 
 import numpy as np

@@ -1,6 +1,5 @@
 """Carga seed Jerez → SQLite. Trazable a REQ-03.8 + REQ-05."""
 import json
-import sqlite3
 import sys
 from pathlib import Path
 

@@ -5,7 +5,6 @@ from ui_home import (
     badge_lateral_html,
     build_alt_list,
     build_bars_html,
-    build_leyenda_html,
     build_cerrado_card_html,
     build_fiesta_html,
     build_revision_html,

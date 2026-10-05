@@ -2,6 +2,9 @@
 # UI fijada con == para que Cloud renderice idéntico al local
 streamlit==1.64.0
 streamlit-folium==0.27.4
+# folium se importa directamente en app.py (streamlit-folium lo trae de
+# dependencia, pero se fija para reproducibilidad del Cloud).
+folium==0.20.0
 numpy==2.5.3
 pillow==12.3.0
 scikit-learn==1.9.1

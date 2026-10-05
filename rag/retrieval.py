@@ -3,7 +3,7 @@
 embed_fn(aviso) -> vector 512; la similitud visual se calcula aquí
 con coseno para que Matcher siempre reciba floats (REQ-07).
 """
-from agents.matcher import UMBRAL_LISTA, cosine, match_one
+from agents.matcher import cosine, match_one
 
 
 def retrieve(query: dict, candidatos: list, embed_fn, semant_fn) -> list:

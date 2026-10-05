@@ -1,6 +1,4 @@
 """Tests Admin — REQ-11 (auth, borrado, listado)."""
-import sqlite3
-
 import pytest
 
 from agents import admin as adm
