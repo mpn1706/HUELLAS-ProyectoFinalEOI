@@ -2123,7 +2123,7 @@ with st.sidebar:
         with st.expander("Cómo puntúa (fórmula cerrada)", expanded=False,
                           key="exp_punt1"):
             st.markdown("**0.55·VISUAL + 0.25·TEXTO + 0.10·TEMPORAL + 0.10·GEO**")
-            st.caption("Visual: CLIP en local · histograma en Cloud")
+            st.caption("Visual: CLIP en local · MobileNetV3 ONNX en Cloud")
             for _txt in ("≥80% · ALERTA", "VISUAL ≥95% · ALERTA",
                           "≥65% · EN LISTA", "RADIO 15 KM",
                           "VENTANA 30 DÍAS"):

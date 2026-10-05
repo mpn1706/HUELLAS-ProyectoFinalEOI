@@ -29,7 +29,7 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 **Visual sugerido:** gráfico circular o barras con pesos 55/25/10/10 y tres umbrales: 65%, 80%, 95% visual.
 
 **Speech:**  
-«Una decisión clave fue dar mayor peso a la imagen, sin depender de un modelo pesado en todos los despliegues. El score combina 55% visual, 25% texto, 10% temporal y 10% geográfico; el texto mezcla atributos estructurados y similitud semántica. Desde 65% se lista un candidato y desde 80% se genera alerta; una similitud visual de 95% también activa aviso. En local puede usarse CLIP; en Cloud hay un fallback de histograma, más ligero pero menos discriminativo. Esa limitación está declarada.»
+«Una decisión clave fue dar mayor peso a la imagen, sin depender de un modelo pesado en todos los despliegues. El score combina 55% visual, 25% texto, 10% temporal y 10% geográfico; el texto mezcla atributos estructurados y similitud semántica. Desde 65% se lista un candidato y desde 80% se genera alerta; una similitud visual de 95% también activa aviso. En local puede usarse CLIP; en Cloud corre MobileNetV3 en ONNX, un motor ligero que cabe en la cuota gratuita. Esa arquitectura híbrida está declarada.»
 
 ## Diapositiva 5 — Dirección humana de la IA (02:30–03:05)
 
@@ -57,9 +57,9 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 
 ## Diapositiva 7 — Límites técnicos y roadmap V2 (04:20–05:00)
 
-**Visual sugerido:** cifras 109 tests, 9 páginas smoke, enlace al repositorio y demo; límites: RAM del Cloud (OOM) y SPA sin historial; roadmap V2: routing multipágina + bot de Telegram (publicación on-the-go + alertas push).
+**Visual sugerido:** cifras 114 tests, 9 páginas smoke, enlace al repositorio y demo; límites: RAM del Cloud (OOM) y SPA sin historial; roadmap V2: routing multipágina + bot de Telegram (publicación on-the-go + alertas push).
 
 **Speech:**  
-«El proyecto termina con 109 pruebas automatizadas, evaluación E2E y smoke test de las nueve páginas. Por arquitectura, el motor canónico es CLIP de 512 dimensiones, pero el Cloud gratuito da 1 GB de RAM y el modelo lo tumbaría por memoria: en producción usamos un fallback determinista por histogramas en el mismo espacio vectorial. La interfaz, hoy una SPA en Streamlit por velocidad y control del estado, migrará en la versión 2.0 a routing multipágina con historial en la URL. Y como roadmap de producto, un bot de Telegram bidireccional: publicar desde la calle y recibir la alerta al encontrar coincidencia. Muchas gracias.»
+«El proyecto termina con 114 pruebas automatizadas, evaluación E2E y smoke test de las nueve páginas. Por arquitectura, el motor canónico es CLIP de 512 dimensiones, pero el Cloud gratuito da 1 GB de RAM y el modelo lo tumbaría por memoria: en producción corre MobileNetV3 en ONNX, un 5% de la memoria, con la misma fórmula de puntuación. La interfaz, hoy una SPA en Streamlit por velocidad y control del estado, migrará en la versión 2.0 a routing multipágina con historial en la URL. Y como roadmap de producto, un bot de Telegram bidireccional: publicar desde la calle y recibir la alerta al encontrar coincidencia. Muchas gracias.»
 
 **Nota de cronometraje:** los intervalos suman exactamente cinco minutos; la diapositiva 6 reserva 35 segundos de locución y 40 segundos de demostración.

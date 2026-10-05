@@ -45,7 +45,7 @@ Color/marcas se comparan sin tildes ni mayúsculas (Marrón=marron, Café=marró
 
 ## Stack
 
-Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + histograma) para ejecutar sin GPU ni claves. Solo español.
+Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + MobileNetV3 ONNX en Cloud, e histograma como último recurso) para ejecutar sin GPU ni claves. Solo español.
 
 ## Cómo ejecutarlo desde cero (profesor, <10 min)
 
@@ -86,7 +86,7 @@ En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instal
 Verificación extra:
 
 ```bash
-python -m pytest tests -q          # 92 tests (fórmula, umbrales, geo, ingestor, UI…)
+python -m pytest tests -q          # 114 tests (fórmula, umbrales, geo, ingestor, UI…)
 python scripts/eval_match.py       # ÉXITO-01/03 con vectores fijos
 python scripts/demo_check.py       # E2E: lost_001 → found_011 top-1 ≥80% (alerta real)
 python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
@@ -100,9 +100,9 @@ python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
 ### Limitaciones conocidas (importante para la demo en vivo)
 
 - **Visión según el modo (transparente)**:
-  - **Modo Cloud** (demo en vivo): visión determinista mediante fallback de **histograma de color** (8×8×8) calculado en ambos lados (query y candidatos en el MISMO espacio, S49). Sin `torch` por restricciones del entorno: el modelo CLIP no se puede instalar.
+  - **Modo Cloud** (demo en vivo): modelo ligero **MobileNetV3-Small en ONNX** (576-d, ~4 MB en `data/models/`, ~10 MB de RAM — cabe en el free tier sin OOM). Sin `torch` por restricciones del entorno: el CLIP completo no se puede instalar. El **histograma de color** (8×8×8) queda como último recurso si faltara el runtime o el modelo.
   - **Modo Local** (con `torch` + `transformers` instalados): modelo de visión vectorial completo **CLIP** `openai/clip-vit-base-patch32` (**512 dimensiones**); `embeddings.json` trae los vectores precalculados del seed.
-  - Consecuencia: en Cloud la señal visual discrimina menos (misma paleta = score alto aunque sean animales distintos); en local con CLIP la comparación es mucho más fina.
+  - Consecuencia: en Cloud la señal visual discrimina algo menos que CLIP; en local la comparación es la más fina. Query y candidatos siempre se comparan en el MISMO espacio (S49).
 - **Datos efímeros en Cloud**: los avisos publicados en la demo desplegada se pierden al reiniciar/dormir la app (SQLite vive en el filesystem temporal). El corpus permanente es el seed. Para persistencia real haría falta una BD externa (p. ej. Supabase/Turso).
 - **Privacidad**: el contacto se muestra tras el desplegable "Ver contacto" (no en abierto); la ubicación se muestra a nivel de calle/zona.
 - **Administración en Cloud**: requiere configurar el secret `ADMIN_PASSWORD` en el panel de Secrets de la app; si no, el apartado queda desactivado.
@@ -115,7 +115,7 @@ HUELLAS-ProyectoFinalEOI/
 ├── ui_home.py # constructores HTML puros de Inicio (testeables)
 ├── agents/ # 5 agentes + persistencia
 │   ├── ingestor.py # normaliza avisos al esquema
-│   ├── vision.py # CLIP 512-dim (fallback histograma sin torch)
+│   ├── vision.py # CLIP 512-dim + MobileNetV3 ONNX (Cloud) + histograma (último recurso)
 │   ├── matcher.py # score 0.55/0.25/0.10/0.10 + umbrales >=80/>=65
 │   ├── geo.py # haversine, proximidad max(0,1-km/15)
 │   ├── notifier.py # panel + log + tabla notifications
@@ -131,7 +131,7 @@ HUELLAS-ProyectoFinalEOI/
 │   ├── images/ # fotos reales + backup demo reencuentros/
 │   └── embeddings.json # vectores CLIP precalculados (20 avisos)
 ├── scripts/ # utilidades (compute/load/make seed, checks, smoke)
-├── tests/ # 17 ficheros, 92 tests (pytest + AppTest headless)
+├── tests/ # 19 ficheros, 114 tests (pytest + AppTest headless)
 ├── assets/ # logo.png + fondo.png
 ├── .streamlit/ # config.toml (tema); secrets.toml solo local (no viaja)
 ├── docs/ # copias de specs (architecture/requirements) + export memoria IA

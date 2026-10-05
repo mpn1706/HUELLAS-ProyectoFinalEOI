@@ -5,6 +5,9 @@ streamlit-folium==0.27.4
 numpy==2.5.3
 pillow==12.3.0
 scikit-learn==1.9.1
+# Visión Cloud: MobileNetV3-Small exportado a ONNX (sin torch, ~10 MB RAM;
+# modelo de ~4 MB en data/models/). El histograma queda como último recurso.
+onnxruntime==1.30.0
 
 # IA local (pesados, opcionales en primera ejecución; hay fallback determinista)
 # Se instalan para la demo completa con embeddings reales:
