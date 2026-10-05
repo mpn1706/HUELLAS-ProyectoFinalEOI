@@ -1,4 +1,4 @@
-"""Publicar: scan lado a lado + banner post-publicación con métricas frescas."""
+"""Publicar: scan lado a lado + confirmación abajo sin análisis + popup buscar-primero."""
 from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
@@ -27,21 +27,28 @@ def _ir_publicar(**state):
     return at
 
 
-def test_banner_repite_resultado_del_cruce():
-    at = _ir_publicar(pub_result={"aviso_id": "av_x", "n": 1, "top_id": "found_001",
-                                  "top_score": 0.85, "top_tipo": "found"})
+def test_confirmacion_abajo_sin_analisis():
+    # Publicar solo registra: éxito abajo del todo, sin tarjeta de
+    # coincidencia ni alertas (eso vive solo en Buscar).
+    at = _ir_publicar(pub_dialog_visto=True, pub_ok="av_x")
     ok = " ".join(str(s.value) for s in at.success)
-    assert "av_x" in ok and "1 alerta(s)" in ok
+    assert "av_x" in ok and "publicado" in ok
+    assert "alerta" not in ok
     md = " ".join(str(m.value) for m in at.markdown)
-    assert "found_001" in md  # tarjeta de coincidencia
+    assert "Cruce automático" not in md
 
 
-def test_banner_sin_coincidencias_y_descarte():
-    at = _ir_publicar(pub_result={"aviso_id": "av_y", "n": 0})
-    info = " ".join(str(s.value) for s in at.info)
-    assert "sin coincidencias" in info
+def test_publicar_otro_limpia_confirmacion():
+    at = _ir_publicar(pub_dialog_visto=True, pub_ok="av_y")
     at.button(key="pub_otro").click()
     at.run(timeout=120)
     assert not at.exception, at.exception
-    assert "pub_result" not in at.session_state
+    assert "pub_ok" not in at.session_state
     assert all("av_y" not in str(s.value) for s in at.success)
+
+
+def test_dialog_buscar_primero_no_rompe():
+    # Entrada fresca: el popup se ejecuta y la página sigue renderizando.
+    at = _ir_publicar()
+    md = " ".join(str(m.value) for m in at.markdown)
+    assert "Publica un aviso" in md

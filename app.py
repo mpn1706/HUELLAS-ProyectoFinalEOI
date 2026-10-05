@@ -12,7 +12,6 @@ from agents import admin as admmod
 from agents import db as dbmod
 from agents.ingestor import effective_date, normalize_aviso
 from agents.matcher import UMBRAL_NOTIF, explain
-from agents.notifier import notificar
 from agents.vision import get_image_embedding
 from rag.embeddings import semantic_similarity
 from rag.retrieval import retrieve
@@ -31,12 +30,9 @@ from ui_home import (
     build_carousel_html,
     badge_lateral_html,
     build_cerrado_card_html,
-    build_check_html,
-    build_crossing_html,
     build_fiesta_html,
     build_foto_scan_html,
     build_leyenda_html,
-    build_match_card_html,
     build_marcha_html,
     build_pen_html,
     build_radar_html,
@@ -1101,6 +1097,25 @@ def ir_a_publicar_con(q: dict, lado: str):
         st.query_params["s"] = "publicar"
     except Exception:
         pass
+
+
+@st.dialog("Antes de publicar…")
+def dialogo_buscar_primero():
+    """Recomendación al entrar en Publicar: buscar coincidencias primero.
+
+    Las coincidencias solo se analizan en Buscar; Publicar solo registra.
+    """
+    st.write("Realiza una búsqueda de coincidencias previa para comprobar "
+             "si el animal ya se encuentra en nuestros registros antes de "
+             "publicar el aviso.")
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Buscar coincidencias", type="primary", key="dlg_ir_buscar"):
+            nav_to("buscar")
+            st.rerun()
+    with c2:
+        if st.button("Seguir publicando", key="dlg_seguir"):
+            st.rerun()
 
 
 def tarjeta_destacada(aid: str) -> bool:
@@ -2729,32 +2744,12 @@ if page == "encontrados":
 # ── Página: Publicar ──────────────────────────────────────────────────
 if page == "publicar":
     titulo_barrido("Publica un aviso de perdido o avistamiento")
-    # Banner del último aviso publicado (tras el rerun que refresca métricas):
-    # repite el resultado del cruce para no perderlo con la recarga.
-    _pub_res = st.session_state.get("pub_result")
-    if _pub_res:
-        st.success(f"Aviso `{_pub_res['aviso_id']}` publicado.")
-        if _pub_res.get("top_id"):
-            if not _pub_res.get("visto"):
-                celebrate_search()
-                _pub_res["visto"] = True
-            st.success(f"Cruce automático: {_pub_res['n']} alerta(s) ≥80%.")
-            st.markdown(build_match_card_html(_pub_res["top_id"], _pub_res["top_score"]),
-                        unsafe_allow_html=True)
-            st.button("Ver aviso y contactar", key=f"ver_co_{_pub_res['aviso_id']}_r",
-                      type="primary", use_container_width=True,
-                      on_click=ir_a_caso,
-                      args=(_pub_res["top_id"], _pub_res.get("top_tipo", "found")))
-        elif _pub_res.get("cruce_error"):
-            st.caption(f"Cruce automático no disponible ({_pub_res['cruce_error']}).")
-        else:
-            st.markdown(build_check_html(), unsafe_allow_html=True)
-            st.info("Cruce automático: sin coincidencias ≥80% por ahora. "
-                    "Te avisaremos si aparece algo.")
-        if st.button("Publicar otro aviso", key="pub_otro"):
-            st.session_state.pop("pub_result", None)
-            st.rerun()
-        st.divider()
+    if (not st.session_state.get("pub_dialog_visto")
+            and not st.session_state.get("pub_prefill")):
+        # Recomendación al entrar (una vez por sesión; si vienes de Buscar
+        # con datos precargados ya buscaste y no se muestra).
+        st.session_state.pub_dialog_visto = True
+        dialogo_buscar_primero()
     # Los widgets se borran rotando la época (el navegador restaura valores
     # aunque se vacíe su clave: solo una clave nueva garantiza un campo limpio).
     _pe = st.session_state.get("pub_epoch", 0)
@@ -2829,6 +2824,10 @@ if page == "publicar":
         if f"reg_lat_{_pe}" not in st.session_state:
             st.session_state[f"reg_lat_{_pe}"] = 36.6826
             st.session_state[f"reg_lon_{_pe}"] = -6.1376
+        if f"reg_addr_pending_{_pe}" in st.session_state:
+            # La dirección del clic se aplica ANTES de instanciar el widget
+            # (asignarla después revienta con DuplicateWidgetID).
+            st.session_state[f"addr_in_{_pe}"] = st.session_state.pop(f"reg_addr_pending_{_pe}")
         addr_in = st.text_input("Calle, número y zona", value="Centro, Jerez", key=f"addr_in_{_pe}")
         if st.button("Buscar dirección en el mapa"):
             res = geocode_nominatim(addr_in)
@@ -2838,7 +2837,7 @@ if page == "publicar":
                 st.success(f"Localizada: {res[2][:90]}")
             else:
                 st.warning("Dirección no encontrada. Marca el punto en el mapa o ajusta manual.")
-        st.caption("O marca el punto exacto clicando 2 veces en el mapa:")
+        st.caption("O marca el punto exacto clicando 2 veces en el mapa (la dirección se autocompleta)")
         try:
             import folium
             from streamlit_folium import st_folium
@@ -2873,8 +2872,26 @@ if page == "publicar":
                             zoom=14, height=380, use_container_width=True)
             leyenda_mapa(n_perd=len(_reg_perd), n_av=len(_reg_av))
             if out and out.get("last_clicked"):
-                st.session_state[f"reg_lat_{_pe}"] = round(out["last_clicked"]["lat"], 4)
-                st.session_state[f"reg_lon_{_pe}"] = round(out["last_clicked"]["lng"], 4)
+                _nlat = round(out["last_clicked"]["lat"], 4)
+                _nlng = round(out["last_clicked"]["lng"], 4)
+                if (_nlat, _nlng) != (st.session_state[f"reg_lat_{_pe}"],
+                                      st.session_state[f"reg_lon_{_pe}"]):
+                    st.session_state[f"reg_lat_{_pe}"] = _nlat
+                    st.session_state[f"reg_lon_{_pe}"] = _nlng
+                    st.session_state[f"reg_pin_nuevo_{_pe}"] = True
+                    _rev = reverse_geocode_nominatim(_nlat, _nlng)
+                    if _rev:
+                        st.session_state[f"reg_addr_pending_{_pe}"] = _rev[:120]
+                    st.rerun()
+            if st.session_state.pop(f"reg_pin_nuevo_{_pe}", False):
+                # La chincheta "cae" con rebote + anillo pulsante (como en Buscar).
+                st.markdown(
+                    '<div class="huellas-pinok"><span class="huellas-pinwrap">'
+                    '<span class="huellas-pinring"></span>'
+                    '<span class="huellas-pindrop"></span></span>'
+                    f"Punto fijado: {st.session_state[f'reg_lat_{_pe}']}, "
+                    f"{st.session_state[f'reg_lon_{_pe}']}</div>",
+                    unsafe_allow_html=True)
         except Exception as e:
             st.caption(f"Mapa no disponible ({e}). Usa el ajuste manual.")
         st.write(f"- Punto seleccionado: {st.session_state[f'reg_lat_{_pe}']}, "
@@ -2935,57 +2952,23 @@ if page == "publicar":
             st.session_state.pop("pub_prefill", None)
             st.session_state.pop("pub_init", None)
             celebrate_search()
-            st.success(f"Aviso `{av['id']}` publicado.")
-            cruce_box = None
-            try:
-                from agents.vision import embed_candidato as _ec, embedida_con_espacio as _ee
-                import time as _time
-
-                _, espacio_pub = _ee(img_path)
-                cands_auto = dbmod.get_active_opuestos(con, tipo)
-                cruce_box = st.empty()
-                with cruce_box.container():
-                    st.markdown(build_crossing_html(len(cands_auto)),
-                                unsafe_allow_html=True)
-                    _barra = st.progress(0)
-                _t0 = _time.time()
-                _barra.progress(30)
-                ms_auto = retrieve(av, cands_auto,
-                                   lambda a, _e=espacio_pub: _ec(a, _e),
-                                   semantic_similarity)
-                _barra.progress(70)
-                auto = notificar(con, av["id"], ms_auto)
-                _barra.progress(90)
-                _dt = _time.time() - _t0
-                if _dt < 1.5:
-                    _time.sleep(1.5 - _dt)
-                _barra.progress(100)
-                cruce_box.empty()
-                cruce_box = None
-                if auto:
-                    top = auto[0]
-                    _tc = dbmod.get_aviso(con, top["candidato_id"])
-                    st.session_state.pub_result = {
-                        "aviso_id": av["id"], "n": len(auto),
-                        "top_id": top["candidato_id"], "top_score": top["score"],
-                        "top_tipo": (_tc or {}).get("type", "found")}
-                else:
-                    st.session_state.pub_result = {"aviso_id": av["id"], "n": 0}
-            except Exception as e:
-                try:
-                    if cruce_box is not None:
-                        cruce_box.empty()
-                except Exception:
-                    pass
-                st.session_state.pub_result = {"aviso_id": av["id"],
-                                               "cruce_error": str(e)}
+            st.session_state.pub_ok = av["id"]
             # Recarga: sidebar/inicio recalculan métricas con el aviso ya
-            # guardado; el banner de arriba repite el resultado del cruce.
+            # guardado. La confirmación sale abajo del todo y sin análisis:
+            # las coincidencias solo se buscan en Buscar.
             # También rota la época: el formulario vuelve limpio (sin doble envío).
             st.session_state.pub_epoch = _pe + 1
             st.rerun()
         except Exception as e:
             st.error(f"Error: {e}")
+    _pub_ok = st.session_state.get("pub_ok")
+    if _pub_ok:
+        # Confirmación abajo del todo (sin análisis de coincidencias).
+        st.divider()
+        st.success(f"Aviso `{_pub_ok}` publicado.")
+        if st.button("Publicar otro aviso", key="pub_otro"):
+            st.session_state.pop("pub_ok", None)
+            st.rerun()
 
 # ── Página: Volvió a casa ─────────────────────────────────────────────
 if page == "reencuentro":
