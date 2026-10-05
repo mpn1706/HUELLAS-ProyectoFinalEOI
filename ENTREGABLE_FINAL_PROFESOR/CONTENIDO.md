@@ -1,6 +1,6 @@
 # Entrega final — HUELLAS
 
-Paquete actualizado el **05/10/2026** para la entrega prevista antes del viernes 9 de octubre de 2026 a las 23:59. Estado técnico documentado: 20 avisos (6 lost + 14 found; 19 activos + 1 resuelto), **121 tests** en verde, E2E 80.5% y smoke de nueve páginas.
+Paquete actualizado el **05/10/2026** para la entrega prevista antes del viernes 9 de octubre de 2026 a las 23:59. Estado técnico documentado: 20 avisos (6 lost + 14 found; 19 activos + 1 resuelto), 121 casos (121/121 con PyTorch; instalación base 119 passed + 2 skipped), E2E 80.5% y smoke de nueve páginas.
 
 - `README.md`: problema, MVP, modos de visión, dependencias e instrucciones de instalación/ejecución local.
 - `INFORME_REFLEXION.md`: reflexión sobre IA, decisiones humanas, supervisión y límites/roadmap V2.0.

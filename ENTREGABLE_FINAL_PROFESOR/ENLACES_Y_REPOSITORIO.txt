@@ -17,6 +17,6 @@ EJECUCIÓN LOCAL (Python 3.11+)
 6. Cargarlo en SQLite: python scripts/load_seed.py
 7. Ejecutar: python -m streamlit run app.py
 
-Las instrucciones completas para PowerShell y macOS/Linux están en README.md. Para verificar: `python -m pytest tests -q` (121 tests), `python scripts/eval_match.py`, `python scripts/demo_check.py` y `python scripts/smoke_app.py`.
+Las instrucciones completas para PowerShell y macOS/Linux están en README.md. Para verificar: `python -m pytest tests -q` (121 casos: 119 pasan + 2 pruebas CLIP se omiten sin torch; 121/121 con torch), `python scripts/eval_match.py`, `python scripts/demo_check.py` y `python scripts/smoke_app.py`.
 
 El archivo local `.streamlit/secrets.toml` (si existe) no se comparte ni se incluye en el paquete.

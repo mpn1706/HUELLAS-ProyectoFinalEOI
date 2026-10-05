@@ -81,12 +81,12 @@ python -m streamlit run app.py
 
 Streamlit mostrará la dirección local en la terminal (normalmente `http://localhost:8501`). `make_seed.py` genera los 20 JSON del corpus; las fotos y los embeddings precalculados ya están incluidos en Git. `load_seed.py` crea y carga la base local `data/huellas.db`. Para empezar con la demo desde una base vacía, ejecuta estos pasos una vez.
 
-En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instalaron las dependencias fijadas y se comprobó la generación/carga de los 20 avisos en una SQLite temporal. La suite de 121 pruebas y los scripts `eval_match.py`, `demo_check.py` y `smoke_app.py` también se verificaron en el entorno de auditoría. El proyecto mantiene como versión mínima Python 3.11 y fija Streamlit 1.64.0.
+En una instalación limpia de `requirements.txt` (Python 3.14.7) se verificaron la carga del seed, ONNX Cloud, smoke y pruebas: **119 pasan y 2 se omiten** porque requieren el PyTorch opcional para CLIP local. En el entorno completo de desarrollo con torch, las **121/121 pasan**. El proyecto mantiene Python 3.11+ y fija Streamlit 1.64.0.
 
 Verificación extra:
 
 ```bash
-python -m pytest tests -q          # 121 tests (fórmula, umbrales, geo, ingestor, UI…)
+python -m pytest tests -q          # 121 casos: base 119 passed + 2 skipped; con torch 121 passed
 python scripts/eval_match.py       # ÉXITO-01/03 con vectores fijos
 python scripts/demo_check.py       # E2E: lost_001 → found_011 top-1 ≥80% (alerta real)
 python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)

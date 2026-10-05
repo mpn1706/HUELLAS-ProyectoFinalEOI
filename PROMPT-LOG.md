@@ -779,10 +779,11 @@ Registro cronológico de las correcciones y auditorías realizadas tras la prime
 
 ### Auditoría y sincronización de entregables
 - Pyflakes, compilación, requirements y navegación móvil revisados; no se alteró CSS ni código móvil. Se fijó `folium==0.20.0` por import directo y se eliminaron imports muertos. `main` sincronizada y árbol limpio en el commit `61ecf1e`.
-- Suite vigente: 121 pruebas; `eval_match.py`, `demo_check.py` (found_011 top-1 80.5%) y `smoke_app.py` (9 páginas) verificados. Los informes y guion documentan ONNX/CLIP, arquitectura SPA y roadmap Telegram con alerta ≥80%.
+- Suite: 121 casos; 121/121 pasan con torch en entorno completo; instalación base da 119 passed + 2 skipped (pruebas CLIP que requieren PyTorch opcional). `eval_match.py`, `demo_check.py` (found_011 top-1 80.5%) y `smoke_app.py` (9 páginas) verificados. Informes/guion documentan ONNX/CLIP, SPA y Telegram ≥80%.
 - La guía/rúbrica oficial del profesor no estaba adjunta; el cumplimiento frente a criterios externos no proporcionados queda pendiente de cotejo.
 
 ### Sincronización final del paquete y ZIP — 05/10/2026
 - Prompt clave: actualizar los entregables ya existentes tras las mejoras de octubre, mantener las fuentes sincronizadas y regenerar el ZIP final sin rehacer la documentación desde cero.
 - Se copiaron las fuentes vigentes al paquete: README, PROMPT-LOG, reflexión, guion, checklist, `requirements.md` v1.41 y `architecture.md`; se actualizó la fecha/enlaces locales y se mantuvo el snapshot Engram de septiembre identificado como histórico junto con un extracto JSON/manual de observaciones del 05/10.
+- Instalación desde cero en un venv temporal con Python 3.14.7 y `pip install -r requirements.txt`: instalación correcta, ONNX/Streamlit smoke OK; pytest base 119 passed + 2 skipped (pruebas que requieren CLIP/PyTorch opcional). En el entorno completo con torch, 121/121 pasan.
 - Se regeneró `ENTREGABLE_FINAL_PROFESOR.zip` y se comprobó que contiene los 45 ficheros del directorio sin diferencias, secretos ni DB local. La rúbrica oficial sigue pendiente externamente.
