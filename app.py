@@ -2096,6 +2096,9 @@ def render_legal() -> None:
 inject_ui_css(st.session_state.get("page", "inicio"))
 handle_carousel_click(con)
 sync_page_from_url()
+if st.session_state.get("page") != "publicar":
+    # El popup de Publicar sale en cada entrada: al salir se olvida la elección.
+    st.session_state.pop("pub_dialog_ok", None)
 
 # ── Barra lateral (REQ-UI-02 v1.4): 6 elementos en orden ─────────────
 with st.sidebar:
@@ -2852,6 +2855,11 @@ if page == "publicar":
                           popup=("TU PUNTO · "
                                  f"{st.session_state.get(f'addr_in_{_pe}', '')}"),
                           icon=folium.Icon(color="red")).add_to(fmap)
+            # Círculo de radio alrededor del punto, como en Buscar.
+            folium.Circle([st.session_state[f"reg_lat_{_pe}"],
+                           st.session_state[f"reg_lon_{_pe}"]],
+                          radius=2000, color="#E30613", weight=2,
+                          fill=True, fill_opacity=0.06).add_to(fmap)
             from folium.plugins import MarkerCluster as _MC
             _reg_perd = dbmod.get_active_opuestos(con, "found")
             _reg_av = dbmod.get_active_opuestos(con, "lost")

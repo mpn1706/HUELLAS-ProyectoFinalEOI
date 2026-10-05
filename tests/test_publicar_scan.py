@@ -61,6 +61,26 @@ def test_dialog_no_se_autoconsume():
     assert "pub_dialog_ok" not in at.session_state
 
 
+def test_dialog_reaparece_al_volver():
+    # Al salir de Publicar se olvida la elección: al volver sale de nuevo.
+    at = _ir_publicar(pub_dialog_ok=True)
+    at.session_state["page"] = "buscar"
+    at.run(timeout=120)
+    assert not at.exception, at.exception
+    assert "pub_dialog_ok" not in at.session_state
+    at.session_state["page"] = "publicar"
+    at.run(timeout=120)
+    assert not at.exception, at.exception
+    assert "pub_dialog_ok" not in at.session_state
+
+
+def test_mapa_publicar_con_circulo():
+    # El mapa de Publicar lleva el círculo de radio rojo como el de Buscar.
+    pub = SRC.index('if page == "publicar":')
+    reenc = SRC.index('if page == "reencuentro":')
+    assert "folium.Circle" in SRC[pub:reenc]
+
+
 def test_pin_fijado_sobrevive_rerun():
     # Tras clicar el mapa, el mensaje con la chincheta y el anillo sigue
     # visible (no se lo traga el re-render del mapa).
