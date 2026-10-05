@@ -31,6 +31,20 @@
       "title": "Auditoría técnica post-cambios",
       "created_at": "2026-10-05 22:51:03",
       "content": "Auditoría de Git, sintaxis, Pyflakes, requirements, arquitectura, README y móvil. Se fijó folium==0.20.0 por import directo y se eliminaron imports muertos. Suite 121/121, eval/demo/smoke OK; no se cambió código móvil."
+    },
+    {
+      "id": 191,
+      "type": "session_summary",
+      "title": "Auditoría Bloque 1: paquete anterior obsoleto",
+      "created_at": "2026-10-05 22:58:46",
+      "content": "Se auditó el primer bloque de entregables: Git sincronizado; README, SDD y documentos raíz presentes; PROMPT-LOG y paquete ZIP eran snapshots de septiembre y faltaba actualizar el paquete. La guía/rúbrica oficial no estaba disponible."
+    },
+    {
+      "id": 192,
+      "type": "config",
+      "title": "Paquete final sincronizado y ZIP regenerado",
+      "created_at": "2026-10-05",
+      "content": "Actualizados los documentos existentes y regenerado el paquete para el estado final: README, reflexión, guion, PROMPT-LOG, checklist, requirements v1.41, architecture y ZIP. Los 45 miembros coinciden byte a byte con la carpeta; no se incluyen secretos/DB. 121 tests, E2E, eval y smoke verificados. Único pendiente externo: recibir la guía/rúbrica del profesor."
     }
   ]
 }
