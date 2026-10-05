@@ -2,7 +2,7 @@
 
 **Alumno:** Mario Camacho · **Proyecto:** HUELLAS, sistema de búsqueda y comparativa visual de animales perdidos (Jerez de la Frontera) · **Metodología:** Spec-Driven Development con OpenCode.
 
-> **Nota de versión:** Las secciones 1–3 reflejan la evolución histórica del desarrollo. El estado final definitivo de la entrega (20 avisos, 114 tests en verde y pesos 0.55/0.25/0.10/0.10) está actualizado con fecha 5 de octubre de 2026.
+> **Nota de versión:** Las secciones 1–3 reflejan la evolución histórica del desarrollo. El estado final definitivo de la entrega (20 avisos, 121 tests en verde y pesos 0.55/0.25/0.10/0.10) está actualizado con fecha 5 de octubre de 2026.
 
 ## 1. Qué ejecutó la IA
 
@@ -28,7 +28,7 @@ La evolución posterior al cierre inicial (v1.1–v1.40, sesiones S02–S138) de
 - **Datos**: seed reproducible de **20 avisos de Jerez con fotos reales** (6 lost + 14 found; 19 activos + 1 resuelto del caso cerrado demo) en `data/seed/`, con `embeddings.json` (vectores CLIP 512-dim precalculados) y 3 reencuentros demo sembrados (`renc_006` validada + `renc_012/013` pendientes) viajando en git.
 - **Matching v1.40**: fórmula `0.55·visual + 0.25·texto + 0.10·temporal + 0.10·geo` (antes 0.40/0.30/0.20/0.10), umbrales `>=80%` notifica + destaca, `>=65%` lista, puerta visual `>=95%` (misma foto), colores/marcas normalizados sin tildes.
 - **Agentes**: 5 (Ingestor, Vision con MobileNetV3 ONNX sin torch e histograma como último recurso, Matcher, Geo, Notifier) + SQLite + RAG textual (MiniLM con fallback TF-IDF/Jaccard) + Administración con contraseña (desactivada por defecto) y gestor de reencuentros.
-- **Verificación**: suite de **114 tests** (19 ficheros, pytest + AppTest headless) en verde; `eval_match.py` (fórmula con vectores fijos), `demo_check.py` E2E (lost_001 → found_011 top-1 80.5%), `smoke_app.py` (9 páginas sin excepciones).
+- **Verificación**: suite de **121 tests** (20 ficheros, pytest + AppTest headless) en verde; `eval_match.py` (fórmula con vectores fijos), `demo_check.py` E2E (lost_001 → found_011 top-1 80.5%), `smoke_app.py` (9 páginas sin excepciones).
 - **UI**: inicio con hero animado, carrusel infinito, tiras, contadores y modo demo, páginas Publicar/Buscar/Perdidos/Avistamientos/Reencuentros, mapas Folium, todo en español y responsive móvil/escritorio con `prefers-reduced-motion`.
 - **Roadmap V2 — Límites técnicos y siguientes pasos**:
   - **Gestión de Recursos en Nube vs Local (Arquitectura Híbrida)**: "Por diseño de arquitectura, el motor de visión canónico utiliza un modelo vectorial CLIP de 512 dimensiones (PyTorch/Transformers). Sin embargo, al desplegar en Streamlit Community Cloud (limitado a 1 GB de RAM), cargar el modelo completo provocaría un fallo de memoria (OOM). Por ello, implementamos un motor ligero MobileNetV3-Small exportado a ONNX (576 dimensiones, ~10 MB de RAM), garantizando la disponibilidad del servicio sin sobrepasar la cuota gratuita."

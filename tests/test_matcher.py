@@ -11,6 +11,7 @@ from agents.matcher import (
     match_one,
     normalizar_txt,
     proximidad_temporal,
+    raiz_es,
     score_total,
     similitud_estructurada,
     similitud_texto,
@@ -73,6 +74,21 @@ def test_normalizar_ignora_tildes_mayusculas():
     assert canon_color("Café") == "marron"  # alias
     q = dict(Q, color_primary="MARRON", markings=["Pecho Blanco"])
     c = dict(C, color_primary="marrón", markings=["pecho blanco"])
+    assert similitud_estructurada(q, c) == 1.0
+
+
+def test_raiz_diminutivos_y_genero():
+    assert raiz_es("gatito") == raiz_es("gato") == raiz_es("gata") == "gat"
+    assert raiz_es("manchitas") == raiz_es("mancha") == "manch"
+    assert raiz_es("blancos") == raiz_es("blanco") == "blanc"
+    assert raiz_es("perrete") == raiz_es("perro") == "perr"
+    assert raiz_es("canelita") == raiz_es("canela") == "canel"
+
+
+def test_color_y_marcas_con_diminutivo_casan():
+    q = dict(Q, color_primary="Naranjita", markings=["manchitas blancas"])
+    c = dict(C, color_primary="naranja", markings=["manchas blancas"])
+    assert canon_color("Naranjita") == canon_color("naranja") == "naranj"
     assert similitud_estructurada(q, c) == 1.0
 
 

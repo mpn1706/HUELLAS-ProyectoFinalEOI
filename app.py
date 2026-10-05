@@ -48,6 +48,7 @@ from ui_home import (
     es_nuevo,
     faltantes_buscar,
     faltantes_publicar,
+    fecha_query_demo,
     fechas_publicar,
     fmt_corta,
     make_carousel_thumb,
@@ -2583,7 +2584,6 @@ if page == "buscar":
             st.session_state.b_faltan = _bf
             st.rerun()
         else:
-            from datetime import datetime as _dt
             import time as _tb
 
             Path("data/uploads").mkdir(parents=True, exist_ok=True)
@@ -2606,7 +2606,9 @@ if page == "buscar":
                     "location": {"lat": float(st.session_state.q_lat),
                                  "lng": float(st.session_state.q_lon),
                                  "address_text": st.session_state.get("q_addr_in", "")},
-                    "date_reported": _dt.now().astimezone().isoformat(),
+                    # Fecha de referencia fija del seed: congela el factor
+                    # temporal en la demo (el corpus no envejece con el reloj).
+                    "date_reported": fecha_query_demo(),
                     "image_url": qpath, "contact_info": "", "status": "active"})
                 q["image_embedding"] = q_emb
                 cands = dbmod.get_active_opuestos(con, qtype)

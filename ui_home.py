@@ -120,6 +120,17 @@ def fechas_publicar(tipo: str, fecha, hoy) -> tuple:
     return f"{f.isoformat()}T12:00:00+02:00", None
 
 
+def fecha_query_demo() -> str:
+    """Fecha de referencia fija para las búsquedas en la demo.
+
+    El seed es estático (25/08–25/09/2026, ventana de make_seed.py):
+    anclar la query a su último día congela el factor temporal y evita
+    que decaiga día a día con datetime.now(). Los avisos publicados usan
+    la fecha real de publicación (no esta). Pura y testeada.
+    """
+    return "2026-09-25T12:00:00+02:00"
+
+
 def build_crossing_html(n: int) -> str:
     """Bloque 'Cruzando con N avisos…' con puntos que rebotan (solo CSS)."""
     return (

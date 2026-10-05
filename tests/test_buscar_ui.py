@@ -21,8 +21,15 @@ from ui_home import (
     dias_perdido,
     es_nuevo,
     faltantes_buscar,
+    fecha_query_demo,
     nuevo_html,
 )
+
+
+def test_fecha_query_demo_fija():
+    # El factor temporal de la demo se ancla al último día del seed
+    # (25/09/2026): las búsquedas no decaen con el calendario real.
+    assert fecha_query_demo() == "2026-09-25T12:00:00+02:00"
 
 
 def test_faltantes_buscar_vacio_y_completo():

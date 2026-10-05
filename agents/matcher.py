@@ -43,6 +43,42 @@ COLOR_ALIAS = {
     "azabache": "negro",
 }
 
+# Sufijos de diminutivo/aumentativo (largo primero: "ecito" antes que "ito").
+_DIMINUTIVOS = (
+    "ecillos", "ecillas", "ecitos", "ecitas", "ecito", "ecita",
+    "cillos", "cillas", "citos", "citas", "cillo", "cilla", "cito", "cita",
+    "illos", "illas", "itos", "itas", "illo", "illa", "ito", "ita",
+    "uelos", "uelas", "uelo", "uela",
+    "etes", "etas", "ete", "eta",
+    "ones", "onas",
+)
+
+
+def raiz_es(s: str) -> str:
+    """Raíz ligera en español: quita diminutivos, plural y género.
+
+    "gatito" == "gato" == "gata" ("gat"), "manchitas" == "mancha",
+    "blancos" == "blanco". Determinista y sin dependencias: la usan los
+    campos estructurados (color, marcas) y el fallback textual TF-IDF/Jaccard.
+    """
+    t = normalizar_txt(s)
+    if len(t) <= 3:
+        return t
+    for suf in _DIMINUTIVOS:
+        if t.endswith(suf) and len(t) - len(suf) >= 3:
+            t = t[:-len(suf)]
+            break
+    if t.endswith("s") and len(t) > 4:
+        t = t[:-1]
+    if t.endswith(("a", "o")) and len(t) > 3:
+        t = t[:-1]
+    return t
+
+
+def raiz_frase(s: str) -> str:
+    """Raíz palabra a palabra (para marcas de varias palabras)."""
+    return " ".join(raiz_es(t) for t in normalizar_txt(s).split())
+
 
 def normalizar_txt(s: str) -> str:
     """Minúsculas, sin tildes, espacios colapsados.
@@ -57,9 +93,9 @@ def normalizar_txt(s: str) -> str:
 
 
 def canon_color(s: str) -> str:
-    """Color normalizado y con alias resuelto."""
+    """Color normalizado, con alias resuelto y reducido a raíz."""
     n = normalizar_txt(s)
-    return COLOR_ALIAS.get(n, n)
+    return raiz_es(COLOR_ALIAS.get(n, n))
 
 
 def cosine(a, b) -> float:
@@ -82,8 +118,8 @@ def similitud_estructurada(q: dict, c: dict) -> float:
         1.0 if (q.get("size") or "") == (c.get("size") or "") else 0.0,
         1.0 if bool(q.get("has_collar")) == bool(c.get("has_collar")) else 0.0,
     ]
-    mq = {normalizar_txt(m) for m in (q.get("markings") or [])} - {""}
-    mc = {normalizar_txt(m) for m in (c.get("markings") or [])} - {""}
+    mq = {raiz_frase(m) for m in (q.get("markings") or [])} - {""}
+    mc = {raiz_frase(m) for m in (c.get("markings") or [])} - {""}
     if not mq and not mc:
         parts.append(1.0)
     else:
