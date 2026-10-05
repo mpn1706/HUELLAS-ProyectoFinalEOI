@@ -525,6 +525,8 @@ def ensure_db():
                     dbmod.upsert_aviso(con, normalize_aviso(json.loads(fp.read_text(encoding="utf-8"))))
                     total += 1
             dbmod.set_seed_version(con)
+            for fp in sorted(Path("data/seed/reencuentros").glob("*.json")):
+                dbmod.upsert_reencuentro_seed(con, json.loads(fp.read_text(encoding="utf-8")))
         st.toast(f"Seed v{dbmod.SEED_VERSION} cargada: {total} avisos.")
     from agents.vision import backfill_embeddings, sync_seed_embeddings
     backfill_embeddings(con)

@@ -7,7 +7,8 @@ from pathlib import Path
 # Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
 # v10: lost_001..005 fijados a fotos canónicas lost_00X ("losts changes").
 # v11: lost_006 (gato gris que ya había vuelto a casa) pasa a avistamiento found_014.
-SEED_VERSION = 11
+# v12: siamesa lost_007 renombrada a lost_006 + 3 reencuentros demo sembrados.
+SEED_VERSION = 12
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
@@ -178,6 +179,23 @@ def list_reencuentros(con: sqlite3.Connection, estado: str | None = None) -> lis
         d["fotos"] = json.loads(d["fotos"] or "[]")
         out.append(d)
     return out
+
+
+def upsert_reencuentro_seed(con: sqlite3.Connection, d: dict):
+    """Inserta o reemplaza un reencuentro del seed (ids fijos renc_*).
+
+    Los creados por usuarios llevan ids aleatorios y no se tocan: solo
+    sobreviven al seed los versionados en data/seed/reencuentros/.
+    """
+    assert d["estado"] in ("pendiente", "validada", "rechazada")
+    con.execute(
+        "INSERT OR REPLACE INTO reencuentros (id, aviso_ids, fotos, nota, estado, created_at)"
+        " VALUES (?,?,?,?,?,?)",
+        (d["id"], json.dumps(list(d.get("aviso_ids") or [])),
+         json.dumps(list(d.get("fotos") or [])), (d.get("nota") or "").strip(),
+         d["estado"], d.get("created_at")),
+    )
+    con.commit()
 
 
 def set_reencuentro(con: sqlite3.Connection, rid: str, estado: str):

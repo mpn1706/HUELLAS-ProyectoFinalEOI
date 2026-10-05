@@ -31,7 +31,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 
 4. Commit de imágenes + JSONs + `embeddings.json`.
 
-• Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, todos activos), sin scraping (fuera de alcance por decisión de diseño).
+• Corpus demo propio de **20 avisos de Jerez con fotos reales** (6 lost + 14 found, todos activos) + 3 reencuentros demo sembrados (1 cerrado + 2 en revisión), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)
 
@@ -122,8 +122,9 @@ HUELLAS-ProyectoFinalEOI/
 │   ├── embeddings.py # similitud semántica description_text
 │   └── retrieval.py # filtra active/opuestos, ordena por score
 ├── data/seed/ # corpus demo Jerez (viaja en git; Cloud recarga de aquí)
-│   ├── lost/ # 7 avisos lost_001…lost_007 (.json)
-│   ├── found/ # 13 avisos found_001…found_013 (.json)
+│   ├── lost/ # 6 avisos lost_001…lost_006 (.json)
+│   ├── found/ # 14 avisos found_001…found_014 (.json)
+│   ├── reencuentros/ # 3 casos demo renc_006/012/013 (.json)
 │   ├── images/ # fotos reales + backup demo reencuentros/
 │   └── embeddings.json # vectores CLIP precalculados (20 avisos)
 ├── scripts/ # utilidades (compute/load/make seed, checks, smoke)

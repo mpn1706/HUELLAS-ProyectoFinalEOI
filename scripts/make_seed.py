@@ -40,7 +40,7 @@ CONTACTOS = {
     "found_009.json": "674 025 638",
     "found_010.json": "elena.mora.1236@gmail.com",
     "found_011.json": "619 884 203",
-    "lost_007.json": "julia.feria.4820@gmail.com",
+    "lost_006.json": "julia.feria.4820@gmail.com",
     "found_012.json": "640 228 417",
     "found_013.json": "pablo.cruz.7719@gmail.com",
 }
@@ -96,9 +96,9 @@ A = [
     ("found_011.json", "found", "cat", "europeo", "naranja", None, ["rayas", "cola anillada"], "small", False, None,
      "Gatito naranja atigrado encontrado junto a la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable, se deja coger. Está a salvo.",
      36.6821, -6.1376, "Calle San Miguel, junto a la plaza del Arenal, Jerez de la Frontera", "2026-09-20T18:00:00+02:00", None, "gato alert coincidencia con lost_001.jpg", "active"),
-    ("lost_007.json", "lost", "cat", "siamés", "marrón", "crema", ["cara oscura", "cola oscura"], "small", False, None,
+    ("lost_006.json", "lost", "cat", "siamés", "marrón", "crema", ["cara oscura", "cola oscura"], "small", False, None,
      "Gata siamesa perdida en San Miguel. Cuerpo color crema con cara, orejas y cola marrón oscuro. Ojos azules, muy dócil.",
-     36.6802, -6.1398, "Calle Bizcocheros, San Miguel, Jerez de la Frontera", "2026-09-24T10:00:00+02:00", "2026-09-24T08:00:00+02:00", "lost_007.jpg", "active"),
+     36.6802, -6.1398, "Calle Bizcocheros, San Miguel, Jerez de la Frontera", "2026-09-24T10:00:00+02:00", "2026-09-24T08:00:00+02:00", "lost_006.jpg", "active"),
     ("found_012.json", "found", "dog", "mestizo", "blanco", "crema", ["orejas erguidas"], "medium", False, None,
      "Perro blanco de orejas erguidas encontrado en Alameda Cristina. Mediano, sin collar, algo asustadizo pero bueno.",
      36.6858, -6.1363, "Alameda Cristina, San Miguel, Jerez de la Frontera", "2026-09-23T15:00:00+02:00", None, "found_012.jpg", "active"),
@@ -113,7 +113,7 @@ def main():
     # E2E (lost_001/found_011) conserva sus fechas para no romper la demo.
     random.seed(20260925)
     d0, d1 = date(2026, 8, 25), date(2026, 9, 25)
-    fijas = {"lost_001", "found_011", "lost_007", "found_012", "found_013"}
+    fijas = {"lost_001", "found_011", "lost_006", "found_012", "found_013"}
     for d in (LOST, FOUND, IMG):
         d.mkdir(parents=True, exist_ok=True)
     for (fn, tipo, animal, breed, c1, c2, marks, size, collar, collar_d, desc,

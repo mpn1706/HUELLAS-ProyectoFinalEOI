@@ -59,13 +59,17 @@ def test_lost_usan_fotos_canonicas():
 def test_gatito_gris_es_avistamiento():
     """El gatito gris (volvió a casa) no es un perdido activo: es found_014.
 
-    Regresión: si alguien regenera el seed, lost_006 no debe resucitar.
+    Regresión: si alguien regenera el seed, el gris no debe volver a perdidos
+    (el lost_006 actual es la siamesa renombrada desde lost_007).
     """
-    assert not (SEED / "lost" / "lost_006.json").exists(), "lost_006 ha resucitado"
+    grises = [fp.name for fp in (SEED / "lost").glob("*.json")
+              if json.loads(fp.read_text(encoding="utf-8"))["image_url"]
+              == "data/seed/images/gato 3.jpg"]
+    assert not grises, f"el gris volvió a perdidos: {grises}"
     d = json.loads((SEED / "found" / "found_014.json").read_text(encoding="utf-8"))
     assert d["type"] == "found", d["type"]
     assert d["image_url"] == "data/seed/images/gato 3.jpg", d["image_url"]
     assert d["date_last_seen"] is None
     assert str(d.get("contact_info") or "").strip(), "found_014 sin contacto"
     gen = Path("scripts/make_seed.py").read_text(encoding="utf-8")
-    assert "lost_006" not in gen, "make_seed.py aún menciona lost_006"
+    assert "Apareció al día siguiente en casa" not in gen

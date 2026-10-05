@@ -500,9 +500,11 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
   (pendientes/validados/rechazados/todos), fotos + avisos + nota visibles, validar /
   rechazar (pendientes) y eliminar con confirmación (`delete_reencuentro()`; los
   avisos quedan intactos; todo en `admin.log`). REQ-11.5 extendido.
-- REQ-UI-64 — 3 animales demo para reencuentros (siamés `lost_007`, perros
-  `found_012/013` con fotos del alumno + SEED v8). OJO: `lost_006` ya existía
-  (gatito gris resuelto): el siamés es `lost_007` para no pisarlo.
+- REQ-UI-64 — 3 animales demo para reencuentros (siamés `lost_006`, perros
+  `found_012/013` con fotos del alumno + SEED v8; el gris pasó a `found_014` y la
+  siamesa recuperó el `006`). Desde SEED v12 los 3 casos viajan en el seed
+  (`data/seed/reencuentros/renc_006` validada + `renc_012/013` pendientes,
+  `upsert_reencuentro_seed()` en cada recarga): sobreviven a dormir/Cloud.
 - REQ-UI-65 — Los avisos en reencuentros siguen en el carrusel con segunda etiqueta
   (ámbar "En revisión" / verde "Caso cerrado", mismos colores), incluidos los
   resueltos (`select_carousel_items(..., extra=...)`).

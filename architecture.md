@@ -209,7 +209,7 @@ Query `?page=`/`?aviso=` se lee al inicio del run, navega y se limpia (`st.rerun
   cerrados de 3 en 3.
 - v1.24: lluvia/ruleta por estado, tarjeta translúcida, nota bajo especie·color.
 - v1.25: admin fluido + gestor de reencuentros (`delete_reencuentro()`); seed 20
-  avisos (SEED v8, siamés como `lost_007`); carrusel con etiqueta de reencuentro.
+  avisos (SEED v8, siamés entonces como `lost_007`, hoy `lost_006`); carrusel con etiqueta de reencuentro.
 - v1.26: velo en contadores + pulso en CTAs; expiración 365d; `lost_006` activo
   (SEED v9); etiqueta en bloque; gestor arriba del admin.
 - v1.27: velo sin `!important` (auditoría S76 completa); reencuentro con limpieza,
