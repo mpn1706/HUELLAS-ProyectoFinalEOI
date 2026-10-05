@@ -45,6 +45,8 @@ def test_notas_en_revision_con_voz_del_dueno():
     assert "ya está en casa" in n12 and "plantas" in n12
     n13 = json.loads((SEED / "reencuentros" / "renc_013.json").read_text(encoding="utf-8"))["nota"]
     assert "cinta roja" in n13 and "quien lo encontró" not in n13
+    # Lo pendiente de revisión lo dice el sistema, no el dueño en su nota.
+    assert "administrador" not in n12 and "administrador" not in n13
 
 
 def test_casos_enlazan_avisos_y_fotos_reales():

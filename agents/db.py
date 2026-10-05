@@ -10,7 +10,8 @@ from pathlib import Path
 # v12: siamesa lost_007 renombrada a lost_006 + 3 reencuentros demo sembrados.
 # v13: los avisos de casos validados nacen resueltos (ocultos de sus pestañas).
 # v14: notas de renc_012/013 redactadas por los dueños (fotos en casa).
-SEED_VERSION = 14
+# v15: fuera de las notas lo pendiente de revisión (ya lo dice el sistema).
+SEED_VERSION = 15
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
