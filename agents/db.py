@@ -4,7 +4,9 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Versión del seed: al subir, la app recarga sola (Cloud conserva la DB entre despliegues).
+# Versión del seed: al subir, la app recarga sola (en Streamlit Cloud los datos
+# son efímeros: la DB vive en el filesystem temporal y se reinicia al dormirse
+# o desplegarse; el seed versionado en git es la única persistencia).
 # v10: lost_001..005 fijados a fotos canónicas lost_00X ("losts changes").
 # v11: lost_006 (gato gris que ya había vuelto a casa) pasa a avistamiento found_014.
 # v12: siamesa lost_007 renombrada a lost_006 + 3 reencuentros demo sembrados.

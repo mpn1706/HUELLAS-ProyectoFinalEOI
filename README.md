@@ -99,7 +99,10 @@ python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
 
 ### Limitaciones conocidas (importante para la demo en vivo)
 
-- **Visión en Cloud**: sin `torch`, la similitud visual usa un **histograma de color** (8×8×8) calculado en ambos lados (query y candidatos en el MISMO espacio, S49). `embeddings.json` (CLIP) solo se usa en local con `torch` instalado. Consecuencia: en Cloud la señal visual discrimina menos (misma paleta = score alto aunque sean animales distintos); en local con CLIP la comparación es mucho más fina.
+- **Visión según el modo (transparente)**:
+  - **Modo Cloud** (demo en vivo): visión determinista mediante fallback de **histograma de color** (8×8×8) calculado en ambos lados (query y candidatos en el MISMO espacio, S49). Sin `torch` por restricciones del entorno: el modelo CLIP no se puede instalar.
+  - **Modo Local** (con `torch` + `transformers` instalados): modelo de visión vectorial completo **CLIP** `openai/clip-vit-base-patch32` (**512 dimensiones**); `embeddings.json` trae los vectores precalculados del seed.
+  - Consecuencia: en Cloud la señal visual discrimina menos (misma paleta = score alto aunque sean animales distintos); en local con CLIP la comparación es mucho más fina.
 - **Datos efímeros en Cloud**: los avisos publicados en la demo desplegada se pierden al reiniciar/dormir la app (SQLite vive en el filesystem temporal). El corpus permanente es el seed. Para persistencia real haría falta una BD externa (p. ej. Supabase/Turso).
 - **Privacidad**: el contacto se muestra tras el desplegable "Ver contacto" (no en abierto); la ubicación se muestra a nivel de calle/zona.
 - **Administración en Cloud**: requiere configurar el secret `ADMIN_PASSWORD` en el panel de Secrets de la app; si no, el apartado queda desactivado.

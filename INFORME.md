@@ -2,6 +2,8 @@
 
 **Alumno:** Mario Camacho · **Proyecto:** HUELLAS, sistema de búsqueda y comparativa visual de animales perdidos (Jerez de la Frontera) · **Metodología:** Spec-Driven Development con OpenCode.
 
+> **Nota de versión:** Las secciones 1–3 reflejan la evolución histórica del desarrollo. El estado final definitivo de la entrega (20 avisos, 109 tests en verde y pesos 0.55/0.25/0.10/0.10) está actualizado con fecha 5 de octubre de 2026.
+
 ## 1. Qué ejecutó la IA
 
 La IA trabajó siempre bajo especificación cerrada (`requirements.md` v1.0 + `architecture.md`) y generó: formalización de ambos specs a partir de mi borrador; el núcleo `agents/` (geo/haversine con radio 15 km, ingestor con validación del esquema Aviso, matcher con la fórmula `0.40/0.30/0.20/0.10` y umbrales `>=`, vision con CLIP y fallback, SQLite espejo del esquema, notifier panel+log); el RAG textual (MiniLM con fallback TF-IDF/Jaccard + retrieval con filtro `active`/tipo opuesto); el seed reproducible de 17 avisos de Jerez con imágenes placeholder; la app Streamlit (buscar, registrar, notificaciones, mapa Folium); y la batería de verificación (13 tests, `eval_match.py`, `demo_check.py` E2E, `smoke_app.py` headless). También redactó `README.md` y este informe a partir de mis indicaciones.
