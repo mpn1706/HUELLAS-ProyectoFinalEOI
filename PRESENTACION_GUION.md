@@ -57,9 +57,9 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 
 ## Diapositiva 7 — Validación y cierre (04:20–05:00)
 
-**Visual sugerido:** cifras 92 tests, 9 páginas smoke, enlace al repositorio y demo; debajo, dos limitaciones conocidas.
+**Visual sugerido:** cifras 92 tests, 9 páginas smoke, enlace al repositorio y demo; debajo, dos limitaciones conocidas; y roadmap: bot de Telegram (publicación on-the-go + alertas push).
 
 **Speech:**  
-«El proyecto termina con 92 pruebas automatizadas, evaluación del matching, una comprobación E2E y un smoke test de las nueve páginas. También quedan documentados límites importantes: los datos de Cloud son efímeros y el fallback visual es menos preciso que CLIP. Mi conclusión es que la IA resulta útil cuando se dirige con requisitos claros y se contrasta con evidencia. HUELLAS no sustituye a las personas: les ayuda a priorizar dónde mirar. Muchas gracias.»
+«El proyecto termina con 92 pruebas automatizadas, evaluación del matching, una comprobación E2E y un smoke test de las nueve páginas. También quedan documentados límites importantes: los datos de Cloud son efímeros y el fallback visual es menos preciso que CLIP. Mi conclusión es que la IA resulta útil cuando se dirige con requisitos claros y se contrasta con evidencia. HUELLAS no sustituye a las personas: les ayuda a priorizar dónde mirar. Como siguiente paso, un bot de Telegram bidireccional: publicar desde la calle con foto y ubicación, y recibir la alerta cuando el motor encuentre una coincidencia. Muchas gracias.»
 
 **Nota de cronometraje:** los intervalos suman exactamente cinco minutos; la diapositiva 6 reserva 35 segundos de locución y 40 segundos de demostración.

@@ -34,3 +34,7 @@ También hubo desviaciones de diseño que exigieron revisión: el fallback visua
 La versión final cuenta con especificaciones SDD, 20 avisos de demo, documentación de instalación, despliegue público y 92 pruebas en verde en el entorno auditado. La aplicación prioriza candidatos, pero no confirma identidades. El almacenamiento de la demo Cloud es efímero y su fallback de visión es menos preciso que CLIP; estos límites se comunican en el README para que no se confunda el prototipo con un servicio persistente o una verificación concluyente.
 
 La principal aportación del trabajo no fue delegar el proyecto a la IA, sino aprender a dirigirla: delimitar el problema, establecer restricciones, contrastar los resultados con pruebas y conservar únicamente los cambios que satisfacían los requisitos.
+
+## 5. Roadmap: bot de Telegram bidireccional
+
+El MVP actual demuestra el motor multimodal, la geolocalización y el matching. El siguiente paso natural en el roadmap de producción es un bot de Telegram bidireccional con dos flujos: publicación *on-the-go* (enviar una foto y la ubicación desde la calle para registrar un aviso al instante) y alertas push en tiempo real (recibir una notificación inmediata cuando el motor de HUELLAS detecte una coincidencia con tu mascota perdida). Queda fuera del alcance del MVP por decisión de diseño (H-09: notificaciones por panel y registro, sin Telegram): exigiría exponer el motor como API, un alojamiento siempre disponible y una base de datos externa persistente.
