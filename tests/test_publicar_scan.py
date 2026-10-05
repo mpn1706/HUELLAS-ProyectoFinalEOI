@@ -81,6 +81,12 @@ def test_mapa_publicar_con_circulo():
     assert "folium.Circle" in SRC[pub:reenc]
 
 
+def test_mapas_sin_markercluster():
+    # Todas las chinchetas visibles desde el inicio: sin agrupar por zoom.
+    assert "MarkerCluster" not in SRC
+    assert SRC.count("folium.FeatureGroup") >= 6  # 3 mapas × 2 canales
+
+
 def test_pin_fijado_sobrevive_rerun():
     # Tras clicar el mapa, el mensaje con la chincheta y el anillo sigue
     # visible (no se lo traga el re-render del mapa).

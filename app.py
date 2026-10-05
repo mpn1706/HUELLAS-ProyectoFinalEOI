@@ -48,6 +48,7 @@ from ui_home import (
     es_nuevo,
     faltantes_buscar,
     faltantes_publicar,
+    fechas_publicar,
     fmt_corta,
     make_carousel_thumb,
     nuevo_html,
@@ -350,19 +351,19 @@ def get_logo_img():
     return _LOGO_IMG
 
 
-def imagen_cuadrada(path: str, lado: int = 480, fondo=(245, 241, 234)):
-    """Foto completa en lienzo cuadrado: misma dimensión sin recortar al animal.
+def imagen_cuadrada(path: str, lado: int = 480):
+    """Foto completa en lienzo cuadrado translúcido: misma dimensión sin recortar.
 
-    Letterbox crema (paleta de la web): el animal siempre se ve entero,
-    nada de recortes centrales que lo decapiten. Sin caché a propósito:
-    si se sustituye la foto, se ve al instante.
+    Letterbox transparente (se ve el fondo de la web): el animal siempre se
+    ve entero, nada de recortes centrales que lo decapiten. Sin caché a
+    propósito: si se sustituye la foto, se ve al instante.
     """
     from PIL import Image
 
-    img = Image.open(path).convert("RGB")
+    img = Image.open(path).convert("RGBA")
     img.thumbnail((lado, lado))
-    lienzo = Image.new("RGB", (lado, lado), fondo)
-    lienzo.paste(img, ((lado - img.width) // 2, (lado - img.height) // 2))
+    lienzo = Image.new("RGBA", (lado, lado), (0, 0, 0, 0))
+    lienzo.paste(img, ((lado - img.width) // 2, (lado - img.height) // 2), img)
     return lienzo
 
 
@@ -523,6 +524,7 @@ def ensure_db():
             dbmod.set_seed_version(con)
             for fp in sorted(Path("data/seed/reencuentros").glob("*.json")):
                 dbmod.upsert_reencuentro_seed(con, json.loads(fp.read_text(encoding="utf-8")))
+            dbmod.resolver_casos_validados(con)
         st.toast(f"Seed v{dbmod.SEED_VERSION} cargada: {total} avisos.")
     from agents.vision import backfill_embeddings, sync_seed_embeddings
     backfill_embeddings(con)
@@ -750,13 +752,13 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
     """Mapa Leaflet con chinchetas + leyenda en franja debajo.
 
     Roja = tu mascota · azules = perdidos · verdes = avistamientos.
-    Los avisos con la misma ubicación se agrupan (círculo con el nº);
-    pulsa para desplegarlos. Cada chincheta lleva foto + datos en el popup
-    y marca DESTACADA si ≥80%. Si folium no está, aviso sin romper.
+    Todas las chinchetas se ven desde el inicio (sin agrupar por zoom;
+    pueden solaparse y se separan al ampliar). Cada chincheta lleva foto +
+    datos en el popup y marca DESTACADA si ≥80%. Si folium no está,
+    aviso sin romper.
     """
     try:
         import folium
-        from folium.plugins import MarkerCluster
         from streamlit_folium import st_folium
 
         fmap = folium.Map(location=[q["location"]["lat"], q["location"]["lng"]], zoom_start=zoom)
@@ -766,7 +768,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
             popup=folium.Popup(popup_html(q, marca=" · TU CASO"), max_width=260),
             icon=folium.Icon(color="red"),
         ).add_to(fmap)
-        cl_lost = MarkerCluster(name="Perdidos").add_to(fmap)
+        cl_lost = folium.FeatureGroup(name="Perdidos").add_to(fmap)
         for o in otros_lost or []:
             if o["id"] == q["id"]:
                 continue
@@ -776,7 +778,7 @@ def render_mapa_avistados(q: dict, items: list, key: str, otros_lost: list | Non
                 popup=folium.Popup(popup_html(o), max_width=260),
                 icon=folium.Icon(color="blue"),
             ).add_to(cl_lost)
-        cl_found = MarkerCluster(name="Avistamientos").add_to(fmap)
+        cl_found = folium.FeatureGroup(name="Avistamientos").add_to(fmap)
         for it in items:
             c = it.get("candidato", it)
             score = it.get("score")
@@ -1339,8 +1341,8 @@ em.u::after { content:""; position:absolute; left:0; bottom:-4px; height:3px; ba
 .huellas-cd-link { text-decoration:none; color:inherit; }
 .huellas-cd { width:150px; flex:none; margin-right:12px; background:#FFFFFF; border:1px solid #57503F; border-radius:10px; overflow:hidden; transition:transform .2s; }
 .huellas-cd:hover { transform:translateY(-4px); }
-.huellas-cd-img { height:104px; display:flex; align-items:center; justify-content:center; background:#F5F1EA; overflow:hidden; }
-.huellas-cd-img img { width:100%; height:100%; object-fit:contain; object-position:center; display:block; background:#F5F1EA; }
+.huellas-cd-img { height:104px; display:flex; align-items:center; justify-content:center; background:transparent; overflow:hidden; }
+.huellas-cd-img img { width:100%; height:100%; object-fit:contain; object-position:center; display:block; background:transparent; }
 .huellas-cd-ph { font-family:'Montserrat','Inter',sans-serif; font-weight:800; font-size:2rem; color:#23201B; }
 .huellas-cd-b { padding:9px 10px 10px; }
 .huellas-cd-t { font-size:0.82rem; font-weight:700; color:#23201B; }
@@ -2477,7 +2479,6 @@ if page == "buscar":
         st.caption("O marca el punto clicando 2 veces en el mapa (la dirección se autocompleta)")
         try:
             import folium
-            from folium.plugins import MarkerCluster
             from streamlit_folium import st_folium
 
             fmap = folium.Map(location=[st.session_state.q_lat, st.session_state.q_lon],
@@ -2495,14 +2496,14 @@ if page == "buscar":
             # azul y avistamientos en verde). El cruce sí va solo contra el canal.
             _zona_perd = dbmod.get_active_opuestos(con, "found")
             _zona_av = dbmod.get_active_opuestos(con, "lost")
-            cl_perd = MarkerCluster(name="Perdidos").add_to(fmap)
+            cl_perd = folium.FeatureGroup(name="Perdidos").add_to(fmap)
             for c in _zona_perd:
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
                     tooltip=c["id"],
                     popup=folium.Popup(popup_html(c), max_width=260),
                     icon=folium.Icon(color=pin_color(c))).add_to(cl_perd)
-            cl_av = MarkerCluster(name="Avistamientos").add_to(fmap)
+            cl_av = folium.FeatureGroup(name="Avistamientos").add_to(fmap)
             for c in _zona_av:
                 folium.Marker(
                     [c["location"]["lat"], c["location"]["lng"]],
@@ -2825,6 +2826,16 @@ if page == "publicar":
                 # La foto alarga la columna izquierda: el boli rellena el hueco
                 # que queda abajo a la derecha. Solo aparece con foto, no antes.
                 st.markdown(build_pen_html(), unsafe_allow_html=True)
+    st.subheader("Fecha")
+    with st.container(border=True):
+        from datetime import date as _dt_fecha
+
+        _hoy_pub = _dt_fecha.today()
+        fecha = st.date_input(
+            "¿Cuándo se perdió? *" if tipo == "lost" else "¿Cuándo lo avistaste? *",
+            value=_hoy_pub, min_value=_dt_fecha(2020, 1, 1), max_value=_hoy_pub,
+            key=f"pub_fecha_{_pe}")
+        st.caption(f"Se publicará con fecha de hoy ({_hoy_pub:%d/%m/%Y}).")
     st.subheader("Ubicación exacta")
     with st.container(border=True):
         if f"reg_lat_{_pe}" not in st.session_state:
@@ -2860,17 +2871,16 @@ if page == "publicar":
                            st.session_state[f"reg_lon_{_pe}"]],
                           radius=2000, color="#E30613", weight=2,
                           fill=True, fill_opacity=0.06).add_to(fmap)
-            from folium.plugins import MarkerCluster as _MC
             _reg_perd = dbmod.get_active_opuestos(con, "found")
             _reg_av = dbmod.get_active_opuestos(con, "lost")
-            _cl_perd = _MC(name="Perdidos").add_to(fmap)
+            _cl_perd = folium.FeatureGroup(name="Perdidos").add_to(fmap)
             for _c in _reg_perd:
                 folium.Marker(
                     [_c["location"]["lat"], _c["location"]["lng"]],
                     tooltip=_c["id"],
                     popup=folium.Popup(popup_html(_c), max_width=260),
                     icon=folium.Icon(color=pin_color(_c))).add_to(_cl_perd)
-            _cl_av = _MC(name="Avistamientos").add_to(fmap)
+            _cl_av = folium.FeatureGroup(name="Avistamientos").add_to(fmap)
             for _c in _reg_av:
                 folium.Marker(
                     [_c["location"]["lat"], _c["location"]["lng"]],
@@ -2954,10 +2964,12 @@ if page == "publicar":
                 desc_full += f" Estado: {est.strip()}."
             if paso.strip():
                 desc_full += f" Lo ocurrido: {paso.strip()}."
+            _rep, _seen = fechas_publicar(tipo, fecha, _hoy_pub)
             av = normalize_aviso({"type": tipo, "animal": animal, "color_primary": c1, "size": size,
                                   "has_collar": collar, "markings": [], "description_text": desc_full,
                                   "location": {"lat": lat, "lng": lng, "address_text": addr},
-                                  "date_reported": "2026-09-23T12:00:00+02:00", "image_url": img_path,
+                                  "date_reported": _rep, "date_last_seen": _seen,
+                                  "image_url": img_path,
                                   "contact_info": " · ".join(x.strip() for x in
                                                              [c_movil, c_mail, c_rrss] if x.strip()),
                                   "status": "active"})

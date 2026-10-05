@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from agents import db as dbmod
+from agents.ingestor import normalize_aviso
 
 SEED = Path("data/seed")
 
@@ -61,6 +62,31 @@ def test_upsert_seed_no_toca_casos_de_usuarios():
     assert rows["renc_006"]["estado"] == "validada"
     assert rows["renc_012"]["estado"] == "pendiente"
     assert rows["renc_013"]["estado"] == "pendiente"
+
+
+def _aviso_min(aid, tipo):
+    return normalize_aviso({"id": aid, "type": tipo, "animal": "dog",
+                            "color_primary": "marrón", "size": "medium",
+                            "description_text": "prueba",
+                            "location": {"lat": 36.6, "lng": -6.1, "address_text": "X"},
+                            "date_reported": "2026-09-01T12:00:00+02:00",
+                            "image_url": "data/seed/images/gato 3.jpg",
+                            "contact_info": "600 000 000", "status": "active"})
+
+
+def test_resolver_casos_validados_oculta_cerrados():
+    # El cerrado se oculta de su pestaña; los en revisión siguen activos.
+    con = dbmod.connect(":memory:")
+    for aid, tipo in (("lost_006", "lost"), ("found_012", "found"), ("found_013", "found")):
+        dbmod.upsert_aviso(con, _aviso_min(aid, tipo))
+    for fp in sorted((SEED / "reencuentros").glob("*.json")):
+        dbmod.upsert_reencuentro_seed(con, json.loads(fp.read_text(encoding="utf-8")))
+    assert dbmod.resolver_casos_validados(con) == 1
+    assert dbmod.get_aviso(con, "lost_006")["status"] == "resolved"
+    assert dbmod.get_aviso(con, "found_012")["status"] == "active"
+    assert dbmod.get_aviso(con, "found_013")["status"] == "active"
+    assert {a["id"] for a in dbmod.get_active_opuestos(con, "lost")} == {"found_012", "found_013"}
+    assert dbmod.get_active_opuestos(con, "found") == []
 
 
 def test_siamesa_es_lost_006_y_no_existe_lost_007():

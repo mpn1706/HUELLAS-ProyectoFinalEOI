@@ -14,11 +14,18 @@ from agents.vision import backfill_embeddings  # noqa: E402
 
 
 def seed_reencuentros(con) -> int:
-    """Siembra los reencuentros demo versionados (ids fijos renc_*)."""
+    """Siembra los reencuentros demo versionados (ids fijos renc_*).
+
+    Los casos cerrados ocultan sus avisos de Perdidos/Avistamientos
+    (los pendientes siguen visibles hasta que se cierren).
+    """
+    from agents.db import resolver_casos_validados  # noqa: E402
+
     n = 0
     for fp in sorted((ROOT / "data" / "seed" / "reencuentros").glob("*.json")):
         upsert_reencuentro_seed(con, json.loads(fp.read_text(encoding="utf-8")))
         n += 1
+    resolver_casos_validados(con)
     return n
 
 

@@ -12,7 +12,6 @@ import html as _html
 ANIMAL_ES = {"dog": "Perro", "cat": "Gato", "other": "Otro"}
 MAX_ITEMS = 12
 THUMB_W, THUMB_H = 300, 208  # ratio 150×104 de la tarjeta: el cover no recorta
-THUMB_BG = (245, 241, 234)  # crema #F5F1EA: misma que imagen_cuadrada en app.py
 
 
 def _titulo(a: dict) -> str:
@@ -64,7 +63,7 @@ def select_carousel_items(avisos: list, limit: int = MAX_ITEMS,
 
 
 def make_carousel_thumb(path: str) -> str:
-    """Miniatura letterbox crema 300×208 en data URI (animal entero, centrado).
+    """Miniatura letterbox translúcida 300×208 en data URI (animal entero, centrado).
 
     Pura (solo PIL): la app la envuelve con `st.cache_data(ttl=120)`.
     Si la foto falta o falla, cadena vacía (la tarjeta muestra inicial).
@@ -74,13 +73,13 @@ def make_carousel_thumb(path: str) -> str:
         import base64
         import io
 
-        img = Image.open(path).convert("RGB")
+        img = Image.open(path).convert("RGBA")
         img.thumbnail((THUMB_W, THUMB_H))
-        lienzo = Image.new("RGB", (THUMB_W, THUMB_H), THUMB_BG)
-        lienzo.paste(img, ((THUMB_W - img.width) // 2, (THUMB_H - img.height) // 2))
+        lienzo = Image.new("RGBA", (THUMB_W, THUMB_H), (0, 0, 0, 0))
+        lienzo.paste(img, ((THUMB_W - img.width) // 2, (THUMB_H - img.height) // 2), img)
         buf = io.BytesIO()
-        lienzo.save(buf, format="JPEG", quality=65)
-        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+        lienzo.save(buf, format="PNG")
+        return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
     except Exception:
         return ""
 
@@ -106,6 +105,19 @@ def faltantes_publicar(tipo="", animal="", size="", color="", desc="",
     if not ((movil or "").strip() or (mail or "").strip() or (rrss or "").strip()):
         faltan.append("contacto (móvil, correo o red social)")
     return faltan
+
+
+def fechas_publicar(tipo: str, fecha, hoy) -> tuple:
+    """Fechas ISO al publicar: reportado el día de publicación + fecha elegida.
+
+    lost → (hoy 12:00, elegida 18:00 como última vez visto);
+    found → (elegida 12:00 como avistamiento, sin última vez).
+    La elegida futura o vacía se recorta a hoy. Pura y testeada.
+    """
+    f = min(fecha or hoy, hoy)
+    if tipo == "lost":
+        return f"{hoy.isoformat()}T12:00:00+02:00", f"{f.isoformat()}T18:00:00+02:00"
+    return f"{f.isoformat()}T12:00:00+02:00", None
 
 
 def build_crossing_html(n: int) -> str:

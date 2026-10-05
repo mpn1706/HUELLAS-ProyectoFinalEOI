@@ -77,7 +77,7 @@ def test_html_vacio_invita_a_publicar():
     assert "contact" not in out.lower()
 
 
-def test_thumb_letterbox_300x208_y_centrada(tmp_path):
+def test_thumb_letterbox_300x208_y_translucida(tmp_path):
     from PIL import Image
 
     ancha = tmp_path / "ancha.jpg"
@@ -86,9 +86,11 @@ def test_thumb_letterbox_300x208_y_centrada(tmp_path):
     Image.new("RGB", (100, 800), (30, 30, 200)).save(alta)
     for fp in (ancha, alta):
         uri = make_carousel_thumb(str(fp))
-        assert uri.startswith("data:image/jpeg;base64,")
+        assert uri.startswith("data:image/png;base64,")
         img = Image.open(io.BytesIO(base64.b64decode(uri.split(",", 1)[1])))
         assert img.size == (300, 208)  # lienzo fijo: sin recortes, animal entero
+        assert img.mode == "RGBA"
+        assert img.getpixel((5, 5))[3] == 0  # márgenes translúcidos, no crema
     assert make_carousel_thumb(str(tmp_path / "noexiste.jpg")) == ""
 
 

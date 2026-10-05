@@ -8,7 +8,8 @@ from pathlib import Path
 # v10: lost_001..005 fijados a fotos canónicas lost_00X ("losts changes").
 # v11: lost_006 (gato gris que ya había vuelto a casa) pasa a avistamiento found_014.
 # v12: siamesa lost_007 renombrada a lost_006 + 3 reencuentros demo sembrados.
-SEED_VERSION = 12
+# v13: los avisos de casos validados nacen resueltos (ocultos de sus pestañas).
+SEED_VERSION = 13
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS avisos (
@@ -196,6 +197,24 @@ def upsert_reencuentro_seed(con: sqlite3.Connection, d: dict):
          d["estado"], d.get("created_at")),
     )
     con.commit()
+
+
+def resolver_casos_validados(con: sqlite3.Connection) -> int:
+    """Oculta de Perdidos/Avistamientos los avisos de casos cerrados.
+
+    Marca resolved los avisos enlazados a reencuentros validados (los
+    pendientes/en revisión siguen activos hasta que se cierren). En el
+    carrusel siguen apareciendo con la etiqueta de caso.
+    """
+    n = 0
+    for r in list_reencuentros(con, "validada"):
+        for aid in (r["aviso_ids"] or []):
+            cur = con.execute(
+                "UPDATE avisos SET status='resolved' WHERE id=? AND status='active'",
+                (aid,))
+            n += cur.rowcount
+    con.commit()
+    return n
 
 
 def set_reencuentro(con: sqlite3.Connection, rid: str, estado: str):

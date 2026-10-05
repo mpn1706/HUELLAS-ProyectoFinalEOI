@@ -1,10 +1,13 @@
 """Tests tanda Publicar con vida — REQ-UI-13..16 (solo UI, sin BD)."""
+from datetime import date
+
 from ui_home import (
     build_check_html,
     build_crossing_html,
     build_match_card_html,
     build_pen_html,
     faltantes_publicar,
+    fechas_publicar,
 )
 
 
@@ -30,6 +33,24 @@ def test_faltantes_solo_contacto():
 def test_faltantes_color_y_desc():
     f = faltantes_publicar("lost", "dog", "small", "", "", "610", "", "")
     assert "color principal" in f and "descripción" in f
+
+
+def test_fechas_lost_hoy_y_elegida():
+    rep, seen = fechas_publicar("lost", date(2026, 9, 20), date(2026, 10, 5))
+    assert rep == "2026-10-05T12:00:00+02:00"  # día de publicación
+    assert seen == "2026-09-20T18:00:00+02:00"  # fecha elegida de pérdida
+
+
+def test_fechas_found_usa_elegida():
+    rep, seen = fechas_publicar("found", date(2026, 9, 28), date(2026, 10, 5))
+    assert rep == "2026-09-28T12:00:00+02:00"  # fecha elegida de avistamiento
+    assert seen is None
+
+
+def test_fechas_futura_o_vacia_a_hoy():
+    hoy = date(2026, 10, 5)
+    assert fechas_publicar("lost", date(2026, 10, 9), hoy)[1] == "2026-10-05T18:00:00+02:00"
+    assert fechas_publicar("found", None, hoy)[0] == "2026-10-05T12:00:00+02:00"
 
 
 def test_fmt_corta():
