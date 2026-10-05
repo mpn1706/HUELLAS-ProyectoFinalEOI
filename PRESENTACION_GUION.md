@@ -57,9 +57,9 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 
 ## Diapositiva 7 — Límites técnicos y roadmap V2 (04:20–05:00)
 
-**Visual sugerido:** cifras 121 tests, 9 páginas smoke, enlace al repositorio y demo; límites: RAM del Cloud (OOM) y SPA sin historial; roadmap V2: routing multipágina + bot de Telegram (publicación on-the-go + alertas push).
+**Visual sugerido:** 121 tests y 9 páginas smoke; esquema CLIP local ↔ MobileNetV3 ONNX Cloud (1 GB); SPA actual con `?s=` → routing multipágina nativo en V2; bot Telegram: foto/ubicación y alertas push ≥80%.
 
 **Speech:**  
-«El proyecto termina con 121 pruebas automatizadas, evaluación E2E y smoke test de las nueve páginas. Por arquitectura, el motor canónico es CLIP de 512 dimensiones, pero el Cloud gratuito da 1 GB de RAM y el modelo lo tumbaría por memoria: en producción corre MobileNetV3 en ONNX, un 5% de la memoria, con la misma fórmula de puntuación. La interfaz, hoy una SPA en Streamlit por velocidad y control del estado, migrará en la versión 2.0 a routing multipágina con historial en la URL. Y como roadmap de producto, un bot de Telegram bidireccional: publicar desde la calle y recibir la alerta al encontrar coincidencia. Muchas gracias.»
+«El proyecto termina con 121 pruebas automatizadas, evaluación E2E y smoke test de las nueve páginas. El CLIP canónico de 512 dimensiones excede el 1 GB de RAM de Cloud: allí usamos MobileNetV3 en ONNX, ligero y sin PyTorch; localmente mantenemos CLIP. La interfaz actual es una SPA con navegación en URL; V2 propone routing multipágina nativo y un historial más natural. También proponemos un bot bidireccional: publicar con foto y ubicación desde la calle y recibir alertas push cuando una coincidencia alcance el 80%. Muchas gracias.»
 
 **Nota de cronometraje:** los intervalos suman exactamente cinco minutos; la diapositiva 6 reserva 35 segundos de locución y 40 segundos de demostración.

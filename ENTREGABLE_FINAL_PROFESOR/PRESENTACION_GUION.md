@@ -29,7 +29,7 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 **Visual sugerido:** gráfico circular o barras con pesos 55/25/10/10 y tres umbrales: 65%, 80%, 95% visual.
 
 **Speech:**  
-«Una decisión clave fue dar mayor peso a la imagen, sin depender de un modelo pesado en todos los despliegues. El score combina 55% visual, 25% texto, 10% temporal y 10% geográfico; el texto mezcla atributos estructurados y similitud semántica. Desde 65% se lista un candidato y desde 80% se genera alerta; una similitud visual de 95% también activa aviso. En local puede usarse CLIP; en Cloud hay un fallback de histograma, más ligero pero menos discriminativo. Esa limitación está declarada.»
+«Una decisión clave fue dar mayor peso a la imagen, sin depender de un modelo pesado en todos los despliegues. El score combina 55% visual, 25% texto, 10% temporal y 10% geográfico; el texto mezcla atributos estructurados y similitud semántica. Desde 65% se lista un candidato y desde 80% se genera alerta; una similitud visual de 95% también activa aviso. En local puede usarse CLIP; en Cloud corre MobileNetV3 en ONNX, un motor ligero que cabe en la cuota gratuita. Esa arquitectura híbrida está declarada.»
 
 ## Diapositiva 5 — Dirección humana de la IA (02:30–03:05)
 
@@ -49,17 +49,17 @@ Cada texto de locución está pensado para ocupar aproximadamente 30–45 segund
 
 **Acciones en vivo, 03:40–04:20 (40 segundos):**
 1. Mostrar la pestaña de `huellas.streamlit.app` ya cargada en **Buscar**.
-2. Usar el formulario preparado con una consulta tipo `lost_001` (foto `data/seed/images/gato 1.jpg`; canal «Entre avistamientos»; gato, color naranja y descripción correspondiente).
+2. Usar el formulario preparado con una consulta tipo `lost_001` (foto `data/seed/images/lost_001.jpg`; canal «Entre avistamientos»; gato, color naranja y descripción correspondiente).
 3. Pulsar **Buscar coincidencias**; señalar el candidato mejor clasificado y su desglose visual/textual/temporal/geográfico.
-4. Recordar que `demo_check.py` valida en E2E que `found_011` sea top-1 con 80.8% en el escenario de prueba. El porcentaje de la interacción en vivo puede variar con fecha y zona.
+4. Recordar que `demo_check.py` valida en E2E que `found_011` sea top-1 con ≥80% en el escenario de prueba. El porcentaje de la interacción en vivo puede variar con fecha y zona.
 
 **Preparación y contingencia:** abrir la demo antes de empezar, precargar la imagen y los campos antes de la diapositiva 6, y tener una captura del resultado por si falla la red o el despliegue.
 
-## Diapositiva 7 — Validación y cierre (04:20–05:00)
+## Diapositiva 7 — Límites técnicos y roadmap V2 (04:20–05:00)
 
-**Visual sugerido:** cifras 92 tests, 9 páginas smoke, enlace al repositorio y demo; debajo, dos limitaciones conocidas.
+**Visual sugerido:** 121 tests y 9 páginas smoke; esquema CLIP local ↔ MobileNetV3 ONNX Cloud (1 GB); SPA actual con `?s=` → routing multipágina nativo en V2; bot Telegram: foto/ubicación y alertas push ≥80%.
 
 **Speech:**  
-«El proyecto termina con 92 pruebas automatizadas, evaluación del matching, una comprobación E2E y un smoke test de las nueve páginas. También quedan documentados límites importantes: los datos de Cloud son efímeros y el fallback visual es menos preciso que CLIP. Mi conclusión es que la IA resulta útil cuando se dirige con requisitos claros y se contrasta con evidencia. HUELLAS no sustituye a las personas: les ayuda a priorizar dónde mirar. Muchas gracias.»
+«El proyecto termina con 121 pruebas automatizadas, evaluación E2E y smoke test de las nueve páginas. El CLIP canónico de 512 dimensiones excede el 1 GB de RAM de Cloud: allí usamos MobileNetV3 en ONNX, ligero y sin PyTorch; localmente mantenemos CLIP. La interfaz actual es una SPA con navegación en URL; V2 propone routing multipágina nativo y un historial más natural. También proponemos un bot bidireccional: publicar con foto y ubicación desde la calle y recibir alertas push cuando una coincidencia alcance el 80%. Muchas gracias.»
 
 **Nota de cronometraje:** los intervalos suman exactamente cinco minutos; la diapositiva 6 reserva 35 segundos de locución y 40 segundos de demostración.

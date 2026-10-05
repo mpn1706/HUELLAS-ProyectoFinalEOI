@@ -752,3 +752,37 @@ Memoria de sesiones con IA (entregable EOI). Cada entrada: fecha, objetivo, prom
 - Export Engram empaquetado como snapshot histórico filtrado (fuente exportada 24/09/2026); excluidos otros proyectos y rutas locales. El PROMPT-LOG conserva el detalle del proceso hasta S140.
 - Se respetó la restricción vigente: no se modificó ningún archivo de interfaz/CSS móvil, ni se eliminaron imágenes, ni se migró `st.components.v1.html`.
 - Pendiente de evaluación académica externa: recibir la guía real para completar el cotejo final frente a la rúbrica del profesor.
+
+## Actualización final — 05/10/2026 (iteraciones posteriores a S140)
+
+Registro cronológico de las correcciones y auditorías realizadas tras la primera preparación del paquete. Los prompts se resumen; la conversación conserva el detalle completo de las solicitudes.
+
+### Persistencia del seed y casos de reencuentro
+- Prompts clave: fijar las fotos definitivas de Perdidos, sacar el gatito gris del canal de perdidos, recuperar los casos de reencuentro tras el *sleep* y garantizar que todos los cambios del día sobrevivan a la recarga.
+- Fuente única del seed: `scripts/make_seed.py`; se subió `SEED_VERSION` de v10 a v15. lost_001…005 quedaron ligados a las fotos canónicas; el gatito gris pasó a `found_014`; la siamesa se renombró a `lost_006`; se sembraron `renc_006`, `renc_012` y `renc_013`; los avisos validados se marcan resueltos y las notas pendientes se redactaron en voz de los dueños.
+- Verificación: seed regenerado sin diff y carga en SQLite vacía con 20 avisos + 3 reencuentros. Commits clave: `efe1ff5`, `1cf1ea0`, `12729a7`, `314924f`, `c1a3b55`, `5978534`.
+
+### Flujo Publicar, Buscar y mapas
+- Prompts clave: retirar el análisis automático de Publicar, mantener Buscar como única sección de coincidencias, advertir al entrar en Publicar, mover la confirmación de éxito al final y corregir clic/dirección/animación del mapa.
+- Publicar ahora solo registra; recomienda buscar antes; la fecha de publicación es la real y se puede seleccionar la fecha de pérdida/avistamiento. Se ocultan de sus pestañas los avisos cerrados, aunque permanecen en el carrusel; las tarjetas de imagen usan márgenes transparentes y los mapas muestran los pines sin cluster.
+- Verificación: AppTest, smoke y pruebas de regresión. Commits: `a665a8e`, `b4225b9`, `2aa153a`.
+
+### Fase 0 y motor visual ONNX para Cloud
+- Prompt clave: medir MobileNetV3-Small exportado a ONNX en un entorno aislado antes de tocar la app; contrastar query del gatito, par `lost_001→found_011` y cruces de especies; integrar solo si los resultados superaban al histograma sin destacadas falsas.
+- Fase 0: compatibilidad Python 3.14 con onnxruntime 1.30.0; vector ONNX de 576 dimensiones; query 72.4% top-1, par insignia 84.5% destacado, 0 destacadas cruzadas. Integración Cloud en `agents/vision.py`: CLIP local → MobileNetV3 ONNX Cloud → histograma → hash, con caché por ruta/mtime/tamaño.
+- Archivos del modelo: `data/models/mobilenetv3_small_feat.onnx` y su sidecar `.onnx.data`; ambos necesarios. Commit: `07e1efb`.
+
+### Ajuste temporal y normalización del lenguaje
+- Prompts clave: congelar el factor temporal contra la fecha de referencia del seed y reconocer favorablemente diminutivos/sinónimos sin cambiar la ponderación.
+- Las búsquedas de la demo se anclan al 25/09/2026; los avisos publicados conservan la fecha real. `raiz_es`/`raiz_frase` normalizan raíces de diminutivos, género y plural en colores, marcas y fallbacks TF-IDF/Jaccard; CLIP/MiniLM permanecen sin cambios.
+- Cloud simulado: query del gatito al 78.0% top-1 `lost_001`; pesos siguen 0.55/0.25/0.10/0.10. Commit: `93192ca`.
+
+### Auditoría y sincronización de entregables
+- Pyflakes, compilación, requirements y navegación móvil revisados; no se alteró CSS ni código móvil. Se fijó `folium==0.20.0` por import directo y se eliminaron imports muertos. `main` sincronizada y árbol limpio en el commit `61ecf1e`.
+- Suite vigente: 121 pruebas; `eval_match.py`, `demo_check.py` (found_011 top-1 80.5%) y `smoke_app.py` (9 páginas) verificados. Los informes y guion documentan ONNX/CLIP, arquitectura SPA y roadmap Telegram con alerta ≥80%.
+- La guía/rúbrica oficial del profesor no estaba adjunta; el cumplimiento frente a criterios externos no proporcionados queda pendiente de cotejo.
+
+### Sincronización final del paquete y ZIP — 05/10/2026
+- Prompt clave: actualizar los entregables ya existentes tras las mejoras de octubre, mantener las fuentes sincronizadas y regenerar el ZIP final sin rehacer la documentación desde cero.
+- Se copiaron las fuentes vigentes al paquete: README, PROMPT-LOG, reflexión, guion, checklist, `requirements.md` v1.41 y `architecture.md`; se actualizó la fecha/enlaces locales y se mantuvo el snapshot Engram de septiembre identificado como histórico junto con un extracto JSON/manual de observaciones del 05/10.
+- Se regeneró `ENTREGABLE_FINAL_PROFESOR.zip` y se comprobó que contiene los 45 ficheros del directorio sin diferencias, secretos ni DB local. La rúbrica oficial sigue pendiente externamente.

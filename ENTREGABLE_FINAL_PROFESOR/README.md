@@ -14,7 +14,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 ## Funcionalidades (MVP)
 
 - Registrar avisos `lost` / `found` con foto + texto libre + ubicación (mapa Leaflet clicable) + fechas (cualquier animal doméstico: `dog | cat | other`).
-- **5 agentes**: Ingestor (normaliza) → Vision Analyst (atributos + embedding CLIP 512) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=80%`).
+- **5 agentes**: Ingestor (normaliza) → Vision Analyst (CLIP 512 local / MobileNetV3 ONNX 576 Cloud) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=80%`).
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
 - **Automatización**: al registrar o buscar, si un candidato supera el 80% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos de más de 1 año" (`expire_old()`, sin cron).
@@ -31,7 +31,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 
 4. Commit de imágenes + JSONs + `embeddings.json`.
 
-• Corpus demo propio de **20 avisos de Jerez con fotos reales** (7 lost + 13 found, todos activos), sin scraping (fuera de alcance por decisión de diseño).
+• Corpus demo propio de **20 avisos de Jerez con fotos reales** (6 lost + 14 found; 19 activos + 1 resuelto por caso cerrado) + 3 reencuentros demo sembrados (1 cerrado + 2 en revisión), sin scraping (fuera de alcance por decisión de diseño).
 
 ### Fórmula (cerrada, `requirements.md` §8)
 
@@ -45,7 +45,7 @@ Color/marcas se comparan sin tildes ni mayúsculas (Marrón=marron, Café=marró
 
 ## Stack
 
-Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + histograma) para ejecutar sin GPU ni claves. Solo español.
+Python 3.11+ · Streamlit (+ streamlit-folium) · SQLite (`data/huellas.db`, cero setup) · numpy + scikit-learn · CLIP `openai/clip-vit-base-patch32` (512-dim) y MiniLM `paraphrase-multilingual-MiniLM-L12-v2` con **fallback local** (TF-IDF/Jaccard + MobileNetV3 ONNX en Cloud, e histograma como último recurso) para ejecutar sin GPU ni claves. Solo español.
 
 ## Cómo ejecutarlo desde cero (profesor, <10 min)
 
@@ -81,12 +81,12 @@ python -m streamlit run app.py
 
 Streamlit mostrará la dirección local en la terminal (normalmente `http://localhost:8501`). `make_seed.py` genera los 20 JSON del corpus; las fotos y los embeddings precalculados ya están incluidos en Git. `load_seed.py` crea y carga la base local `data/huellas.db`. Para empezar con la demo desde una base vacía, ejecuta estos pasos una vez.
 
-En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instalaron las dependencias fijadas y se comprobó la generación/carga de los 20 avisos en una SQLite temporal. La suite de 92 pruebas y los scripts `eval_match.py`, `demo_check.py` y `smoke_app.py` también se verificaron en el entorno de auditoría. El proyecto mantiene como versión mínima Python 3.11 y fija Streamlit 1.64.0.
+En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instalaron las dependencias fijadas y se comprobó la generación/carga de los 20 avisos en una SQLite temporal. La suite de 121 pruebas y los scripts `eval_match.py`, `demo_check.py` y `smoke_app.py` también se verificaron en el entorno de auditoría. El proyecto mantiene como versión mínima Python 3.11 y fija Streamlit 1.64.0.
 
 Verificación extra:
 
 ```bash
-python -m pytest tests -q          # 92 tests (fórmula, umbrales, geo, ingestor, UI…)
+python -m pytest tests -q          # 121 tests (fórmula, umbrales, geo, ingestor, UI…)
 python scripts/eval_match.py       # ÉXITO-01/03 con vectores fijos
 python scripts/demo_check.py       # E2E: lost_001 → found_011 top-1 ≥80% (alerta real)
 python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
@@ -99,8 +99,12 @@ python scripts/smoke_app.py        # 9 páginas sin excepciones (headless)
 
 ### Limitaciones conocidas (importante para la demo en vivo)
 
-- **Visión en Cloud**: sin `torch`, la similitud visual usa un **histograma de color** (8×8×8) calculado en ambos lados (query y candidatos en el MISMO espacio, S49). `embeddings.json` (CLIP) solo se usa en local con `torch` instalado. Consecuencia: en Cloud la señal visual discrimina menos (misma paleta = score alto aunque sean animales distintos); en local con CLIP la comparación es mucho más fina.
+- **Visión según el modo (transparente)**:
+  - **Modo Cloud** (demo en vivo): modelo ligero **MobileNetV3-Small en ONNX** (576-d, ~4 MB en `data/models/`, ~10 MB de RAM — cabe en el free tier sin OOM). Sin `torch` por restricciones del entorno: el CLIP completo no se puede instalar. El **histograma de color** (8×8×8) queda como último recurso si faltara el runtime o el modelo.
+  - **Modo Local** (con `torch` + `transformers` instalados): modelo de visión vectorial completo **CLIP** `openai/clip-vit-base-patch32` (**512 dimensiones**); `embeddings.json` trae los vectores precalculados del seed.
+  - Consecuencia: en Cloud la señal visual discrimina algo menos que CLIP; en local la comparación es la más fina. Query y candidatos siempre se comparan en el MISMO espacio (S49).
 - **Datos efímeros en Cloud**: los avisos publicados en la demo desplegada se pierden al reiniciar/dormir la app (SQLite vive en el filesystem temporal). El corpus permanente es el seed. Para persistencia real haría falta una BD externa (p. ej. Supabase/Turso).
+- **Tiempo congelado en la demo**: el seed es estático (avisos del 25/08–25/09/2026); las búsquedas se anclan a la fecha de referencia del seed para que el factor temporal no decaiga con el calendario real. Los avisos publicados sí usan la fecha real de publicación, y el texto de la demo interpreta raíces (diminutivos/género) en los fallbacks.
 - **Privacidad**: el contacto se muestra tras el desplegable "Ver contacto" (no en abierto); la ubicación se muestra a nivel de calle/zona.
 - **Administración en Cloud**: requiere configurar el secret `ADMIN_PASSWORD` en el panel de Secrets de la app; si no, el apartado queda desactivado.
 
@@ -112,7 +116,7 @@ HUELLAS-ProyectoFinalEOI/
 ├── ui_home.py # constructores HTML puros de Inicio (testeables)
 ├── agents/ # 5 agentes + persistencia
 │   ├── ingestor.py # normaliza avisos al esquema
-│   ├── vision.py # CLIP 512-dim (fallback histograma sin torch)
+│   ├── vision.py # CLIP 512-dim + MobileNetV3 ONNX (Cloud) + histograma (último recurso)
 │   ├── matcher.py # score 0.55/0.25/0.10/0.10 + umbrales >=80/>=65
 │   ├── geo.py # haversine, proximidad max(0,1-km/15)
 │   ├── notifier.py # panel + log + tabla notifications
@@ -122,22 +126,24 @@ HUELLAS-ProyectoFinalEOI/
 │   ├── embeddings.py # similitud semántica description_text
 │   └── retrieval.py # filtra active/opuestos, ordena por score
 ├── data/seed/ # corpus demo Jerez (viaja en git; Cloud recarga de aquí)
-│   ├── lost/ # 7 avisos lost_001…lost_007 (.json)
-│   ├── found/ # 13 avisos found_001…found_013 (.json)
+│   ├── lost/ # 6 avisos lost_001…lost_006 (.json)
+│   ├── found/ # 14 avisos found_001…found_014 (.json)
+│   ├── reencuentros/ # 3 casos demo renc_006/012/013 (.json)
 │   ├── images/ # fotos reales + backup demo reencuentros/
 │   └── embeddings.json # vectores CLIP precalculados (20 avisos)
+├── data/models/ # MobileNetV3-Small ONNX (visión Cloud, sin torch)
 ├── scripts/ # utilidades (compute/load/make seed, checks, smoke)
-├── tests/ # 17 ficheros, 92 tests (pytest + AppTest headless)
+├── tests/ # 20 ficheros, 121 tests (pytest + AppTest headless)
 ├── assets/ # logo.png + fondo.png
 ├── .streamlit/ # config.toml (tema); secrets.toml solo local (no viaja)
 ├── docs/ # copias de specs (architecture/requirements) + export memoria IA
 ├── .devcontainer/ # entorno Codespaces/VS Code (Python 3.11)
 ├── .gitignore # excluye DB local, logs, secrets y caches
-├── requirements.md # spec fuente de verdad (v1.40)
+├── requirements.md # spec fuente de verdad (v1.41)
 ├── architecture.md # agentes, flujos y diagramas
 ├── PROMPT-LOG.md # bitácora de sesiones con la IA (S01…)
 ├── INFORME.md # informe de reflexión del alumno
 └── requirements.txt # dependencias fijadas (sin torch: va en local)
 ```
 
-Specs (`requirements.md` v1.40, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.
+Specs (`requirements.md` v1.41, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.

@@ -1,0 +1,36 @@
+{
+  "project": "huellas-proyectofinaleoi",
+  "export_kind": "curated_delta_from_engram_observations",
+  "created_at": "2026-10-05",
+  "note": "Extracto de observaciones Engram de las sesiones del 05/10/2026. Complementa, no reemplaza, el snapshot histórico exportado el 24/09/2026.",
+  "observations": [
+    {
+      "id": 187,
+      "type": "architecture",
+      "title": "MobileNetV3 ONNX como visión Cloud",
+      "created_at": "2026-10-05 22:03:26",
+      "content": "Motor de visión Cloud: MobileNetV3-Small en ONNX (576-d) reemplaza al histograma como fallback principal sin torch. Fase 0 medida: query 72.5% top-1, par insignia 84.5% DESTACADA, 7/19 top-1 correctos, 0 DESTACADAs cruzadas. ONNX usa archivo .onnx y sidecar .onnx.data (~4 MB total); onnxruntime 1.30.0. Código: agents/vision.py (clip→onnx→hist→hash), data/models/, requirements.txt, tests/test_vision_onnx.py. La caché usa ruta+mtime+tamaño porque _busqueda.jpg se reescribe."
+    },
+    {
+      "id": 188,
+      "type": "bugfix",
+      "title": "Temporal congelado + raíces españolas",
+      "created_at": "2026-10-05 22:32:10",
+      "content": "Las búsquedas de demo usan fecha fija 2026-09-25 para que el corpus estático no envejezca; publicar sigue usando fecha real. raiz_es/raiz_frase normalizan diminutivos, género y plural en color, marcas y fallback TF-IDF/Jaccard; pesos quedan 0.55/0.25/0.10/0.10. Cloud simulado: gatito top-1 lost_001 al 78.0%, temporal 0.80."
+    },
+    {
+      "id": 189,
+      "type": "session_summary",
+      "title": "Session summary: visión, seed y búsqueda",
+      "created_at": "2026-10-05 22:41:20",
+      "content": "Estado final técnico registrado: MobileNetV3 ONNX Cloud, CLIP local; seed anti-sleep idempotente; 121 tests, demo E2E 80.5%, smoke 9/9; cambios de UI y búsqueda preservan la restricción de no modificar móvil sin autorización."
+    },
+    {
+      "id": 190,
+      "type": "config",
+      "title": "Auditoría técnica post-cambios",
+      "created_at": "2026-10-05 22:51:03",
+      "content": "Auditoría de Git, sintaxis, Pyflakes, requirements, arquitectura, README y móvil. Se fijó folium==0.20.0 por import directo y se eliminaron imports muertos. Suite 121/121, eval/demo/smoke OK; no se cambió código móvil."
+    }
+  ]
+}

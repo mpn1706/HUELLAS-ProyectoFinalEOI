@@ -2,7 +2,7 @@
 
 > Metodología: Spec-Driven Development (SDD).
 > Este documento es la fuente de verdad del MVP. Todo commit debe referenciar una sección (p.ej. `REQ-03`, `CU-02`).
-> Estado: v1.40 (25/09/2026) — spec viva: §8/§9 recogen los cambios de pesos y umbrales (S51, S108); los REQ-UI numerados van en orden cronológico y los posteriores prevalecen (reversiones explicadas en PROMPT-LOG.md). Decisiones cerradas v1.0: 23/09/2026 (13/13). Stack: Streamlit + Python + SQLite, 100% local.
+> Estado: v1.41 (05/10/2026) — §8/§9 conservan pesos y umbrales; §41 documenta modos visuales, referencia temporal de demo, normalización lingüística y seed actual. Los REQ-UI numerados son cronológicos y los posteriores prevalecen (reversiones explicadas en PROMPT-LOG.md). Decisiones cerradas v1.0: 23/09/2026 (13/13). Stack: Streamlit + Python + SQLite; ejecución local y demo opcional en Streamlit Cloud (filesystem efímero).
 
 ## 1. Objetivo (REQ-01)
 
@@ -125,7 +125,7 @@ fecha/zona (ruido en Buscar) pesan menos. Descartado 0.60 de visual: la demo
 E2E caía a 0.798 <0.80. Color/marcas se comparan normalizados (sin tildes,
 mayúsculas ni espacios extra, con alias mínimos: café/canela/chocolate→marrón).
 
-- `similitud_visual`: similitud coseno entre embeddings CLIP `openai/clip-vit-base-patch32` 512-dim (0-1). Sin torch (Cloud), query y candidatos se comparan en histograma de color: lo que importa es que ambos lados usen el MISMO espacio (S49; mezclarlos da ~0.09 y vacía el ranking).
+- `similitud_visual`: similitud coseno entre vectores del mismo espacio. Local con PyTorch usa CLIP `openai/clip-vit-base-patch32` 512-dim; Streamlit Cloud sin PyTorch usa MobileNetV3-Small ONNX 576-dim; histograma 8³ (512-dim) y hash son últimos recursos. Nunca se mezclan espacios en una comparación (S49).
 - `proximidad_geográfica`: max(0, 1 - distancia_km / 15), radio_máximo fijo = 15 km.
 - `similitud_texto`: 0.70 × estructurado + 0.30 × semántico. Estructurado: coincidencia campo a campo de `color_primary`, `markings`, `has_collar`, `size`. Semántico: coseno con `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` sobre `description_text`.
 - `proximidad_temporal`: max(0, 1 - dias_diferencia / 30), ventana 30 días. Fecha usada: `date_last_seen` si existe, si no `date_reported`.
@@ -137,7 +137,7 @@ Restricciones: los 4 pesos suman 1.0. No se reponderan sin nueva spec.
 v1.2 (24/09/2026, decisión del alumno S51): alerta 85%→80%.
 
 - Score >= 80%: notificación automática (panel + log) + se muestra como "posible coincidencia" destacada.
-- Puerta visual (v1.40 S108): visual >= 95% también notifica aunque el total no llegue (la misma foto siempre da 1.0; dos fotos distintas rara vez pasan de ~0.65 con histograma).
+- Puerta visual (v1.40 S108): visual >= 95% también notifica aunque el total no llegue (la misma foto siempre da 1.0; se reserva para imágenes casi idénticas).
 - Score 65-79.99%: aparece en el listado, sin notificación.
 - Score < 65%: no se muestra como coincidencia, pero queda indexado.
 
@@ -556,3 +556,12 @@ Restricciones: reutiliza paleta/tipografía/logo/fondo existentes (`#E30613/#232
 11. `status`: botón "Marcar como resuelto" + `expire_old()` 365d bajo demanda, sin cron (v1.26, antes 30d). ✅
 12. `other`: obligatorios `color_primary`, `size`, `description_text`; opcionales `markings`, `has_collar`; `breed_guess` NULL. ✅
 13. Idioma: solo español. ✅
+
+## 41. Implementación final — modos visuales, demo y seed (v1.41 05/10/2026)
+
+- **Visión híbrida**: modo Local utiliza CLIP 512-d con PyTorch/Transformers; modo Streamlit Cloud, limitado a alrededor de 1 GB RAM, utiliza MobileNetV3-Small exportado a ONNX (576-d, ~10 MB RAM). Histograma RGB 8³ y hash quedan como fallbacks de último recurso. Query y candidatos siempre comparten el mismo espacio.
+- **Búsqueda de demo**: para que el seed estático no pierda score temporal cada día, las queries de Buscar usan como fecha de referencia `2026-09-25T12:00:00+02:00` (último día del seed). Los avisos que se publican conservan fecha real de publicación y permiten elegir cuándo ocurrió la pérdida/avistamiento.
+- **Lenguaje**: pesos de matching sin cambios. `raiz_es`/`raiz_frase` normalizan diminutivos, género y plural en colores, marcas y fallbacks TF-IDF/Jaccard (`gatito`/`gato`, `manchitas`/`mancha`); MiniLM local continúa usando el texto original.
+- **Seed persistente**: v15, 20 avisos (6 lost + 14 found; 19 activos y 1 resuelto) y 3 reencuentros de demo versionados. `make_seed.py` es la fuente única; carga de seed y estados validados comprobados desde SQLite vacía.
+- **UX**: Buscar es la única sección que calcula coincidencias; Publicar registra y usa fecha elegible. Los casos validados desaparecen de Perdidos/Avistamientos pero continúan etiquetados en el carrusel; mapas sin clustering.
+- **Verificación de referencia**: 121 tests, `eval_match.py`, `demo_check.py` (found_011 top-1 80.5%) y `smoke_app.py` (9 páginas).

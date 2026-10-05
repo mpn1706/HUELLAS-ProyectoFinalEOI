@@ -1,9 +1,10 @@
 # Registros Engram incluidos
 
-Este directorio conserva evidencia del trabajo de HUELLAS en Engram sin revelar registros de otros proyectos ni rutas absolutas del equipo:
+Este directorio conserva evidencia curada del trabajo de HUELLAS en Engram, sin incluir registros de otros proyectos ni rutas absolutas del equipo.
 
-- `engram-huellas-snapshot.json`: subset filtrado de la exportación original de Engram. La fuente se exportó el 24/09/2026 y contiene 3 sesiones, 35 observaciones de proyecto y 33 prompts relacionados con `huellas` / `huellas-proyectofinaleoi`. No representa una exportación en vivo de toda la base actual de Engram.
-- `manual/`: notas Markdown curadas del proyecto (S01–S62), copiadas del archivo de Engram en `docs/engram/`.
-- `REGISTRO_PREPARACION_ENTREGA_2026-09-26.md`: resumen de esta preparación de entregables.
+- `engram-huellas-snapshot.json`: snapshot filtrado histórico, exportado el 24/09/2026. No es una exportación en vivo ni refleja por sí solo las sesiones posteriores.
+- `engram-huellas-actualizacion-2026-10-05.json`: extracto de observaciones Engram recientes (IDs 187–190) sobre ONNX, congelado temporal/raíces y auditoría técnica.
+- `manual/`: registros históricos curados más `huellas-estado-final-2026-10-05.md`, nota de arquitectura, seed, verificación y pendientes externos.
+- `REGISTRO_PREPARACION_ENTREGA_2026-10-05.md`: evidencia de sincronización de este paquete.
 
-La bitácora de desarrollo más reciente y completa para esta entrega es `PROMPT-LOG.md` (hasta S140).
+El registro cronológico consolidado de prompts y cambios es `PROMPT-LOG.md` en la raíz del paquete. Los JSON/Markdown históricos se identifican expresamente por fecha; no se presentan como exportación completa actual.

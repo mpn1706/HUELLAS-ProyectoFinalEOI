@@ -1,7 +1,7 @@
 # MascotasLost&Found — architecture.md
 
-> Fuente: `requirements.md` (§REQ-03 a §REQ-08, v1.40 25/09/2026).
-> Stack **cerrado**: Streamlit + Python + SQLite, 100% local. CLIP 512-dim + MiniLM multilingüe. Radio 15 km. Umbrales `>=`.
+> Fuente: `requirements.md` (§REQ-03 a §REQ-08, v1.41 05/10/2026).
+> Stack: Streamlit + Python + SQLite local; despliegue Cloud opcional con filesystem efímero. Visión CLIP 512-dim local / MobileNetV3 ONNX 576-dim Cloud; MiniLM multilingüe. Radio 15 km. Umbrales `>=`.
 
 ## 1. Visión arquitectónica
 

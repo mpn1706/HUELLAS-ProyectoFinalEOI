@@ -1,5 +1,5 @@
 HUELLAS — enlaces y ejecución local
-Fecha de preparación: 26/09/2026
+Fecha de actualización: 05/10/2026
 
 REPOSITORIO GITHUB
 https://github.com/mpn1706/HUELLAS-ProyectoFinalEOI
@@ -12,9 +12,11 @@ EJECUCIÓN LOCAL (Python 3.11+)
 1. Clonar: git clone https://github.com/mpn1706/HUELLAS-ProyectoFinalEOI.git
 2. Entrar: cd HUELLAS-ProyectoFinalEOI
 3. Crear y activar un entorno virtual (instrucciones PowerShell y macOS/Linux en README.md).
-4. Instalar: python -m pip install -r requirements.txt
+4. Instalar: python -m pip install -r requirements.txt (incluye onnxruntime para MobileNetV3 ONNX en Cloud; el modelo está versionado en `data/models/`)
 5. Generar el seed: python scripts/make_seed.py
 6. Cargarlo en SQLite: python scripts/load_seed.py
 7. Ejecutar: python -m streamlit run app.py
 
-Las instrucciones completas para PowerShell y macOS/Linux están en README.md. Para comprobar la instalación: python -m pytest tests -q.
+Las instrucciones completas para PowerShell y macOS/Linux están en README.md. Para verificar: `python -m pytest tests -q` (121 tests), `python scripts/eval_match.py`, `python scripts/demo_check.py` y `python scripts/smoke_app.py`.
+
+El archivo local `.streamlit/secrets.toml` (si existe) no se comparte ni se incluye en el paquete.

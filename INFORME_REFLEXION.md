@@ -2,7 +2,7 @@
 
 **Alumno:** Mario Camacho  
 **Curso:** IA Generativa y Vibe Coding — EOI  
-**Fecha:** 26 de septiembre de 2026  
+**Fecha:** 5 de octubre de 2026
 **Metodología:** Spec-Driven Development (SDD)
 
 ## 1. Trabajo realizado con apoyo de IA
@@ -35,6 +35,16 @@ La versión final cuenta con especificaciones SDD, 20 avisos de demo, documentac
 
 La principal aportación del trabajo no fue delegar el proyecto a la IA, sino aprender a dirigirla: delimitar el problema, establecer restricciones, contrastar los resultados con pruebas y conservar únicamente los cambios que satisfacían los requisitos.
 
-## 5. Roadmap: bot de Telegram bidireccional
+## 5. Límites técnicos y Roadmap V2.0
 
-El MVP actual demuestra el motor multimodal, la geolocalización y el matching. El siguiente paso natural en el roadmap de producción es un bot de Telegram bidireccional con dos flujos: publicación *on-the-go* (enviar una foto y la ubicación desde la calle para registrar un aviso al instante) y alertas push en tiempo real (recibir una notificación inmediata cuando el motor de HUELLAS detecte una coincidencia con tu mascota perdida). Queda fuera del alcance del MVP por decisión de diseño (H-09: notificaciones por panel y registro, sin Telegram): exigiría exponer el motor como API, un alojamiento siempre disponible y una base de datos externa persistente.
+### 5.1 Gestión de recursos en nube vs. local (arquitectura híbrida)
+
+El motor de visión canónico local utiliza CLIP `openai/clip-vit-base-patch32` (512 dimensiones, PyTorch/Transformers). En Streamlit Community Cloud, cuyo plan gratuito dispone de alrededor de 1 GB de RAM, cargar ese modelo completo puede causar un error de memoria (OOM). Por ello, Cloud usa MobileNetV3-Small exportado a ONNX (576 dimensiones, alrededor de 10 MB de RAM); el histograma de color queda como último recurso si faltaran el runtime o los ficheros del modelo. Las búsquedas comparan query y candidatos dentro del mismo espacio vectorial. CLIP se mantiene como ruta local preferente.
+
+### 5.2 Navegación y UX web (arquitectura SPA y estado)
+
+El MVP concentra la interfaz en una aplicación Streamlit de página única para mantener una respuesta ágil y controlar de forma directa el estado compartido de los agentes y los formularios. La navegación actual ya refleja la sección en parámetros de URL (`?s=`) y admite enlaces directos básicos. En V2.0 se propone migrar al routing multipágina nativo de Streamlit y reforzar la integración con el historial del navegador, las acciones atrás/adelante y los deep links hacia fichas concretas.
+
+### 5.3 Integración y automatización: bot de Telegram bidireccional
+
+El siguiente paso de producto sería un bot bidireccional con dos flujos: publicación *on-the-go* (enviar desde la calle una foto y la ubicación para registrar un aviso al instante) y alertas push en tiempo real cuando HUELLAS detecte una posible coincidencia que alcance el umbral de notificación (score ≥80%). El bot queda fuera del MVP actual, coherente con H-09 (panel y registro, sin Telegram), y requeriría una API, autenticación, alojamiento siempre disponible y persistencia externa.

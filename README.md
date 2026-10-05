@@ -14,7 +14,7 @@ Cuando una mascota se pierde, los avisos de "perdido" y "encontrado" quedan disp
 ## Funcionalidades (MVP)
 
 - Registrar avisos `lost` / `found` con foto + texto libre + ubicación (mapa Leaflet clicable) + fechas (cualquier animal doméstico: `dog | cat | other`).
-- **5 agentes**: Ingestor (normaliza) → Vision Analyst (atributos + embedding CLIP 512) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=80%`).
+- **5 agentes**: Ingestor (normaliza) → Vision Analyst (CLIP 512 local / MobileNetV3 ONNX 576 Cloud) → Matcher (score) + Geo (haversine, radio 15 km) → Notifier (panel + log si `>=80%`).
 - **RAG textual**: retrieval sobre descripciones (`70%` campos estructurados + `30%` MiniLM multilingüe), filtrado `active` y tipo opuesto.
 - Ranking explicable con las 4 sub-señales + mapa Folium + detalle lado a lado.
 - **Automatización**: al registrar o buscar, si un candidato supera el 80% se genera notificación (tabla `notifications` + `data/notifications.log`); botón "Expirar avisos de más de 1 año" (`expire_old()`, sin cron).
@@ -139,11 +139,11 @@ HUELLAS-ProyectoFinalEOI/
 ├── docs/ # copias de specs (architecture/requirements) + export memoria IA
 ├── .devcontainer/ # entorno Codespaces/VS Code (Python 3.11)
 ├── .gitignore # excluye DB local, logs, secrets y caches
-├── requirements.md # spec fuente de verdad (v1.40)
+├── requirements.md # spec fuente de verdad (v1.41)
 ├── architecture.md # agentes, flujos y diagramas
 ├── PROMPT-LOG.md # bitácora de sesiones con la IA (S01…)
 ├── INFORME.md # informe de reflexión del alumno
 └── requirements.txt # dependencias fijadas (sin torch: va en local)
 ```
 
-Specs (`requirements.md` v1.40, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.
+Specs (`requirements.md` v1.41, `architecture.md`) son la fuente de verdad: cada commit referencia su sección (`[REQ-…]`). Proceso con IA en `PROMPT-LOG.md`.

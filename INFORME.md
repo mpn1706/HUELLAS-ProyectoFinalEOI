@@ -20,11 +20,11 @@ Cinco, todos detectados por ejecución, no por inspección visual: (1) `sys.inse
 
 ---
 
-## 4. Addendum — Estado final del proyecto (26/09/2026)
+## 4. Addendum — Estado final del proyecto (05/10/2026)
 
 La evolución posterior al cierre inicial (v1.1–v1.40, sesiones S02–S138) dejó el sistema en su estado de entrega:
 
-- **Spec viva**: `requirements.md` v1.40 (25/09/2026) + `architecture.md` como fuente de verdad; cada commit referencia su sección (`[REQ-…]`).
+- **Spec viva**: `requirements.md` v1.41 (05/10/2026) + `architecture.md` como fuente de verdad; cada commit referencia su sección (`[REQ-…]`).
 - **Datos**: seed reproducible de **20 avisos de Jerez con fotos reales** (6 lost + 14 found; 19 activos + 1 resuelto del caso cerrado demo) en `data/seed/`, con `embeddings.json` (vectores CLIP 512-dim precalculados) y 3 reencuentros demo sembrados (`renc_006` validada + `renc_012/013` pendientes) viajando en git.
 - **Matching v1.40**: fórmula `0.55·visual + 0.25·texto + 0.10·temporal + 0.10·geo` (antes 0.40/0.30/0.20/0.10), umbrales `>=80%` notifica + destaca, `>=65%` lista, puerta visual `>=95%` (misma foto), colores/marcas normalizados sin tildes.
 - **Agentes**: 5 (Ingestor, Vision con MobileNetV3 ONNX sin torch e histograma como último recurso, Matcher, Geo, Notifier) + SQLite + RAG textual (MiniLM con fallback TF-IDF/Jaccard) + Administración con contraseña (desactivada por defecto) y gestor de reencuentros.
@@ -33,6 +33,6 @@ La evolución posterior al cierre inicial (v1.1–v1.40, sesiones S02–S138) de
 - **Roadmap V2 — Límites técnicos y siguientes pasos**:
   - **Gestión de Recursos en Nube vs Local (Arquitectura Híbrida)**: "Por diseño de arquitectura, el motor de visión canónico utiliza un modelo vectorial CLIP de 512 dimensiones (PyTorch/Transformers). Sin embargo, al desplegar en Streamlit Community Cloud (limitado a 1 GB de RAM), cargar el modelo completo provocaría un fallo de memoria (OOM). Por ello, implementamos un motor ligero MobileNetV3-Small exportado a ONNX (576 dimensiones, ~10 MB de RAM), garantizando la disponibilidad del servicio sin sobrepasar la cuota gratuita."
   - **Navegación y UX Web (Arquitectura SPA y Estado)**: "Para garantizar la máxima velocidad de respuesta y control del estado global de los agentes, diseñamos la interfaz como una Single Page Application (SPA) en Streamlit. De cara a la versión 2.0, el siguiente paso en la capa de frontend es migrar a un routing nativo multipágina con gestión de historial en la URL, permitiendo el uso natural de las flechas de 'atrás' y 'adelante' del navegador y deep links hacia fichas específicas."
-  - **Bot de Telegram bidireccional**: publicación *on-the-go* (foto + ubicación desde la calle) y alertas push cuando el motor detecte una coincidencia (ver `INFORME_REFLEXION.md` §5; fuera del MVP por H-09).
+  - **Bot de Telegram bidireccional**: publicación *on-the-go* (foto + ubicación desde la calle) y alertas push cuando el motor detecte una coincidencia con score ≥80% (ver `INFORME_REFLEXION.md` §5.3; fuera del MVP por H-09).
 - **Despliegue**: demo en vivo <https://huellas.streamlit.app> sobre la rama `main` (auto-carga del seed si la DB está vacía; en Cloud la señal visual usa MobileNetV3 ONNX y en local CLIP real).
-- **Auditoría final 26/09/2026**: sincronización local/Cloud exacta (tag `punto-restauracion` en HEAD), `requirements.txt` sin dependencias sobrantes (Streamlit fijado a 1.64.0 a propósito), documentación y métricas actualizadas. Conservadas a conciencia las imágenes de trabajo/backup del seed.
+- **Auditoría final 05/10/2026**: `main` local sincronizada con `origin/main`; suite actual de 121 tests, `eval_match.py`, demo E2E y smoke de 9 páginas verificados. `requirements.txt` fija las dependencias directas, incluido `folium` y `onnxruntime`; modelo MobileNetV3 ONNX versionado para Cloud. Persistencia Cloud basada en seed versionado porque el filesystem SQLite es efímero. Conservadas a conciencia las imágenes de trabajo/backup del seed.
