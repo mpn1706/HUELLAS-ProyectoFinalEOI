@@ -81,7 +81,7 @@ python -m streamlit run app.py
 
 Streamlit mostrará la dirección local en la terminal (normalmente `http://localhost:8501`). `make_seed.py` genera los 20 JSON del corpus; las fotos y los embeddings precalculados ya están incluidos en Git. `load_seed.py` crea y carga la base local `data/huellas.db`. Para empezar con la demo desde una base vacía, ejecuta estos pasos una vez.
 
-En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instalaron las dependencias fijadas y se comprobó la generación/carga de los 20 avisos en una SQLite temporal. La suite de 92 pruebas y los scripts `eval_match.py`, `demo_check.py` y `smoke_app.py` también se verificaron en el entorno de auditoría. El proyecto mantiene como versión mínima Python 3.11 y fija Streamlit 1.64.0.
+En la auditoría se creó un entorno virtual limpio con Python 3.14.7, se instalaron las dependencias fijadas y se comprobó la generación/carga de los 20 avisos en una SQLite temporal. La suite de 121 pruebas y los scripts `eval_match.py`, `demo_check.py` y `smoke_app.py` también se verificaron en el entorno de auditoría. El proyecto mantiene como versión mínima Python 3.11 y fija Streamlit 1.64.0.
 
 Verificación extra:
 

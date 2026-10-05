@@ -11,7 +11,7 @@ La IA se utilizó como asistente de diseño, programación, documentación y ver
 
 El MVP permite registrar y buscar avisos de animales perdidos y encontrados en Jerez. La implementación incluye un pipeline de cinco agentes de software —Ingestor, Vision, Matcher, Geo y Notifier—, persistencia SQLite, búsqueda textual con recuperación RAG, mapas Folium y una interfaz con funciones de administración y seguimiento de reencuentros. También se preparó un seed de 20 avisos, herramientas de carga y evaluación, pruebas de interfaz con AppTest, documentación técnica, README y bitácora de prompts.
 
-La IA propuso e implementó iteraciones pequeñas, y colaboró en investigar fallos reproducibles. La entrega actual usa matching explicable con cuatro señales, un corpus local controlado y fallbacks para ejecutar el MVP sin GPU ni claves. La suite final consta de 92 pruebas; además se ejecutan evaluación del matching, comprobación E2E y smoke test de las nueve páginas.
+La IA propuso e implementó iteraciones pequeñas, y colaboró en investigar fallos reproducibles. La entrega actual usa matching explicable con cuatro señales, un corpus local controlado y fallbacks para ejecutar el MVP sin GPU ni claves. La suite final consta de 121 pruebas; además se ejecutan evaluación del matching, comprobación E2E y smoke test de las nueve páginas.
 
 ## 2. Decisiones humanas, arquitectura y supervisión
 
@@ -31,7 +31,7 @@ También hubo desviaciones de diseño que exigieron revisión: el fallback visua
 
 ## 4. Resultado y límites
 
-La versión final cuenta con especificaciones SDD, 20 avisos de demo, documentación de instalación, despliegue público y 92 pruebas en verde en el entorno auditado. La aplicación prioriza candidatos, pero no confirma identidades. El almacenamiento de la demo Cloud es efímero y su fallback de visión es menos preciso que CLIP; estos límites se comunican en el README para que no se confunda el prototipo con un servicio persistente o una verificación concluyente.
+La versión final cuenta con especificaciones SDD, 20 avisos de demo, documentación de instalación, despliegue público y 121 pruebas en verde en el entorno auditado. La aplicación prioriza candidatos, pero no confirma identidades. El almacenamiento de la demo Cloud es efímero y la visión en Cloud (MobileNetV3 ONNX, sin PyTorch por el límite de RAM) discrimina algo menos que CLIP; estos límites se comunican en el README para que no se confunda el prototipo con un servicio persistente o una verificación concluyente.
 
 La principal aportación del trabajo no fue delegar el proyecto a la IA, sino aprender a dirigirla: delimitar el problema, establecer restricciones, contrastar los resultados con pruebas y conservar únicamente los cambios que satisfacían los requisitos.
 
