@@ -1,65 +1,118 @@
-# Guion de defensa oral — HUELLAS
+# Guion de defensa — HUELLAS
 
-**Duración total:** 5:00 · **Fecha prevista:** 13 de octubre · **Estructura:** 7 diapositivas.  
-Cada texto de locución está pensado para ocupar aproximadamente 30–45 segundos. En la diapositiva 6 se reserva tiempo adicional para la demostración.
+**Defensa:** 13 de octubre · **Duración total:** 10:00 exactos · **Formato:** diapositivas de apoyo sincronizadas con demo en vivo. No es una exposición tradicional del MVP: los primeros cinco minutos combinan demo y decisión técnica; los cinco restantes defienden cómo dirigí al agente de IA.
 
-## Diapositiva 1 — El problema (00:00–00:35)
+## Preparación antes de iniciar el cronómetro
 
-**Visual sugerido:** título HUELLAS; una imagen esquemática de avisos dispersos que convergen en una ficha de mascota.
+- Abrir `https://huellas.streamlit.app`, comprobar que está activa y dejar lista la página **Búsqueda de coincidencias**.
+- Tener a mano `data/seed/images/lost_001.jpg` para subirla en la demo, y conocer los campos de prueba: gato, naranja, pequeño, sin collar, rayas y cola anillada; zona Centro/Plaza del Arenal.
+- La búsqueda live con esta configuración obtuvo en la simulación Cloud **found_011 top-1 alrededor del 83%**. En la Fase 0, el par seed-a-seed `lost_001 → found_011` midió **84,5%**. Son escenarios distintos: durante la defensa se lee el porcentaje real que muestre la tarjeta, sin forzarlo al valor del ensayo.
+- La app no muestra un cronómetro de inferencia. Medir con un cronómetro auxiliar el tiempo desde pulsar **Buscar coincidencias** hasta que aparezca el ranking. En el speech sustituir `[X]` por el valor observado y llamarlo latencia de extremo a extremo, no latencia aislada del modelo.
+- La app presenta resultados en tarjetas ordenadas y barras de señales, no en una tabla HTML. La diapositiva 3 lleva una tabla-resumen de referencia; en la app se enseñan la tarjeta y el desglose reales.
 
-**Speech:**  
-«Buenas tardes. Presento HUELLAS, mi proyecto final para el curso de IA Generativa y Vibe Coding. El problema es sencillo y cotidiano: cuando una mascota se pierde, los avisos quedan repartidos entre redes, carteles y protectoras. Encontrar el aviso complementario depende de que alguien lo vea. El objetivo es ayudar a cruzar esa información localmente y priorizar posibles candidatos, sin sustituir la búsqueda humana.»
+---
 
-## Diapositiva 2 — MVP y solución (00:35–01:10)
+# PARTE 1 — DEMO EN VIVO Y DECISIÓN TÉCNICA (00:00–05:00)
 
-**Visual sugerido:** captura de la página Inicio y tarjeta de una posible coincidencia, con imagen, porcentaje y señales.
+## Diapositiva 1 — HUELLAS en vivo (00:00–00:35)
 
-**Speech:**  
-«El MVP permite publicar avisos de pérdida o hallazgo y buscar casos compatibles por foto, descripción, fecha y zona. Devuelve un ranking explicable, un mapa y un detalle de las señales que han contribuido. El corpus de demostración contiene veinte avisos de Jerez. Una regla importante es que HUELLAS nunca afirma que dos fotos sean el mismo animal: presenta posibles coincidencias para que la persona responsable compruebe el caso y contacte.»
+**Diapositiva de apoyo:** HUELLAS + flujo sencillo «foto y descripción → ranking → mapa» y URL de la demo.
 
-## Diapositiva 3 — Arquitectura técnica (01:10–01:50)
+**Acción en pantalla / demo:** abrir `huellas.streamlit.app`; mostrar Inicio y seleccionar en el sidebar **Búsqueda de coincidencias**. Confirmar que se ve el título del análisis.
 
-**Visual sugerido:** diagrama simple: Streamlit → Ingestor → Vision → Matcher + Geo → Notifier; debajo, SQLite y RAG.
+**Speech verbal exacto:**
 
-**Speech:**  
-«La interfaz está construida con Streamlit y la persistencia local con SQLite. Al procesar un aviso, el Ingestor normaliza sus campos; Vision obtiene atributos y una representación de la imagen; Matcher calcula el ranking; Geo incorpora la distancia; y Notifier registra las alertas. El RAG recupera candidatos con señales textuales. La arquitectura es deliberadamente pequeña: cinco agentes especializados, funciones de persistencia y scripts independientes de carga y evaluación. Así puedo probar cada parte y explicar de dónde sale un resultado.»
+> «Buenos días. Voy a demostrar HUELLAS desde la experiencia de quien ha perdido una mascota: aporta una foto, describe sus rasgos y consulta avisos compatibles por imagen, texto, fecha y zona. El sistema ordena posibles coincidencias para ayudar a decidir dónde mirar. No identifica animales de forma concluyente: la revisión final corresponde a las personas, que deben verificar cada posible resultado.»
 
-## Diapositiva 4 — Decisión técnica clave (01:50–02:30)
+## Diapositiva 2 — Preparar una búsqueda reproducible (00:35–01:25)
 
-**Visual sugerido:** gráfico circular o barras con pesos 55/25/10/10 y tres umbrales: 65%, 80%, 95% visual.
+**Diapositiva de apoyo:** captura anotada del formulario: canal, foto, zona y descripción.
 
-**Speech:**  
-«Una decisión clave fue dar mayor peso a la imagen, sin depender de un modelo pesado en todos los despliegues. El score combina 55% visual, 25% texto, 10% temporal y 10% geográfico; el texto mezcla atributos estructurados y similitud semántica. Desde 65% se lista un candidato y desde 80% se genera alerta; una similitud visual de 95% también activa aviso. En local puede usarse CLIP; en Cloud corre MobileNetV3 en ONNX, un motor ligero que cabe en la cuota gratuita. Esa arquitectura híbrida está declarada.»
+**Acción en pantalla / demo:**
+1. En **Canal**, elegir **Entre avistamientos (perdí mi mascota)**: el sistema buscará avisos `found` frente al gato perdido.
+2. En **Sube una foto de tu mascota**, cargar `data/seed/images/lost_001.jpg`.
+3. Completar: **Gato**, color **naranja**, tamaño **pequeño**, sin collar, marcas **rayas, cola anillada** y descripción: «Gatito naranja atigrado perdido cerca de la plaza del Arenal. Tiene rayas marcadas y la cola anillada. Muy sociable».
+4. Dejar la ubicación en Centro de Jerez (valor inicial reproducible); si está cargado el mapa, situarla cerca de Plaza del Arenal. Mostrar brevemente el mapa de zona: pines azules de perdidos y verdes de avistamientos.
 
-## Diapositiva 5 — Dirección humana de la IA (02:30–03:05)
+**Speech verbal exacto:**
 
-**Visual sugerido:** fragmento de `requirements.md` junto a un test y un commit trazable `[REQ-…]`.
+> «Uso un caso controlado para que podamos interpretar el resultado. Elijo buscar entre avistamientos, subo la foto de `lost_001` y describo gato naranja, pequeño, sin collar, con rayas y cola anillada. Sitúo la búsqueda en el centro de Jerez, cerca de Plaza del Arenal. El seed y la fecha de referencia de demo hacen que este recorrido se pueda repetir.»
 
-**Speech:**  
-«La IA no decidió el producto por mí. Yo fijé el alcance, las reglas de privacidad y el criterio de no afirmar identidades; luego utilicé especificaciones SDD como contrato para guiar las tareas. Supervisé cada iteración con pruebas, ejecución de la demo y revisión de resultados. Cuando una propuesta móvil empeoró la experiencia, pedí revertirla. La IA aceleró implementación y diagnóstico, pero la aceptación, las prioridades y las decisiones finales siguieron siendo humanas.»
+## Diapositiva 3 — Inferencia, velocidad y ranking (01:25–03:15)
 
-## Diapositiva 6 — Demostración en vivo (03:05–04:20)
+**Diapositiva de apoyo:** tabla-resumen de ensayo:
 
-**Visual sugerido:** captura del formulario Buscar; mantener abierta en otra pestaña la demo `https://huellas.streamlit.app`.
+| Escenario ONNX | Top-1 | Score | Visual | Texto | Tiempo | Geo |
+|---|---|---:|---:|---:|---:|---:|
+| Query live reproducible → `found_011` | `found_011` | ≈83% | 0,77 | 0,89 | 0,83 | 0,99 |
+| Par seed-a-seed medido en Fase 0 | `found_011` | 84,5% | — | — | — | — |
 
-**Speech, 03:05–03:40:**  
-«Voy a mostrar el flujo principal con una búsqueda de una mascota perdida. Para que la demostración sea ágil, dejo preparada la página Buscar con una foto del seed y los campos de especie, color, descripción y zona. Al lanzar la consulta, veremos los avisos encontrados, el porcentaje y el desglose de señales. Fíjense en que el resultado es una recomendación revisable, no una identificación automática.»
+La primera fila es una referencia reproducible; la app en vivo es la fuente del valor definitivo de la sesión.
 
-**Momento exacto de inicio de la demo: 03:40.**
+**Acción en pantalla / demo:** desplazarse al botón **Buscar coincidencias**. Iniciar el cronómetro auxiliar al pulsarlo y detenerlo cuando aparezcan resultados. Mostrar la animación de análisis, los contadores, la tarjeta destacada `found_011` y sus cuatro barras. Leer el porcentaje real de la tarjeta; no presentar la tabla de apoyo como si fuera una tabla HTML de la app.
 
-**Acciones en vivo, 03:40–04:20 (40 segundos):**
-1. Mostrar la pestaña de `huellas.streamlit.app` ya cargada en **Buscar**.
-2. Usar el formulario preparado con una consulta tipo `lost_001` (foto `data/seed/images/lost_001.jpg`; canal «Entre avistamientos»; gato, color naranja y descripción correspondiente).
-3. Pulsar **Buscar coincidencias**; señalar el candidato mejor clasificado y su desglose visual/textual/temporal/geográfico.
-4. Recordar que `demo_check.py` valida en E2E que `found_011` sea top-1 con ≥80% en el escenario de prueba. El porcentaje de la interacción en vivo puede variar con fecha y zona.
+**Speech verbal exacto:**
 
-**Preparación y contingencia:** abrir la demo antes de empezar, precargar la imagen y los campos antes de la diapositiva 6, y tener una captura del resultado por si falla la red o el despliegue.
+> «Pulso Buscar. Mientras se calcula el ranking, el cronómetro mide el recorrido completo desde el clic hasta los resultados. En este ensayo ha tardado **[X] segundos**; es tiempo de extremo a extremo, no solo del modelo. La tarjeta superior es `found_011`, con **[porcentaje mostrado]** y etiqueta de posible coincidencia destacada. En el ensayo reproducible del formulario llegó al top-1 alrededor del 83%; el 84,5% de la tabla corresponde a la medición Fase 0 del par seed-a-seed.»
 
-## Diapositiva 7 — Límites técnicos y roadmap V2 (04:20–05:00)
+## Diapositiva 4 — Folium y decisión técnica clave (03:15–05:00)
 
-**Visual sugerido:** 121 tests y 9 páginas smoke; esquema CLIP local ↔ MobileNetV3 ONNX Cloud (1 GB); SPA actual con `?s=` → routing multipágina nativo en V2; bot Telegram: foto/ubicación y alertas push ≥80%.
+**Diapositiva de apoyo:** diagrama híbrido `Local: CLIP 512-d / Cloud: MobileNetV3 ONNX 576-d` y límites: 1 GB RAM, runtime ONNX ~10 MB RAM, mismo espacio de comparación.
 
-**Speech:**  
-«El proyecto termina con 121 pruebas automatizadas, evaluación E2E y smoke test de las nueve páginas. El CLIP canónico de 512 dimensiones excede el 1 GB de RAM de Cloud: allí usamos MobileNetV3 en ONNX, ligero y sin PyTorch; localmente mantenemos CLIP. La interfaz actual es una SPA con navegación en URL; V2 propone routing multipágina nativo y un historial más natural. También proponemos un bot bidireccional: publicar con foto y ubicación desde la calle y recibir alertas push cuando una coincidencia alcance el 80%. Muchas gracias.»
+**Acción en pantalla / demo:** abrir el mapa de candidatos Folium; señalar el marcador del caso consultado y el del candidato encontrado. Si hace falta, volver brevemente al mapa de zona para mostrar los pines azules y verdes. Luego señalar en la diapositiva el flujo CLIP local / ONNX Cloud.
 
-**Nota de cronometraje:** los intervalos suman exactamente cinco minutos; la diapositiva 6 reserva 35 segundos de locución y 40 segundos de demostración.
+**Speech verbal exacto:**
+
+> «La decisión técnica clave fue separar la visión por entorno. CLIP con PyTorch ofrece el vector canónico de 512 dimensiones, pero cargar ese pipeline pesado puede superar el límite de aproximadamente 1 GB de RAM de Streamlit Cloud y provocar un OOM. Allí usamos MobileNetV3-Small exportado a ONNX: 576 dimensiones y alrededor de 10 MB de RAM. En la Fase 0 dio 84,5% en el par insignia y no produjo destacadas cruzadas en la matriz probada. Local conserva CLIP; cada búsqueda compara query y candidatos en el mismo espacio.»
+
+---
+
+# PARTE 2 — DEFENSA DE DIRECCIÓN DEL AGENTE DE IA (05:00–10:00)
+
+## Diapositiva 5 — El rol del agente y el del responsable humano (05:00–06:15)
+
+**Diapositiva de apoyo:** esquema de roles: **OpenCode** como entorno; agente IA como **arquitecto + desarrollador + auditor**; alumno como responsable de producto y aceptación.
+
+**Acción en pantalla / demo:** mostrar un fragmento de `PROMPT-LOG.md` o una solicitud de trabajo estructurada; señalar objetivo, alcance y criterio de aceptación.
+
+**Speech verbal exacto:**
+
+> «No traté al agente como un generador autónomo. En OpenCode le asigné tres funciones: arquitecto para analizar alternativas, desarrollador para proponer cambios pequeños y auditor para buscar fallos y comprobar requisitos. Los modelos de IA, entre ellos Gemini y GPT-6, trabajaban sobre tareas delimitadas. Mi plantilla de prompt definía objetivo, contexto, archivos permitidos, restricciones, resultado esperado y verificación. Si faltaba información, prefería una pregunta antes que una suposición. También pedía separar hechos comprobados, supuestos y decisiones pendientes, y citar la prueba que validaba cada cambio. Si una propuesta afectaba a privacidad, alcance o a otra parte del sistema, el agente debía exponer alternativas y riesgos en vez de ejecutarla por su cuenta. En la práctica, OpenCode aportaba el contexto del repositorio; el modelo resolvía una tarea concreta y yo decidía si el diff entraba. Así evitaba delegar el criterio. Yo aportaba el contexto del producto, elegía prioridades y aceptaba o rechazaba cada resultado. La autoría de las decisiones críticas siempre fue humana.»
+
+## Diapositiva 6 — Prompts estructurados y SDD (06:15–07:30)
+
+**Diapositiva de apoyo:** ciclo `requisito → prompt con restricciones → cambio pequeño → test → revisión humana`; fragmentos de `requirements.md` y `architecture.md`.
+
+**Acción en pantalla / demo:** enseñar una sección de requisitos y el commit asociado; señalar cómo los criterios de aceptación conectan la intención con el código.
+
+**Speech verbal exacto:**
+
+> «Trabajé con Spec-Driven Development. Antes de pedir código, concretaba el objetivo, los archivos afectados, lo que debía mantenerse intacto y cómo verificarlo. Después dividía el trabajo en cambios pequeños y pedía tests para el comportamiento relevante. Por ejemplo, la regla de persistencia del seed se convirtió en generador determinista, versión de seed y pruebas de carga desde una base vacía. También mantuve las especificaciones como contrato: una modificación no se daba por válida solo porque la interfaz pareciera correcta. Debía ser coherente con los requisitos, tener trazabilidad y superar una verificación reproducible. Cuando aparecía una ambigüedad, pedía comparar alternativas y probar una pequeña antes de ampliar el cambio. Al cerrar cada iteración comparaba el diff con los criterios y actualizaba README, arquitectura o bitácora si cambiaba el estado real. Así el prompt no sustituía la especificación: la ejecutaba y dejaba evidencia revisable.»
+
+## Diapositiva 7 — Cómo detecté y corregí errores de IA (07:30–08:45)
+
+**Diapositiva de apoyo:** evidencia de tests y tres casos: error de API/código, mezcla de espacios visuales y regresión de persistencia; cifra de 121 casos.
+
+**Acción en pantalla / demo:** mostrar el resultado de `pytest` y, si se dispone de terminal preparada, `demo_check.py`. Aclarar el entorno de ejecución: 121/121 con PyTorch; instalación base, 119 pasadas y dos pruebas CLIP omitidas por requerir el extra opcional.
+
+**Speech verbal exacto:**
+
+> «No di por válida una respuesta porque sonara convincente. La contrasté con ejecución y pruebas. Detectamos, entre otros, un vector entregado donde se esperaba una puntuación, una comparación de embeddings en espacios incompatibles y cambios de seed que podían perderse al dormir Cloud. Añadimos regresiones para bloquear esos fallos. En la Fase 0 de visión medimos query, par insignia y cruces entre especies antes de integrar ONNX; también descartamos HSV porque daba falsas destacadas. Los tests pequeños comprueban unidades y regresiones, mientras los scripts E2E comprueban el ranking real y el smoke ejecuta las nueve páginas. Al final, cada error reproducido debía quedar protegido por un test para que no regresara en otra iteración. Hay 121 casos: con PyTorch instalado pasan 121 de 121; con la instalación ligera se omiten dos que requieren CLIP. La evidencia, no la seguridad retórica del modelo, decide si acepto un cambio.»
+
+## Diapositiva 8 — Decisiones humanas y cierre (08:45–10:00)
+
+**Diapositiva de apoyo:** matriz «decisión / evidencia / responsable» y tres siguientes pasos: recursos híbridos, routing V2, bot Telegram.
+
+**Acción en pantalla / demo:** señalar decisiones firmadas por requisitos: no afirmar identidad, pesos 0,55/0,25/0,10/0,10, cambiar a ONNX solo tras medirlo, mantener la experiencia móvil sin modificaciones no autorizadas. Cerrar con el roadmap V2.
+
+**Speech verbal exacto:**
+
+> «Yo conservé el control de las decisiones de producto: el sistema solo comunica posibles coincidencias, los pesos se mantienen explícitos y la arquitectura ONNX se integró después de medirla frente a CLIP y revisar falsos positivos. Cuando otra variante mejoraba el recall pero confundía perros y gatos, no la acepté. También decidí congelar la fecha de referencia solo para las búsquedas contra el seed estático; publicar sigue guardando la fecha real. Delimité lo que quedaba fuera del MVP y qué cambios móviles no debían hacerse sin autorización. Esta separación permitió experimentar sin comprometer la demo y conservar lo medible y explicable. Para V2 propongo routing multipágina nativo y un bot bidireccional: publicar con foto y ubicación desde la calle y enviar alertas push al superar el 80%. La IA aceleró el trabajo, pero el juicio, la verificación y la responsabilidad final fueron humanas. Muchas gracias.»
+
+---
+
+## Control del tiempo
+
+- Parte 1: 00:00–05:00 (5:00 exactos).
+- Parte 2: 05:00–10:00 (5:00 exactos). Mantén el speech continuo mientras señalas los artefactos; las acciones no son pausas de silencio.
+- Duración total: 10:00. Ensayar la búsqueda antes de la defensa y rellenar `[X]` con el tiempo real medido en Cloud. Si la red tarda, reducir la explicación del mapa; no omitir la decisión técnica ni la defensa del proceso.

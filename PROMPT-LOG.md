@@ -787,3 +787,22 @@ Registro cronológico de las correcciones y auditorías realizadas tras la prime
 - Se copiaron las fuentes vigentes al paquete: README, PROMPT-LOG, reflexión, guion, checklist, `requirements.md` v1.41 y `architecture.md`; se actualizó la fecha/enlaces locales y se mantuvo el snapshot Engram de septiembre identificado como histórico junto con un extracto JSON/manual de observaciones del 05/10.
 - Instalación desde cero en un venv temporal con Python 3.14.7 y `pip install -r requirements.txt`: instalación correcta, ONNX/Streamlit smoke OK; pytest base 119 passed + 2 skipped (pruebas que requieren CLIP/PyTorch opcional). En el entorno completo con torch, 121/121 pasan.
 - Se regeneró `ENTREGABLE_FINAL_PROFESOR.zip` y se comprobó que contiene los 45 ficheros del directorio sin diferencias, secretos ni DB local. La rúbrica oficial sigue pendiente externamente.
+
+### Reescritura del guion oral según instrucciones del profesor — 05/10/2026
+- Prompt clave: sustituir la defensa anterior de 5 minutos por 10 minutos sincronizados con diapositivas de apoyo: 5 de demo/decisión técnica y 5 de defensa del proceso de dirección de OpenCode/Gemini/GPT-6.
+- `PRESENTACION_GUION.md` se reescribió como ocho bloques de apoyo cronometrados, con acciones exactas en Buscar, campos y archivo de prueba, velocidad medida extremo a extremo, tarjeta/listado y mapas Folium; segunda parte sobre roles, prompts SDD, errores/TDD y control humano.
+- Se distinguió el benchmark Fase 0 de 84.5% del resultado reproducible live actual (aprox. 83% con fecha/consulta de demo); se indica leer el valor real mostrado y no prometer latencia fija porque la app no presenta contador interno.
+- Se sincronizaron la carpeta y el ZIP, y el checklist/CONTENIDO/registro de preparación reflejan ahora ocho diapositivas de apoyo y 10 minutos totales.
+
+### Guion sincronizado con la pauta definitiva del profesor — 06/10/2026
+- Solicitud: mantener diapositivas de apoyo y distribuir los diez minutos en cinco de demo/decisión técnica y cinco de defensa oral del proceso de IA.
+- Guion rehecho en ocho apoyos: incluye controles reales de Buscar, foto de prueba `lost_001.jpg`, campos reproducibles, tarjeta/barras, Folium y decisión CLIP local frente a MobileNetV3 ONNX Cloud.
+- Se distingue el benchmark de Fase 0 (84.5%) del ensayo live reproducible actual (~83%); como la app no instrumenta latencia numérica, el guion ordena medir extremo a extremo con cronómetro y no inventar una cifra.
+- La segunda parte desarrolla roles arquitecto/desarrollador/auditor, prompts SDD, detección de errores con TDD y decisiones humanas. Duración total indicada: 10:00 exactos.
+
+## Actualización del guion oral definitivo — 06/10/2026
+
+- Instrucción del profesor recibida: 10 minutos en total; 5 de demo viva + decisión técnica y 5 de defensa verbal del proceso de dirección de IA. Se abandona el pitch anterior de 5 minutos.
+- `PRESENTACION_GUION.md` se reescribió como ocho diapositivas de apoyo sincronizadas con tiempos 00:00–10:00, acciones en Streamlit/artefactos y speech exacto.
+- Demo reproducible: canal «Entre avistamientos», foto `lost_001.jpg`, atributos del gato naranja, mapa Folium, ranking ONNX y tarjeta `found_011`. Se distingue el benchmark Fase 0 de 84.5% del ensayo live estimado actual (~83%); se rellena la latencia con cronómetro real extremo a extremo, no se inventa una métrica de inferencia.
+- Parte 2 trata rol arquitecto/desarrollador/auditor, prompts estructurados, SDD/TDD, errores detectados, cifras de test y control humano. Carpeta y ZIP se sincronizan con esta última versión.

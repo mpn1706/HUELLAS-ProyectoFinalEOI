@@ -2,7 +2,7 @@
 
 **Alumno:** Mario Camacho · **Proyecto:** HUELLAS, sistema de búsqueda y comparativa visual de animales perdidos (Jerez de la Frontera) · **Metodología:** Spec-Driven Development con OpenCode.
 
-> **Nota de versión:** Las secciones 1–3 reflejan la evolución histórica del desarrollo. El estado final definitivo de la entrega (20 avisos, 121 casos de test y pesos 0.55/0.25/0.10/0.10) está actualizado con fecha 5 de octubre de 2026. Instalación base: 119 pasan + 2 omitidos por PyTorch opcional; entorno completo con torch: 121/121 pasan.
+> **Nota de versión:** Las secciones 1–3 reflejan la evolución histórica del desarrollo. El estado final definitivo de la entrega (20 avisos, 121 casos de test y pesos 0.55/0.25/0.10/0.10) está actualizado con fecha 6 de octubre de 2026. Instalación base: 119 pasan + 2 omitidos por PyTorch opcional; entorno completo con torch: 121/121 pasan.
 
 ## 1. Qué ejecutó la IA
 
@@ -20,9 +20,9 @@ Cinco, todos detectados por ejecución, no por inspección visual: (1) `sys.inse
 
 ---
 
-## 4. Addendum — Estado final del proyecto (05/10/2026)
+## 4. Addendum — Estado final del proyecto (06/10/2026)
 
-La evolución posterior al cierre inicial (v1.1–v1.40, sesiones S02–S138) dejó el sistema en su estado de entrega:
+La evolución posterior al cierre inicial (v1.1–v1.40, sesiones S02–S138), más las actualizaciones finales del 05–06/10/2026, dejó el sistema en su estado de entrega:
 
 - **Spec viva**: `requirements.md` v1.41 (05/10/2026) + `architecture.md` como fuente de verdad; cada commit referencia su sección (`[REQ-…]`).
 - **Datos**: seed reproducible de **20 avisos de Jerez con fotos reales** (6 lost + 14 found; 19 activos + 1 resuelto del caso cerrado demo) en `data/seed/`, con `embeddings.json` (vectores CLIP 512-dim precalculados) y 3 reencuentros demo sembrados (`renc_006` validada + `renc_012/013` pendientes) viajando en git.
@@ -35,4 +35,4 @@ La evolución posterior al cierre inicial (v1.1–v1.40, sesiones S02–S138) de
   - **Navegación y UX Web (Arquitectura SPA y Estado)**: "Para garantizar la máxima velocidad de respuesta y control del estado global de los agentes, diseñamos la interfaz como una Single Page Application (SPA) en Streamlit. De cara a la versión 2.0, el siguiente paso en la capa de frontend es migrar a un routing nativo multipágina con gestión de historial en la URL, permitiendo el uso natural de las flechas de 'atrás' y 'adelante' del navegador y deep links hacia fichas específicas."
   - **Bot de Telegram bidireccional**: publicación *on-the-go* (foto + ubicación desde la calle) y alertas push cuando el motor detecte una coincidencia con score ≥80% (ver `INFORME_REFLEXION.md` §5.3; fuera del MVP por H-09).
 - **Despliegue**: demo en vivo <https://huellas.streamlit.app> sobre la rama `main` (auto-carga del seed si la DB está vacía; en Cloud la señal visual usa MobileNetV3 ONNX y en local CLIP real).
-- **Auditoría final 05/10/2026**: `main` local sincronizada con `origin/main`; suite actual de 121 tests, `eval_match.py`, demo E2E y smoke de 9 páginas verificados. `requirements.txt` fija las dependencias directas, incluido `folium` y `onnxruntime`; modelo MobileNetV3 ONNX versionado para Cloud. Persistencia Cloud basada en seed versionado porque el filesystem SQLite es efímero. Conservadas a conciencia las imágenes de trabajo/backup del seed.
+- **Auditoría final 06/10/2026**: `main` local sincronizada con `origin/main`; suite de 121 casos (121/121 con torch; instalación base 119 passed + 2 skipped), `eval_match.py`, demo E2E y smoke de 9 páginas verificados. `requirements.txt` fija las dependencias directas, incluido `folium` y `onnxruntime`; modelo MobileNetV3 ONNX versionado para Cloud. Persistencia Cloud basada en seed versionado porque el filesystem SQLite es efímero. Conservadas a conciencia las imágenes de trabajo/backup del seed.

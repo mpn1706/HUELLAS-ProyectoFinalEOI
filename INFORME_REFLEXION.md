@@ -2,7 +2,7 @@
 
 **Alumno:** Mario Camacho  
 **Curso:** IA Generativa y Vibe Coding — EOI  
-**Fecha:** 5 de octubre de 2026
+**Fecha de actualización:** 6 de octubre de 2026
 **Metodología:** Spec-Driven Development (SDD)
 
 ## 1. Trabajo realizado con apoyo de IA

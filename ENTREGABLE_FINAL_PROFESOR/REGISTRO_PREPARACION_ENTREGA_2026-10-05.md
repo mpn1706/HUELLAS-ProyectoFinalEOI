@@ -10,6 +10,7 @@ Se sincronizaron los documentos existentes del paquete con sus fuentes actuales,
 - Visión local CLIP 512-d y visión Cloud MobileNetV3-Small ONNX 576-d; histograma/hash como últimos recursos.
 - Búsquedas de demo con referencia temporal fija al 25/09/2026; publicación con fecha real y fecha de pérdida/avistamiento seleccionable.
 - 121 casos: en venv limpio/base 119 passed + 2 skipped por PyTorch opcional; en entorno completo con torch 121/121. `eval_match.py` correcto, `demo_check.py` (found_011 top-1 80.5%) y `smoke_app.py` (9 páginas).
+- Guion rehecho según la pauta real recibida: 10 minutos exactos, 5 de demo/decisión técnica y 5 de defensa de dirección del agente, con ocho diapositivas de apoyo.
 - Roadmap V2: routing multipágina nativo y bot Telegram bidireccional con publicación desde la calle y alertas push al alcanzar score ≥80%.
 
 ## Pendiente externo
